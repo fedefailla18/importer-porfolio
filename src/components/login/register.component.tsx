@@ -2,7 +2,7 @@ import { Component } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-import AuthService from "../services/auth.service";
+import { register } from "../../services/auth.service";
 
 type Props = {};
 
@@ -64,14 +64,18 @@ export default class Register extends Component<Props, State> {
       successful: false,
     });
 
-    AuthService.register(username, email, password).then(
-      (response) => {
+    register(username, email, password).then(
+      (response: { data: { message: any } }) => {
         this.setState({
           message: response.data.message,
           successful: true,
         });
       },
-      (error) => {
+      (error: {
+        response: { data: { message: any } };
+        message: any;
+        toString: () => any;
+      }) => {
         const resMessage =
           (error.response &&
             error.response.data &&
