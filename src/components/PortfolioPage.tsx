@@ -35,6 +35,7 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 }
 
 type Order = "asc" | "desc";
+type Tuple = { index: number };
 
 function getComparator<Key extends keyof any>(
   order: Order,
@@ -114,8 +115,15 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
   //const classes = useStyles();
   const [sortBy, setSortBy] = useState<string>(""); // State to store the field to sort by
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc"); // State to store the sort direction
-  const [priceMultiplier, setPriceMultiplier] = useState<number>(1);
-  const [prediction, setPrediction] = useState<number>(1);
+  const [priceMultiplier, setPriceMultiplier] = useState<{
+    [key: number]: number;
+  }>({});
+  const [predictionUsdt, setPredictionUsdt] = useState<{
+    [key: number]: number;
+  }>({});
+  const [predictionBtc, setPredictionBtc] = useState<{
+    [key: number]: number;
+  }>({});
 
   // Function to handle sorting when a table header is clicked
   const handleSort = (field: string) => {
@@ -165,6 +173,14 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
       <Typography variant="subtitle1" gutterBottom>
         Total Holdings: {portfolioDistribution.totalHoldings}
       </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Total Prediction USDT:{" "}
+        {Object.values(predictionUsdt).reduce((acc, curr) => acc + curr, 0)}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Total Prediction BTC:{" "}
+        {Object.values(predictionBtc).reduce((acc, curr) => acc + curr, 0)}
+      </Typography>
 
       <StyledTableContainer>
         <Table>
@@ -207,12 +223,51 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
                 <TableCell>
                   <Input
                     type="number"
-                    value={priceMultiplier}
-                    onChange={(e) => setPriceMultiplier(Number(e.target.value))}
+                    value={priceMultiplier[index] || 1}
+                    onChange={(e) => {
+                      const multiplier =
+                        e.target.value !== "" ? Number(e.target.value) : 1;
+
+                      setPriceMultiplier((prevState) => ({
+                        ...prevState,
+                        [index]: multiplier,
+                      }));
+
+                      const amountInUsdt = holding.amountInUsdt;
+                      const amountInBtc = holding.amountInBtc;
+
+                      setPredictionUsdt((prevState) => ({
+                        ...prevState,
+                        [index]: multiplier * amountInUsdt,
+                      }));
+
+                      setPredictionBtc((prevState) => ({
+                        ...prevState,
+                        [index]: multiplier * amountInBtc,
+                      }));
+                    }}
                   />
                 </TableCell>
-                <TableCell>{priceMultiplier * holding.amountInUsdt}</TableCell>
-                <TableCell>{priceMultiplier * holding.amountInBtc}</TableCell>
+                <TableCell
+                  onChange={(e) => {
+                    setPredictionBtc((prevState) => ({
+                      ...prevState,
+                      [index]: priceMultiplier[index] * holding.amountInBtc,
+                    }));
+                  }}
+                >
+                  {priceMultiplier[index] * holding.amountInUsdt}
+                </TableCell>
+                <TableCell
+                  onChange={(e) =>
+                    setPredictionUsdt((prevState) => ({
+                      ...prevState,
+                      [index]: priceMultiplier[index] * holding.amountInUsdt,
+                    }))
+                  }
+                >
+                  {priceMultiplier[index] * holding.amountInBtc}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
