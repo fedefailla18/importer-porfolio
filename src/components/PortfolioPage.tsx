@@ -105,6 +105,30 @@ const headCells: readonly HeadCell[] = [
     disablePadding: false,
     label: "percentage",
   },
+  {
+    id: "totalAmountBought",
+    numeric: true,
+    disablePadding: false,
+    label: "totalAmountBought",
+  },
+  {
+    id: "totalAmountSold",
+    numeric: true,
+    disablePadding: false,
+    label: "totalAmountSold",
+  },
+  {
+    id: "stableTotalCost",
+    numeric: true,
+    disablePadding: false,
+    label: "stableTotalCost",
+  },
+  {
+    id: "currentPositionInUsdt",
+    numeric: true,
+    disablePadding: false,
+    label: "currentPositionInUsdt",
+  },
 ];
 
 interface Props {
@@ -191,6 +215,8 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
               <TableCell>
                 <TableSortLabel>Amount</TableSortLabel>
               </TableCell>
+              <TableCell>totalAmountBought</TableCell>
+              <TableCell>totalAmountSold</TableCell>
               <TableCell>Price in BTC</TableCell>
               <TableCell>
                 <TableSortLabel onClick={() => handleSort("priceInUsdt")}>
@@ -204,6 +230,9 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
                 </TableSortLabel>
               </TableCell>
               <TableCell>Percentage</TableCell>
+              <TableCell>stableTotalCost</TableCell>
+              <TableCell>totalRealizedProfitUsdt</TableCell>
+              <TableCell>currentPositionInUsdt</TableCell>
               <TableCell>Price Multiplier</TableCell>
               <TableCell>Prediction USDT</TableCell>
               <TableCell>Prediction BTC</TableCell>
@@ -215,11 +244,16 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{holding.symbol}</TableCell>
                 <TableCell>{holding.amount}</TableCell>
+                <TableCell>{holding.totalAmountBought}</TableCell>
+                <TableCell>{holding.totalAmountSold}</TableCell>
                 <TableCell>{holding.priceInBtc}</TableCell>
                 <TableCell>{holding.priceInUsdt}</TableCell>
                 <TableCell>{holding.amountInBtc}</TableCell>
                 <TableCell>{holding.amountInUsdt}</TableCell>
                 <TableCell>{holding.percentage}</TableCell>
+                <TableCell>{holding.stableTotalCost}</TableCell>
+                <TableCell>{holding.totalRealizedProfitUsdt}</TableCell>
+                <TableCell>{holding.currentPositionInUsdt}</TableCell>
                 <TableCell>
                   <Input
                     type="number"

@@ -11,15 +11,15 @@ import { toast } from "react-toastify";
 
 const PortfolioComponent = () => {
   const dispatch = useAppDispatch();
-  const [selectedPortfolio, setSelectedPortfolio] = useState<string>("all");
+  const [selectedPortfolio, setSelectedPortfolio] = useState<string>("Binance");
 
   const { data, loading, error } = useSelector(
     (state: RootState) => state.portfolio
   );
 
   useEffect(() => {
-    dispatch(fetchPortfolio("all"));
-  }, [dispatch]);
+    dispatch(fetchPortfolio(selectedPortfolio));
+  }, [dispatch, selectedPortfolio]);
 
   const handleCalculateDistribution = (name: string) => {
     dispatch(fetchPortfolioHoldingDistribution(name)).then(() => {
@@ -67,7 +67,7 @@ const PortfolioComponent = () => {
         value={selectedPortfolio}
         onChange={(e) => setSelectedPortfolio(e.target.value)}
       >
-        <option value="all">All Portfolios</option>
+        <option value="">All Portfolios</option>
         {/* Map over portfolio names to populate the select options */}
         {portfoliosName.map((portfolio) => (
           <option key={portfolio} value={portfolio}>
