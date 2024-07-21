@@ -14,6 +14,7 @@ import {
   Input,
 } from "@mui/material";
 import { PortfolioDistribution, HoldingDto } from "../redux/types/types"; // Adjust the path as needed
+import { current } from "@reduxjs/toolkit";
 
 // Define styles using makeStyles
 const StyledContainer = styled(Container)({
@@ -196,6 +197,30 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Total Holdings: {portfolioDistribution.totalHoldings}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Total Reazlized Profit:{" "}
+        {sortedHoldings
+          .map((e) => e.totalRealizedProfitUsdt)
+          .reduce((acc, curr) => acc + curr, 0)}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Stable Total Cost:{" "}
+        {sortedHoldings
+          .map((e) => e.stableTotalCost)
+          .reduce((acc, curr) => acc + curr, 0)}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Current Position in USDT:{" "}
+        {sortedHoldings
+          .map((e) => e.currentPositionInUsdt)
+          .reduce((acc, curr) => acc + curr, 0)}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Current Position in BTC:{" "}
+        {sortedHoldings
+          .map((e) => e.amountInBtc)
+          .reduce((acc, curr) => acc + curr, 0)}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Total Prediction USDT:{" "}
