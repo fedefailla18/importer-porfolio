@@ -13,8 +13,7 @@ import {
   styled,
   Input,
 } from "@mui/material";
-import { PortfolioDistribution, HoldingDto } from "../redux/types/types"; // Adjust the path as needed
-import { current } from "@reduxjs/toolkit";
+import { PortfolioDistribution, HoldingDto } from "../redux/types/types";
 
 // Define styles using makeStyles
 const StyledContainer = styled(Container)({
@@ -185,7 +184,7 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
   });
 
   return (
-    <StyledContainer maxWidth="md">
+    <StyledContainer maxWidth="xl">
       <Typography variant="h4" gutterBottom>
         Portfolio Distribution
       </Typography>
@@ -213,7 +212,7 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
       <Typography variant="subtitle1" gutterBottom>
         Current Position in USDT:{" "}
         {sortedHoldings
-          .map((e) => e.currentPositionInUsdt)
+          .map((e) => e.amountInUsdt)
           .reduce((acc, curr) => acc + curr, 0)}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
