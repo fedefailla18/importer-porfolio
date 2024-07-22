@@ -13,7 +13,7 @@ import {
   styled,
   Input,
 } from "@mui/material";
-import { PortfolioDistribution, HoldingDto } from "../redux/types/types"; // Adjust the path as needed
+import { PortfolioDistribution, HoldingDto } from "../redux/types/types";
 
 // Define styles using makeStyles
 const StyledContainer = styled(Container)({
@@ -105,6 +105,30 @@ const headCells: readonly HeadCell[] = [
     disablePadding: false,
     label: "percentage",
   },
+  {
+    id: "totalAmountBought",
+    numeric: true,
+    disablePadding: false,
+    label: "totalAmountBought",
+  },
+  {
+    id: "totalAmountSold",
+    numeric: true,
+    disablePadding: false,
+    label: "totalAmountSold",
+  },
+  {
+    id: "stableTotalCost",
+    numeric: true,
+    disablePadding: false,
+    label: "stableTotalCost",
+  },
+  {
+    id: "currentPositionInUsdt",
+    numeric: true,
+    disablePadding: false,
+    label: "currentPositionInUsdt",
+  },
 ];
 
 interface Props {
@@ -160,7 +184,7 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
   });
 
   return (
-    <StyledContainer maxWidth="md">
+    <StyledContainer maxWidth="xl">
       <Typography variant="h4" gutterBottom>
         Portfolio Distribution
       </Typography>
@@ -172,6 +196,30 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Total Holdings: {portfolioDistribution.totalHoldings}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Total Reazlized Profit:{" "}
+        {sortedHoldings
+          .map((e) => e.totalRealizedProfitUsdt)
+          .reduce((acc, curr) => acc + curr, 0)}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Stable Total Cost:{" "}
+        {sortedHoldings
+          .map((e) => e.stableTotalCost)
+          .reduce((acc, curr) => acc + curr, 0)}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Current Position in USDT:{" "}
+        {sortedHoldings
+          .map((e) => e.amountInUsdt)
+          .reduce((acc, curr) => acc + curr, 0)}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Current Position in BTC:{" "}
+        {sortedHoldings
+          .map((e) => e.amountInBtc)
+          .reduce((acc, curr) => acc + curr, 0)}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Total Prediction USDT:{" "}
@@ -191,6 +239,8 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
               <TableCell>
                 <TableSortLabel>Amount</TableSortLabel>
               </TableCell>
+              <TableCell>totalAmountBought</TableCell>
+              <TableCell>totalAmountSold</TableCell>
               <TableCell>Price in BTC</TableCell>
               <TableCell>
                 <TableSortLabel onClick={() => handleSort("priceInUsdt")}>
@@ -204,6 +254,9 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
                 </TableSortLabel>
               </TableCell>
               <TableCell>Percentage</TableCell>
+              <TableCell>stableTotalCost</TableCell>
+              <TableCell>totalRealizedProfitUsdt</TableCell>
+              <TableCell>currentPositionInUsdt</TableCell>
               <TableCell>Price Multiplier</TableCell>
               <TableCell>Prediction USDT</TableCell>
               <TableCell>Prediction BTC</TableCell>
@@ -215,11 +268,16 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{holding.symbol}</TableCell>
                 <TableCell>{holding.amount}</TableCell>
+                <TableCell>{holding.totalAmountBought}</TableCell>
+                <TableCell>{holding.totalAmountSold}</TableCell>
                 <TableCell>{holding.priceInBtc}</TableCell>
                 <TableCell>{holding.priceInUsdt}</TableCell>
                 <TableCell>{holding.amountInBtc}</TableCell>
                 <TableCell>{holding.amountInUsdt}</TableCell>
                 <TableCell>{holding.percentage}</TableCell>
+                <TableCell>{holding.stableTotalCost}</TableCell>
+                <TableCell>{holding.totalRealizedProfitUsdt}</TableCell>
+                <TableCell>{holding.currentPositionInUsdt}</TableCell>
                 <TableCell>
                   <Input
                     type="number"

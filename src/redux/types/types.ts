@@ -13,6 +13,11 @@ export interface HoldingDto {
   amountInUsdt: number;
   priceInUsdt: number;
   percentage: number;
+  totalAmountBought: number;
+  totalAmountSold: number;
+  stableTotalCost: number;
+  currentPositionInUsdt: number;
+  totalRealizedProfitUsdt: number;
 }
 
 export interface PortfolioDistribution {
