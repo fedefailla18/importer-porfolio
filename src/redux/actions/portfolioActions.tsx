@@ -34,7 +34,7 @@ export const fetchPortfolioHoldingDistribution = createAsyncThunk(
   async (portfolioName: string, { rejectWithValue }) => {
     try {
       const response = await axios.post<PortfolioDistribution>(
-        `http://localhost:8080/portfolio/holding/distribution?name=${portfolioName}`
+        `http://localhost:8080/portfolio/distribution?portfolioName=${portfolioName}`
       );
       fetchPortfolioHoldingDistributionSuccess(response.data);
       return response.data; // Return the fetched data as the action payload
@@ -44,6 +44,27 @@ export const fetchPortfolioHoldingDistribution = createAsyncThunk(
     }
   }
 );
+
+export const fetchHoldingDetails =
+  (portfolioName: string, symbol: string) => async (dispatch: any) => {
+    try {
+      dispatch({ type: "FETCH_HOLDING_DETAILS_REQUEST" });
+
+      const response = await fetch(
+        `http://localhost:8080/portfolio/${portfolioName}/${symbol}`
+      ); // Adjust the endpoint as needed
+      const data = await response.json();
+      dispatch({
+        type: "FETCH_HOLDING_DETAILS_SUCCESS",
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: "FETCH_HOLDING_DETAILS_FAILURE",
+        payload: error,
+      });
+    }
+  };
 
 export const fetchPortfolioRequest = () => ({
   type: FETCH_PORTFOLIO_REQUEST,

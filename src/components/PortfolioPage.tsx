@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 import {
   Container,
@@ -13,7 +14,7 @@ import {
   styled,
   Input,
 } from "@mui/material";
-import { PortfolioDistribution, HoldingDto } from "../redux/types/types"; // Adjust the path as needed
+import { PortfolioDistribution, HoldingDto } from "../redux/types/types";
 
 // Define styles using makeStyles
 const StyledContainer = styled(Container)({
@@ -23,89 +24,6 @@ const StyledContainer = styled(Container)({
 const StyledTableContainer = styled(TableContainer)({
   marginTop: "2rem",
 });
-
-function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-type Order = "asc" | "desc";
-type Tuple = { index: number };
-
-function getComparator<Key extends keyof any>(
-  order: Order,
-  orderBy: Key
-): (
-  a: { [key in Key]: number | string },
-  b: { [key in Key]: number | string }
-) => number {
-  return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
-// stableSort() brings sort stability to non-modern browsers (notably IE11). If you
-// only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
-// with exampleArray.slice().sort(exampleComparator)
-function stableSort<T>(
-  array: readonly T[],
-  comparator: (a: T, b: T) => number
-) {
-  const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
-}
-
-interface HeadCell {
-  disablePadding: boolean;
-  id: keyof HoldingDto;
-  label: string;
-  numeric: boolean;
-}
-const headCells: readonly HeadCell[] = [
-  {
-    id: "symbol",
-    numeric: false,
-    disablePadding: true,
-    label: "Symbol",
-  },
-  {
-    id: "amount",
-    numeric: true,
-    disablePadding: false,
-    label: "Amount",
-  },
-  {
-    id: "amountInBtc",
-    numeric: true,
-    disablePadding: false,
-    label: "amount In Btc",
-  },
-  {
-    id: "amountInUsdt",
-    numeric: true,
-    disablePadding: false,
-    label: "amountInUsdt",
-  },
-  {
-    id: "percentage",
-    numeric: true,
-    disablePadding: false,
-    label: "percentage",
-  },
-];
 
 interface Props {
   portfolioDistribution: PortfolioDistribution;
@@ -137,20 +55,16 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
     }
   };
 
-  // Function to sort the holdings based on the current sorting state
   const sortedHoldings = portfolioDistribution.holdings.slice().sort((a, b) => {
     if (sortBy === "symbol") {
-      // Sort by symbol
       return sortDirection === "asc"
         ? a.symbol.localeCompare(b.symbol)
         : b.symbol.localeCompare(a.symbol);
-    } else if (sortBy === "amount") {
-      // Sort by amount
+    } else if (sortBy === "amountInUsdt") {
       return sortDirection === "asc"
-        ? a.amount - b.amount
-        : b.amount - a.amount;
+        ? a.amountInUsdt - b.amountInUsdt
+        : b.amountInUsdt - a.amountInUsdt;
     } else if (sortBy === "priceInUsdt") {
-      // Sort by price in USDT
       return sortDirection === "asc"
         ? a.priceInUsdt - b.priceInUsdt
         : b.priceInUsdt - a.priceInUsdt;
@@ -160,7 +74,7 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
   });
 
   return (
-    <StyledContainer maxWidth="md">
+    <StyledContainer maxWidth="xl">
       <Typography variant="h4" gutterBottom>
         Portfolio Distribution
       </Typography>
@@ -172,6 +86,30 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Total Holdings: {portfolioDistribution.totalHoldings}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Total Reazlized Profit:{" "}
+        {sortedHoldings
+          .map((e) => e.totalRealizedProfitUsdt)
+          .reduce((acc, curr) => acc + curr, 0)}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Stable Total Cost:{" "}
+        {sortedHoldings
+          .map((e) => e.stableTotalCost)
+          .reduce((acc, curr) => acc + curr, 0)}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Current Position in USDT:{" "}
+        {sortedHoldings
+          .map((e) => e.amountInUsdt)
+          .reduce((acc, curr) => acc + curr, 0)}
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Current Position in BTC:{" "}
+        {sortedHoldings
+          .map((e) => e.amountInBtc)
+          .reduce((acc, curr) => acc + curr, 0)}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Total Prediction USDT:{" "}
@@ -191,6 +129,8 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
               <TableCell>
                 <TableSortLabel>Amount</TableSortLabel>
               </TableCell>
+              <TableCell>totalAmountBought</TableCell>
+              <TableCell>totalAmountSold</TableCell>
               <TableCell>Price in BTC</TableCell>
               <TableCell>
                 <TableSortLabel onClick={() => handleSort("priceInUsdt")}>
@@ -204,6 +144,9 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
                 </TableSortLabel>
               </TableCell>
               <TableCell>Percentage</TableCell>
+              <TableCell>stableTotalCost</TableCell>
+              <TableCell>totalRealizedProfitUsdt</TableCell>
+              <TableCell>currentPositionInUsdt</TableCell>
               <TableCell>Price Multiplier</TableCell>
               <TableCell>Prediction USDT</TableCell>
               <TableCell>Prediction BTC</TableCell>
@@ -213,13 +156,24 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
             {sortedHoldings.map((holding: HoldingDto, index: number) => (
               <TableRow key={holding.symbol}>
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{holding.symbol}</TableCell>
+                <TableCell>
+                  <Link
+                    to={`/portfolio/${portfolioDistribution.portfolioName}/${holding.symbol}`}
+                  >
+                    {holding.symbol}
+                  </Link>
+                </TableCell>
                 <TableCell>{holding.amount}</TableCell>
+                <TableCell>{holding.totalAmountBought}</TableCell>
+                <TableCell>{holding.totalAmountSold}</TableCell>
                 <TableCell>{holding.priceInBtc}</TableCell>
                 <TableCell>{holding.priceInUsdt}</TableCell>
                 <TableCell>{holding.amountInBtc}</TableCell>
                 <TableCell>{holding.amountInUsdt}</TableCell>
                 <TableCell>{holding.percentage}</TableCell>
+                <TableCell>{holding.stableTotalCost}</TableCell>
+                <TableCell>{holding.totalRealizedProfitUsdt}</TableCell>
+                <TableCell>{holding.currentPositionInUsdt}</TableCell>
                 <TableCell>
                   <Input
                     type="number"
