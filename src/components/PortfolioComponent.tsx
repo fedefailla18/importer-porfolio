@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   fetchPortfolio,
@@ -11,7 +11,10 @@ import { toast } from "react-toastify";
 
 const PortfolioComponent = () => {
   const dispatch = useAppDispatch();
-  const [selectedPortfolio, setSelectedPortfolio] = useState<string>("Binance");
+  const portfoliosName = ["Binance", "MexC", "Buenbit", "all"];
+  const [selectedPortfolio, setSelectedPortfolio] = useState<string>(
+    portfoliosName[0] ?? "Select Portfolio"
+  );
 
   const { data, loading, error } = useSelector(
     (state: RootState) => state.portfolio
@@ -60,7 +63,6 @@ const PortfolioComponent = () => {
     return <div>No data available</div>;
   }
 
-  const portfoliosName = ["Binance", "MexC", "Buenbit", "all"];
   return (
     <div>
       <select

@@ -1,11 +1,6 @@
 // src/redux/reducers/portfolioReducer.ts
-import { PortfolioActionTypes, PortfolioDistribution } from "../types/types";
-import {
-  FETCH_PORTFOLIO_REQUEST,
-  FETCH_PORTFOLIO_SUCCESS,
-  FETCH_PORTFOLIO_FAILURE,
-  fetchPortfolio,
-} from "../actions/portfolioActions";
+import { PortfolioDistribution } from "../types/types";
+import { fetchPortfolio } from "../actions/portfolioActions";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 interface PortfolioState {
@@ -19,63 +14,6 @@ const initialState: PortfolioState = {
   data: null,
   error: null,
 };
-
-const portfolioSlice1 = createSlice({
-  name: "portfolioFetch",
-  initialState,
-  reducers: {
-    request: (state) => {
-      return {
-        ...state,
-        loading: true,
-        error: null,
-      };
-    },
-    success: (state) => {
-      return {
-        ...state,
-        loading: false,
-        error: null,
-      };
-    },
-  },
-});
-
-// export const { request, success } = portfolioSlice.actions;
-// export const selectAllPortfolio = (state: PortfolioState) => state.data;
-// export const selectPortfolioById = (state: PortfolioState) =>//   state.data?.portfolioName;
-// export const selectHoldings = (state: PortfolioState) => state.data?.holdings;
-
-const portfolioReducer = (
-  state = initialState,
-  action: PortfolioActionTypes
-): PortfolioState => {
-  switch (action.type) {
-    case FETCH_PORTFOLIO_REQUEST:
-      return {
-        ...state,
-        loading: true,
-        error: null,
-      };
-    case FETCH_PORTFOLIO_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        data: action.payload,
-        error: null,
-      };
-    case FETCH_PORTFOLIO_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
-      };
-    default:
-      return state;
-  }
-};
-
-// export default portfolioReducer;
 
 const portfolioSlice = createSlice({
   name: "portfolio",
