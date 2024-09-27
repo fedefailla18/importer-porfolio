@@ -1,22 +1,37 @@
+// src/App.tsx
 import React from "react";
 import { Provider } from "react-redux";
-import PortfolioComponent from "./components/PortfolioComponent";
-import store from "./configureStore";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import HoldingDetailsPage from "./components/HoldingDetailPage";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import theme from "./theme";
+import Header from "./components/layout/Header";
+import { store } from "./redux/store";
+import PortfolioComponent from "./components/portfolio/PortfolioComponent";
+import HoldingDetailsPage from "./components/portfolio/HoldingDetailPage";
+import TransactionForm from "./components/transactions/TransactionForm";
+import TransactionList from "./components/transactions/TransactionList";
 
 const App: React.FC = () => {
   return (
     <Provider store={store}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<PortfolioComponent />} />
-          <Route
-            path="/portfolio/:portfolioName/:symbol"
-            element={<HoldingDetailsPage />}
-          />
-        </Routes>
-      </Router>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <Header />
+          <Routes>
+            <Route path="/" element={<PortfolioComponent />} />
+            <Route
+              path="/portfolio/:portfolioName/:symbol"
+              element={<HoldingDetailsPage />}
+            />
+            <Route
+              path="/transactions/:portfolioName"
+              element={<TransactionList />}
+            />
+            <Route path="/add-transaction" element={<TransactionForm />} />
+          </Routes>
+        </Router>
+      </ThemeProvider>
     </Provider>
   );
 };

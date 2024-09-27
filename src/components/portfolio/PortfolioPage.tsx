@@ -14,7 +14,7 @@ import {
   styled,
   Input,
 } from "@mui/material";
-import { PortfolioDistribution, HoldingDto } from "../redux/types/types";
+import { PortfolioDistribution, HoldingDto } from "../../redux/types/types";
 
 // Define styles using makeStyles
 const StyledContainer = styled(Container)({

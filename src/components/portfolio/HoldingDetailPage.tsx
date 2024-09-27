@@ -1,24 +1,23 @@
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { RootState } from "../configureStore";
-import { fetchHoldingDetails } from "../redux/actions/portfolioActions"; // You might need to create this action
-import { useAppDispatch } from "../redux/hooks";
+import { useAppSelector, useAppDispatch } from "../../redux/hooks";
+import { fetchHoldingDetails } from "../../redux/slices/holdingDetailsSlice";
 
-const HoldingDetailsPage = () => {
-  const { symbol } = useParams<{ symbol: string }>(); // Get the symbol from the URL
+const HoldingDetailPage: React.FC = () => {
+  const { portfolioName, symbol } = useParams<{
+    portfolioName: string;
+    symbol: string;
+  }>();
   const dispatch = useAppDispatch();
-  const { holdingDetails, loading, error } = useSelector(
-    (state: RootState) => state.holdingDetails
+  const { holdingDetails, status, error, loading } = useAppSelector(
+    (state) => state.holdingDetails
   );
-  const { data } = useSelector((state: RootState) => state.portfolio);
-  console.log("symbol: " + symbol);
 
   useEffect(() => {
-    if (data && symbol)
-      dispatch(fetchHoldingDetails(data.portfolioName, symbol)); // Fetch holding details
-  }, [data, dispatch, symbol]);
-  console.log("holdingDetails: " + holdingDetails);
+    if (portfolioName && symbol) {
+      dispatch(fetchHoldingDetails({ portfolioName, symbol }));
+    }
+  }, [dispatch, portfolioName, symbol]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -52,4 +51,4 @@ const HoldingDetailsPage = () => {
   );
 };
 
-export default HoldingDetailsPage;
+export default HoldingDetailPage;

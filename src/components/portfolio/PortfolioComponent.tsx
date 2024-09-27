@@ -3,10 +3,10 @@ import { useSelector } from "react-redux";
 import {
   fetchPortfolio,
   fetchPortfolioHoldingDistribution,
-} from "../redux/actions/portfolioActions";
+} from "../../redux/actions/portfolioActions";
 import PortfolioPage from "./PortfolioPage";
-import { useAppDispatch } from "../redux/hooks";
-import { RootState } from "../configureStore";
+import { useAppDispatch } from "../../redux/hooks";
+import { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 
 const PortfolioComponent = () => {

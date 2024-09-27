@@ -1,20 +1,37 @@
-// reducers/holdingDetailsReducer.ts
+// src/redux/reducers/holdingDetailsReducer.ts
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { HoldingDetailsState, HoldingDto } from "../types/types";
+import { fetchHoldingDetails } from "../actions/portfolioActions";
 
-const initialState = {
+const initialState: any = {
   holdingDetails: null,
   loading: false,
   error: null,
 };
 
-export const holdingDetailsReducer = (state = initialState, action: any) => {
-  switch (action.type) {
-    case "FETCH_HOLDING_DETAILS_REQUEST":
-      return { ...state, loading: true };
-    case "FETCH_HOLDING_DETAILS_SUCCESS":
-      return { ...state, loading: false, holdingDetails: action.payload };
-    case "FETCH_HOLDING_DETAILS_FAILURE":
-      return { ...state, loading: false, error: action.payload };
-    default:
-      return state;
-  }
-};
+const holdingDetailsSlice = createSlice({
+  name: "holdingDetails",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchHoldingDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchHoldingDetails.fulfilled,
+        (state, action: PayloadAction<HoldingDto>) => {
+          state.loading = false;
+          state.holdingDetails = action.payload;
+          state.error = null;
+        }
+      )
+      .addCase(fetchHoldingDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "An error occurred";
+      });
+  },
+});
+
+export default holdingDetailsSlice.reducer;
