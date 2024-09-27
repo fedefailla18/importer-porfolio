@@ -28,12 +28,26 @@ const initialState: TransactionState = {
   error: null,
 };
 
-export const fetchTransactions = createAsyncThunk(
+export const fetchTransactionsByPortfolioName = createAsyncThunk(
   "transactions/fetchTransactions",
   async (portfolioName: string, { rejectWithValue }) => {
     try {
       const response = await axios.get<Transaction[]>(
-        `http://localhost:8080/transactions/${portfolioName}`
+        `http://localhost:8080/transaction/${portfolioName}`
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "An error occurred");
+    }
+  }
+);
+
+export const fetchTransactionsBySymbol = createAsyncThunk(
+  "transactions/fetchTransactions",
+  async (symbolName: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.get<Transaction[]>(
+        `http://localhost:8080/transaction/filter?symbol=${symbolName}`
       );
       return response.data;
     } catch (error: any) {
@@ -63,19 +77,19 @@ const transactionSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchTransactions.pending, (state) => {
+      .addCase(fetchTransactionsByPortfolioName.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
       .addCase(
-        fetchTransactions.fulfilled,
+        fetchTransactionsByPortfolioName.fulfilled,
         (state, action: PayloadAction<Transaction[]>) => {
           state.status = "succeeded";
           state.transactions = action.payload;
           state.error = null;
         }
       )
-      .addCase(fetchTransactions.rejected, (state, action) => {
+      .addCase(fetchTransactionsByPortfolioName.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "An error occurred";
       })

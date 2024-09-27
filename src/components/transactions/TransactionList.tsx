@@ -1,7 +1,10 @@
 // src/components/transactions/TransactionList.tsx
 import React, { useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "../../redux/hooks";
-import { fetchTransactions } from "../../redux/slices/transactionSlice";
+import {
+  fetchTransactionsByPortfolioName,
+  Transaction,
+} from "../../redux/slices/transactionSlice";
 import { useParams } from "react-router-dom";
 import {
   Container,
@@ -27,7 +30,7 @@ const TransactionList: React.FC = () => {
 
   useEffect(() => {
     if (portfolioName) {
-      dispatch(fetchTransactions(portfolioName));
+      dispatch(fetchTransactionsByPortfolioName(portfolioName));
     }
   }, [dispatch, portfolioName]);
 
@@ -69,7 +72,7 @@ const TransactionList: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {transactions.map((transaction) => (
+            {transactions.map((transaction: Transaction) => (
               <TableRow key={transaction.id}>
                 <TableCell>
                   {new Date(transaction.dateUtc).toLocaleString()}

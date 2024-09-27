@@ -8,6 +8,7 @@ import PortfolioPage from "./PortfolioPage";
 import { useAppDispatch } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
+import { MenuItem, Select, Button } from "@mui/material";
 
 const PortfolioComponent = () => {
   const dispatch = useAppDispatch();
@@ -29,6 +30,7 @@ const PortfolioComponent = () => {
       toast.success("Portfolio updated");
     });
   };
+
   const handleDownloadPortfolio = () => {
     // Make the API call to download the portfolio as an Excel file
     fetch("http://localhost:8080/portfolio/download")
@@ -65,22 +67,22 @@ const PortfolioComponent = () => {
 
   return (
     <div>
-      <select
+      <Select
         value={selectedPortfolio}
         onChange={(e) => setSelectedPortfolio(e.target.value)}
       >
         <option value="">All Portfolios</option>
         {/* Map over portfolio names to populate the select options */}
         {portfoliosName.map((portfolio) => (
-          <option key={portfolio} value={portfolio}>
+          <MenuItem key={portfolio} value={portfolio}>
             {portfolio}
-          </option>
+          </MenuItem>
         ))}
-      </select>
-      <button onClick={() => handleCalculateDistribution(selectedPortfolio)}>
+      </Select>
+      <Button onClick={() => handleCalculateDistribution(selectedPortfolio)}>
         Calculate Distribution
-      </button>
-      <button onClick={handleDownloadPortfolio}>Download Portfolio</button>
+      </Button>
+      <Button onClick={handleDownloadPortfolio}>Download Portfolio</Button>
       <PortfolioPage portfolioDistribution={data} />
     </div>
   );

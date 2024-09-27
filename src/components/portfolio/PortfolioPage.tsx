@@ -13,6 +13,7 @@ import {
   TableSortLabel,
   styled,
   Input,
+  Paper,
 } from "@mui/material";
 import { PortfolioDistribution, HoldingDto } from "../../redux/types/types";
 
@@ -75,52 +76,53 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
 
   return (
     <StyledContainer maxWidth="xl">
-      <Typography variant="h4" gutterBottom>
-        Portfolio Distribution
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Portfolio Name: {portfolioDistribution.portfolioName}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Total USDT: {portfolioDistribution.totalUsdt}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Total Holdings: {portfolioDistribution.totalHoldings}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Total Reazlized Profit:{" "}
-        {sortedHoldings
-          .map((e) => e.totalRealizedProfitUsdt)
-          .reduce((acc, curr) => acc + curr, 0)}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Stable Total Cost:{" "}
-        {sortedHoldings
-          .map((e) => e.stableTotalCost)
-          .reduce((acc, curr) => acc + curr, 0)}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Current Position in USDT:{" "}
-        {sortedHoldings
-          .map((e) => e.amountInUsdt)
-          .reduce((acc, curr) => acc + curr, 0)}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Current Position in BTC:{" "}
-        {sortedHoldings
-          .map((e) => e.amountInBtc)
-          .reduce((acc, curr) => acc + curr, 0)}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Total Prediction USDT:{" "}
-        {Object.values(predictionUsdt).reduce((acc, curr) => acc + curr, 0)}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Total Prediction BTC:{" "}
-        {Object.values(predictionBtc).reduce((acc, curr) => acc + curr, 0)}
-      </Typography>
+      <Paper style={{ marginBottom: "1rem", padding: "1rem" }}>
+        <Typography variant="h6">Portfolio Stats</Typography>
 
-      <StyledTableContainer>
+        <Typography variant="subtitle1" gutterBottom>
+          Portfolio Name: {portfolioDistribution.portfolioName}
+        </Typography>
+        <Typography variant="subtitle1" gutterBottom>
+          Total USDT: {portfolioDistribution.totalUsdt}
+        </Typography>
+        <Typography variant="subtitle1" gutterBottom>
+          Total Holdings: {portfolioDistribution.totalHoldings}
+        </Typography>
+        <Typography variant="subtitle1" gutterBottom>
+          Total Reazlized Profit:{" "}
+          {sortedHoldings
+            .map((e) => e.totalRealizedProfitUsdt)
+            .reduce((acc, curr) => acc + curr, 0)}
+        </Typography>
+        <Typography variant="subtitle1" gutterBottom>
+          Stable Total Cost:{" "}
+          {sortedHoldings
+            .map((e) => e.stableTotalCost)
+            .reduce((acc, curr) => acc + curr, 0)}
+        </Typography>
+        <Typography variant="subtitle1" gutterBottom>
+          Current Position in USDT:{" "}
+          {sortedHoldings
+            .map((e) => e.amountInUsdt)
+            .reduce((acc, curr) => acc + curr, 0)}
+        </Typography>
+        <Typography variant="subtitle1" gutterBottom>
+          Current Position in BTC:{" "}
+          {sortedHoldings
+            .map((e) => e.amountInBtc)
+            .reduce((acc, curr) => acc + curr, 0)}
+        </Typography>
+        <Typography variant="subtitle1" gutterBottom>
+          Total Prediction USDT:{" "}
+          {Object.values(predictionUsdt).reduce((acc, curr) => acc + curr, 0)}
+        </Typography>
+        <Typography variant="subtitle1" gutterBottom>
+          Total Prediction BTC:{" "}
+          {Object.values(predictionBtc).reduce((acc, curr) => acc + curr, 0)}
+        </Typography>
+      </Paper>
+
+      <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
@@ -226,7 +228,7 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
             ))}
           </TableBody>
         </Table>
-      </StyledTableContainer>
+      </TableContainer>
     </StyledContainer>
   );
 };

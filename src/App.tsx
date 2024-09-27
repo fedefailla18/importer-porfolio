@@ -10,6 +10,7 @@ import PortfolioComponent from "./components/portfolio/PortfolioComponent";
 import HoldingDetailsPage from "./components/portfolio/HoldingDetailPage";
 import TransactionForm from "./components/transactions/TransactionForm";
 import TransactionList from "./components/transactions/TransactionList";
+import HoldingComponent from "./components/holdings/HoldingComponent";
 
 const App: React.FC = () => {
   return (
@@ -22,7 +23,7 @@ const App: React.FC = () => {
             <Route path="/" element={<PortfolioComponent />} />
             <Route
               path="/portfolio/:portfolioName/:symbol"
-              element={<HoldingDetailsPage />}
+              element={<HoldingComponent />}
             />
             <Route
               path="/transactions/:portfolioName"

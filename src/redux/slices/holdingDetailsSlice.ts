@@ -23,7 +23,7 @@ export const fetchHoldingDetails = createAsyncThunk(
   ) => {
     try {
       const response = await axios.get<HoldingDto>(
-        `http://localhost:8080/portfolio/${portfolioName}/holding/${symbol}`
+        `http://localhost:8080/portfolio/${portfolioName}/${symbol}`
       );
       return response.data;
     } catch (error: any) {
