@@ -7,10 +7,10 @@ import theme from "./theme";
 import Header from "./components/layout/Header";
 import { store } from "./redux/store";
 import PortfolioComponent from "./components/portfolio/PortfolioComponent";
-import HoldingDetailsPage from "./components/portfolio/HoldingDetailPage";
 import TransactionForm from "./components/transactions/TransactionForm";
 import TransactionList from "./components/transactions/TransactionList";
 import HoldingComponent from "./components/holdings/HoldingComponent";
+import HoldingDetailPage from "./components/portfolio/HoldingDetailPage";
 
 const App: React.FC = () => {
   return (

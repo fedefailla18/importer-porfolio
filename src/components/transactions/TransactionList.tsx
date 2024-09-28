@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { RootState } from "../../redux/store";
 
-const TransactionList: React.FC = () => {
+const TransactionList = () => {
   const { portfolioName } = useParams<{ portfolioName: string }>();
   const dispatch = useAppDispatch();
   const { transactions, status, error } = useAppSelector(

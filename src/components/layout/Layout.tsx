@@ -16,16 +16,18 @@ const darkTheme = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#4a90e2",
+      //main: "#4a90e2",
+      main: "#8fbc8f",
+      //background-color: "aliceblue",
     },
     background: {
-      default: "#1e1e1e",
-      paper: "#2d2d2d",
+      default: "#f0f8ff", //aliceblue, //"#1e1e1e",
+      paper: "#8fbc8f",
     },
   },
 });
 
-const Layout: React.FC = () => {
+const Layout = () => {
   return (
     <ThemeProvider theme={darkTheme}>
       <AppBar position="static" color="primary">

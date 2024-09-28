@@ -3,10 +3,11 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { HoldingDetailsState, HoldingDto } from "../types/types";
 import { fetchHoldingDetails } from "../actions/portfolioActions";
 
-const initialState: any = {
+const initialState: HoldingDetailsState = {
   holdingDetails: null,
   loading: false,
   error: null,
+  status: "",
 };
 
 const holdingDetailsSlice = createSlice({
