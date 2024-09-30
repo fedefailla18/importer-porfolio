@@ -48,7 +48,7 @@ export const addMultipleHoldings = createAsyncThunk(
   "holdingDetails/addMultipleHoldings",
   async (holdings: HoldingDto[]) => {
     const response = await axios.post<HoldingDto[]>(
-      `http://localhost:8080/holdings/addMultiple`,
+      `http://localhost:8080/holding/addMultiple`,
       {
         holdings,
       }

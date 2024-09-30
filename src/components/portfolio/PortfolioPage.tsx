@@ -144,7 +144,10 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
           <Typography variant="h6" gutterBottom>
             Add Holdings
           </Typography>
-          <AddHoldingsForm onClose={toggleDrawer(false)} />
+          <AddHoldingsForm
+            onClose={toggleDrawer(false)}
+            portfolio={portfolioDistribution.portfolioName}
+          />
         </Box>
       </Drawer>
     </StyledContainer>

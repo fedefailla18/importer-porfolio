@@ -8,9 +8,13 @@ import { HoldingDto } from "../../redux/types/types";
 
 interface AddHoldingsFormProps {
   onClose: (event: React.KeyboardEvent | React.MouseEvent) => void;
+  portfolio?: string;
 }
 
-const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({ onClose }) => {
+const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
+  onClose,
+  portfolio,
+}) => {
   const dispatch = useAppDispatch();
   const [holding, setHolding] = useState({
     symbol: "",
@@ -19,13 +23,23 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({ onClose }) => {
     costInUsdt: 0,
   });
   const [holdings, setHoldings] = useState<HoldingDto[]>([
-    { symbol: "", amount: 0, portfolioName: "", stableTotalCost: 0 },
+    {
+      symbol: "",
+      amount: 0,
+      portfolioName: portfolio ? portfolio : "",
+      stableTotalCost: 0,
+    },
   ]);
 
   const handleAddRow = () => {
     setHoldings([
       ...holdings,
-      { symbol: "", amount: 0, portfolioName: "", stableTotalCost: 0 },
+      {
+        symbol: "",
+        amount: 0,
+        portfolioName: portfolio ? portfolio : "",
+        stableTotalCost: 0,
+      },
     ]);
   };
 
@@ -49,7 +63,12 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({ onClose }) => {
     e.preventDefault();
     dispatch(addMultipleHoldings(holdings));
     setHoldings([
-      { symbol: "", amount: 0, portfolioName: "", stableTotalCost: 0 },
+      {
+        symbol: "",
+        amount: 0,
+        portfolioName: portfolio ? portfolio : "",
+        stableTotalCost: 0,
+      },
     ]);
   };
 
@@ -69,50 +88,64 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({ onClose }) => {
         Add Holdings
       </Typography>
       {holdings.map((holding, index) => (
-        <Grid container spacing={2} key={index} alignItems="center">
-          <Grid item xs={2}>
+        <Grid
+          container
+          spacing={2}
+          key={index}
+          alignItems="center"
+          sx={{ mb: 2 }}
+        >
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Symbol"
               value={holding.symbol}
               onChange={(e) => handleChange(index, "symbol", e.target.value)}
               required
+              sx={{ mb: 2 }}
             />
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Amount"
               type="number"
               value={holding.amount}
-              onChange={(e) => handleChange(index, "amount", e.target.value)}
+              onChange={(e) =>
+                handleChange(index, "amount", Number(e.target.value))
+              }
               required
+              sx={{ mb: 2 }}
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Portfolio"
               value={holding.portfolioName}
+              defaultValue={portfolio}
               onChange={(e) =>
                 handleChange(index, "portfolioName", e.target.value)
               }
+              disabled={!!portfolio}
               required
+              sx={{ mb: 2 }}
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Cost in USDT"
               type="number"
               value={holding.stableTotalCost}
               onChange={(e) =>
-                handleChange(index, "stableTotalCost", e.target.value)
+                handleChange(index, "stableTotalCost", Number(e.target.value))
               }
               required
+              sx={{ mb: 2 }}
             />
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={12}>
             <IconButton
               onClick={() => handleRemoveRow(index)}
               disabled={holdings.length === 1}
