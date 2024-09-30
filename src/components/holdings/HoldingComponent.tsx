@@ -1,72 +1,40 @@
 // src/components/holdings/HoldingComponent.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import { fetchHoldingDetails } from "../../redux/slices/holdingDetailsSlice";
-import {
-  fetchTransactionsBySymbol,
-  Transaction,
-} from "../../redux/slices/transactionSlice";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Typography,
   Select,
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { HoldingDto } from "../../redux/types/types";
 import TransactionList from "../transactions/TransactionList";
 
-const HoldingComponent = () => {
+const HoldingComponent: React.FC = () => {
   const { portfolioName, symbol } = useParams<{
     portfolioName: string;
     symbol: string;
   }>();
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [selectedHolding, setSelectedHolding] = useState<string>(symbol || "");
-  const [holding, setHolding] = useState<HoldingDto>();
-  const { status: holdingStatus, error: holdingError } = useAppSelector(
-    (state) => state.holdingDetails
-  );
-  const [transactions, setTransactions] = useState<Transaction[]>();
-  const { status: transactionStatus, error: transactionError } = useAppSelector(
-    (state) => state.transactions
-  );
+  const dispatch = useAppDispatch();
+
+  const {
+    holdingDetails,
+    status: holdingStatus,
+    error: holdingError,
+  } = useAppSelector((state) => state.holdingDetails);
 
   useEffect(() => {
-    const fetchHolding = async () => {
-      if (portfolioName && selectedHolding) {
-        const response = await dispatch(
-          fetchHoldingDetails({ portfolioName, symbol: selectedHolding })
-        );
-        setHolding(response.payload as HoldingDto);
-      }
-    };
-    fetchHolding();
-  }, [dispatch, portfolioName, selectedHolding]);
-
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      if (selectedHolding) {
-        const response = await dispatch(
-          fetchTransactionsBySymbol(selectedHolding)
-        );
-        setTransactions(response.payload as Transaction[]);
-      }
-    };
-    fetchTransactions();
-  }, [dispatch, portfolioName, selectedHolding]);
+    if (portfolioName && symbol) {
+      dispatch(fetchHoldingDetails({ portfolioName, symbol }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [portfolioName, symbol]);
 
   const handleHoldingChange = (event: any) => {
     const newSymbol = event.target.value as string;
-    setSelectedHolding(newSymbol);
     navigate(`/holdings/${portfolioName}/${newSymbol}`);
   };
 
@@ -74,50 +42,40 @@ const HoldingComponent = () => {
     if (holdingStatus === "loading") return <CircularProgress />;
     if (holdingStatus === "failed")
       return <Alert severity="error">{holdingError}</Alert>;
+    if (!holdingDetails)
+      return <Typography>No holding details available</Typography>;
 
     return (
-      <>
-        {!!holding && (
-          <div>
-            <Typography>Amount: {holding.amount}</Typography>
-            <Typography>
-              Total Amount Bought: {holding.totalAmountBought}
-            </Typography>
-            <Typography>
-              Total Amount Sold: {holding.totalAmountSold}
-            </Typography>
-            <Typography>Price in BTC: {holding.priceInBtc}</Typography>
-            <Typography>Price in USDT: {holding.priceInUsdt}</Typography>
-            <Typography>Amount in BTC: {holding.amountInBtc}</Typography>
-            <Typography>Amount in USDT: {holding.amountInUsdt}</Typography>
-            <Typography>Percentage: {holding.percentage}</Typography>
-            <Typography>
-              Stable Total Cost: {holding.stableTotalCost}
-            </Typography>
-            <Typography>
-              Total Realized Profit USDT: {holding.totalRealizedProfitUsdt}
-            </Typography>
-            <Typography>
-              Current Position in USDT: {holding.currentPositionInUsdt}
-            </Typography>
-          </div>
-        )}
-      </>
+      <div>
+        <Typography>Amount: {holdingDetails.amount}</Typography>
+        <Typography>
+          Total Amount Bought: {holdingDetails.totalAmountBought}
+        </Typography>
+        <Typography>
+          Total Amount Sold: {holdingDetails.totalAmountSold}
+        </Typography>
+        <Typography>Price in BTC: {holdingDetails.priceInBtc}</Typography>
+        <Typography>Price in USDT: {holdingDetails.priceInUsdt}</Typography>
+        <Typography>Amount in BTC: {holdingDetails.amountInBtc}</Typography>
+        <Typography>Amount in USDT: {holdingDetails.amountInUsdt}</Typography>
+        <Typography>Percentage: {holdingDetails.percentage}</Typography>
+        <Typography>
+          Stable Total Cost: {holdingDetails.stableTotalCost}
+        </Typography>
+        <Typography>
+          Total Realized Profit USDT: {holdingDetails.totalRealizedProfitUsdt}
+        </Typography>
+        <Typography>
+          Current Position in USDT: {holdingDetails.currentPositionInUsdt}
+        </Typography>
+      </div>
     );
-  };
-
-  const renderTransactions = () => {
-    if (transactionStatus === "loading") return <CircularProgress />;
-    if (transactionStatus === "failed")
-      return <Alert severity="error">{transactionError}</Alert>;
-
-    return <TransactionList />;
   };
 
   return (
     <div>
       <Select
-        value={selectedHolding}
+        value={holdingDetails}
         onChange={handleHoldingChange}
         style={{ marginBottom: "1rem" }}
       >
@@ -128,15 +86,17 @@ const HoldingComponent = () => {
         ))} */}
       </Select>
 
-      <Paper style={{ marginBottom: "1rem", padding: "1rem" }}>
-        <Typography variant="h6">Holding Stats</Typography>
-        {renderHoldingDetails()}
-      </Paper>
+      <div>
+        <Paper style={{ marginBottom: "1rem", padding: "1rem" }}>
+          <Typography variant="h6">Holding Stats for {symbol}</Typography>
+          {renderHoldingDetails()}
+        </Paper>
 
-      <Typography variant="h6" style={{ marginBottom: "1rem" }}>
-        Transactions per holding
-      </Typography>
-      {transactions && renderTransactions()}
+        <Typography variant="h6" style={{ marginBottom: "1rem" }}>
+          Transactions for {symbol}
+        </Typography>
+        <TransactionList symbol={symbol} portfolioName={portfolioName} />
+      </div>
     </div>
   );
 };

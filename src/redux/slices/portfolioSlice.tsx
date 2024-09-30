@@ -1,6 +1,6 @@
 // src/redux/slices/portfolioSlice.ts
 import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { PortfolioDistribution } from "../types/types";
+import { HoldingDto, PortfolioDistribution } from "../types/types";
 import axios from "axios";
 
 interface PortfolioState {
@@ -43,6 +43,20 @@ export const fetchPortfolioHoldingDistribution = createAsyncThunk(
   }
 );
 
+// Async thunk to add multiple holdings
+export const addMultipleHoldings = createAsyncThunk(
+  "holdingDetails/addMultipleHoldings",
+  async (holdings: HoldingDto[]) => {
+    const response = await axios.post<HoldingDto[]>(
+      `http://localhost:8080/holdings/addMultiple`,
+      {
+        holdings,
+      }
+    );
+    return response.data;
+  }
+);
+
 const portfolioSlice = createSlice({
   name: "portfolio",
   initialState,
@@ -78,6 +92,23 @@ const portfolioSlice = createSlice({
         }
       )
       .addCase(fetchPortfolioHoldingDistribution.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "An error occurred";
+      })
+
+      .addCase(addMultipleHoldings.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(
+        addMultipleHoldings.fulfilled,
+        (state, action: PayloadAction<HoldingDto[]>) => {
+          if (state?.data) {
+            state.data.holdings = [...state.data.holdings, ...action.payload];
+          }
+        }
+      )
+      .addCase(addMultipleHoldings.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "An error occurred";
       });

@@ -3,16 +3,16 @@ export interface HoldingDto {
   symbol: string;
   portfolioName: string;
   amount: number;
-  amountInBtc: number;
-  priceInBtc: number;
-  amountInUsdt: number;
-  priceInUsdt: number;
-  percentage: number;
-  totalAmountBought: number;
-  totalAmountSold: number;
-  stableTotalCost: number;
-  currentPositionInUsdt: number;
-  totalRealizedProfitUsdt: number;
+  amountInBtc?: number;
+  priceInBtc?: number;
+  amountInUsdt?: number;
+  priceInUsdt?: number;
+  percentage?: number;
+  totalAmountBought?: number;
+  totalAmountSold?: number;
+  stableTotalCost?: number;
+  currentPositionInUsdt?: number;
+  totalRealizedProfitUsdt?: number;
 }
 
 export interface PortfolioDistribution {

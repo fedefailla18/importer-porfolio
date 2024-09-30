@@ -6,10 +6,11 @@ import {
   fetchPortfolioHoldingDistribution,
 } from "../actions/portfolioActions";
 
-const initialState: any = {
+const initialState: PortfolioState = {
   loading: false,
   data: null,
   error: null,
+  status: "",
 };
 
 const portfolioSlice = createSlice({

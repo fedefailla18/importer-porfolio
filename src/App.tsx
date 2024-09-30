@@ -10,7 +10,8 @@ import PortfolioComponent from "./components/portfolio/PortfolioComponent";
 import TransactionForm from "./components/transactions/TransactionForm";
 import TransactionList from "./components/transactions/TransactionList";
 import HoldingComponent from "./components/holdings/HoldingComponent";
-import HoldingDetailPage from "./components/portfolio/HoldingDetailPage";
+import AllTransactionsPage from "./components/transactions/AllTransactionsPage";
+import Layout from "./components/layout/Layout";
 
 const App: React.FC = () => {
   return (
@@ -18,7 +19,7 @@ const App: React.FC = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-          <Header />
+          <Layout />
           <Routes>
             <Route path="/" element={<PortfolioComponent />} />
             <Route
@@ -29,6 +30,8 @@ const App: React.FC = () => {
               path="/transactions/:portfolioName"
               element={<TransactionList />}
             />
+            <Route path="/transactions" element={<AllTransactionsPage />} />
+            <Route path="/holdings" element={<HoldingComponent />} />
             <Route path="/add-transaction" element={<TransactionForm />} />
           </Routes>
         </Router>
