@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
-import {
-  addTransaction,
-  Transaction,
-} from "../../redux/slices/transactionSlice";
+import { addTransaction } from "../../redux/slices/transactionSlice";
 import {
   Button,
   TextField,
@@ -15,20 +12,11 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+import { Transaction } from "../../redux/types/types";
+
 const TransactionForm: React.FC = () => {
   const dispatch = useAppDispatch();
-  const [transaction, setTransaction] = useState<Omit<Transaction, "id">>({
-    dateUtc: new Date().toISOString(),
-    side: "BUY",
-    pair: "",
-    price: 0,
-    executed: 0,
-    symbol: "",
-    paidWith: "",
-    paidAmount: 0,
-    feeAmount: 0,
-    feeSymbol: "",
-  });
+  const [transaction, setTransaction] = useState<Transaction>();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTransaction({ ...transaction, [e.target.name]: e.target.value });

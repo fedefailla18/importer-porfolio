@@ -3,8 +3,8 @@ import React from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ThemeProvider, CssBaseline } from "@mui/material";
+import "react-toastify/dist/ReactToastify.css";
 import theme from "./theme";
-import Header from "./components/layout/Header";
 import { store } from "./redux/store";
 import PortfolioComponent from "./components/portfolio/PortfolioComponent";
 import TransactionForm from "./components/transactions/TransactionForm";
@@ -12,6 +12,7 @@ import TransactionList from "./components/transactions/TransactionList";
 import HoldingComponent from "./components/holdings/HoldingComponent";
 import AllTransactionsPage from "./components/transactions/AllTransactionsPage";
 import Layout from "./components/layout/Layout";
+import { ToastContainer } from "react-toastify";
 
 const App: React.FC = () => {
   return (
@@ -35,6 +36,7 @@ const App: React.FC = () => {
             <Route path="/add-transaction" element={<TransactionForm />} />
           </Routes>
         </Router>
+        <ToastContainer />
       </ThemeProvider>
     </Provider>
   );

@@ -12,11 +12,7 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { HoldingDto } from "../../redux/types/types";
-import { Dispatch, SetStateAction, useState } from "react";
-
-const StyledTableContainer = styled(TableContainer)({
-  marginTop: "2rem",
-});
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 interface HoldingListPageProps {
   holdings: HoldingDto[];
@@ -40,13 +36,32 @@ const HoldingListPage = ({
   const [sortBy, setSortBy] = useState<string>(""); // State to store the field to sort by
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc"); // State to store the sort direction
 
+  useEffect(() => {
+    // Initialize priceMultiplier with default values
+    const initialPriceMultiplier = holdings.reduce((acc, _, index) => {
+      acc[index] = 1;
+      return acc;
+    }, {} as { [key: number]: number });
+    setPriceMultiplier(initialPriceMultiplier);
+
+    // Initialize predictions
+    holdings.forEach((holding, index) => {
+      setPredictionUsdt((prev) => ({
+        ...prev,
+        [index]: holding.amountInUsdt || 0,
+      }));
+      setPredictionBtc((prev) => ({
+        ...prev,
+        [index]: holding.amountInBtc || 0,
+      }));
+    });
+  }, [holdings, setPriceMultiplier, setPredictionUsdt, setPredictionBtc]);
+
   // Function to handle sorting when a table header is clicked
   const handleSort = (field: string) => {
-    // If the field is already being sorted, toggle the sort direction
     if (field === sortBy) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-      // Otherwise, set the field to sort by and default to ascending direction
       setSortBy(field);
       setSortDirection("asc");
     }
@@ -64,9 +79,8 @@ const HoldingListPage = ({
     } else if (sortBy === "priceInUsdt") {
       const aaUsdt = a?.priceInUsdt || 0;
       const baUsdt = b?.priceInUsdt || 0;
-      return sortDirection === "asc" ? aaUsdt - baUsdt : baUsdt || 0 - aaUsdt;
+      return sortDirection === "asc" ? aaUsdt - baUsdt : baUsdt - aaUsdt;
     }
-
     return 0;
   });
 
@@ -151,27 +165,11 @@ const HoldingListPage = ({
                   }}
                 />
               </TableCell>
-              <TableCell
-                onChange={(e) => {
-                  setPredictionBtc((prevState) => ({
-                    ...prevState,
-                    [index]:
-                      priceMultiplier[index] * (holding?.amountInBtc || 1),
-                  }));
-                }}
-              >
-                {priceMultiplier[index] * (holding?.amountInUsdt || 1)}
+              <TableCell>
+                {(priceMultiplier[index] || 1) * (holding?.amountInUsdt || 0)}
               </TableCell>
-              <TableCell
-                onChange={(e) =>
-                  setPredictionUsdt((prevState) => ({
-                    ...prevState,
-                    [index]:
-                      priceMultiplier[index] * (holding?.amountInUsdt || 1),
-                  }))
-                }
-              >
-                {priceMultiplier[index] * (holding?.amountInBtc || 1)}
+              <TableCell>
+                {(priceMultiplier[index] || 1) * (holding?.amountInBtc || 0)}
               </TableCell>
             </TableRow>
           ))}

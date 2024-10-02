@@ -1,21 +1,8 @@
 // src/redux/slices/transactionSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import { stat } from "fs";
-
-export interface Transaction {
-  id: string;
-  dateUtc: string;
-  side?: "BUY" | "SELL";
-  pair: string;
-  price?: number;
-  executed?: number;
-  symbol?: string;
-  paidWith?: string;
-  paidAmount?: number;
-  feeAmount?: number;
-  feeSymbol?: string;
-}
+import createGenericSlice from "./genericSlice";
+import { Transaction } from "../types/types";
 
 interface PaginatedResponse<T> {
   content: T[];
@@ -42,15 +29,20 @@ const initialState: TransactionState = {
 };
 
 interface FetchTransactionsParams {
-  portfolioName?: string;
   symbol?: string;
-  page: number;
-  size: number;
   startDate?: string;
   endDate?: string;
+  portfolioName?: string;
+  side?: string;
+  paidWith?: string;
+  paidAmountOperator?: string;
+  paidAmount?: string;
+  page: number;
+  size: number;
   limit: number;
 }
-export const fetchTransactions = createAsyncThunk(
+
+/* export const fetchTransactions = createAsyncThunk(
   "transactions/fetchTransactions",
   async (params: FetchTransactionsParams, { rejectWithValue }) => {
     try {
@@ -67,7 +59,7 @@ export const fetchTransactions = createAsyncThunk(
       return rejectWithValue(error.response?.data || "An error occurred");
     }
   }
-);
+); */
 
 export const fetchTransactionsByPortfolioName = createAsyncThunk(
   "transactions/fetchTransactions",
@@ -112,6 +104,11 @@ export const addTransaction = createAsyncThunk(
   }
 );
 
+const { fetchItems: fetchTransactions } = createGenericSlice<Transaction>(
+  "transactions",
+  "/api/transactions"
+);
+
 const transactionSlice = createSlice({
   name: "transactions",
   initialState,
@@ -135,19 +132,25 @@ const transactionSlice = createSlice({
       .addCase(fetchTransactions.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "An error occurred";
+        state.transactions = [];
+        state.totalPages = 1;
+        state.currentPage = 1;
       })
       .addCase(addTransaction.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(
+      /* .addCase(
         addTransaction.fulfilled,
-        (state, action: PayloadAction<Transaction>) => {
+        (state, action: PayloadAction<PaginatedResponse<Transaction>>) => {
           state.status = "succeeded";
-          state.transactions.push(action.payload);
+          state.transactions.push(action.payload.content);
+          state.error = null;
+          state.totalPages = action.payload.totalPages;
+          state.currentPage = action.payload.number;
           state.error = null;
         }
-      )
+      ) */
       .addCase(addTransaction.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "An error occurred";
@@ -155,4 +158,6 @@ const transactionSlice = createSlice({
   },
 });
 
+export const { reducer: transactionReducer } = transactionSlice;
+export { fetchTransactions };
 export default transactionSlice.reducer;

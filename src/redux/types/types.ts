@@ -35,3 +35,19 @@ export interface HoldingDetailsState {
   error: string | null;
   status: string;
 }
+
+export interface Transaction {
+  totalPages: number;
+  number: number;
+  id: string;
+  dateUtc: string;
+  side?: "BUY" | "SELL";
+  pair: string;
+  price?: number;
+  executed?: number;
+  symbol?: string;
+  paidWith?: string;
+  paidAmount?: number;
+  feeAmount?: number;
+  feeSymbol?: string;
+}

@@ -1,6 +1,14 @@
 // src/components/common/FilterComponent.tsx
 import React from "react";
-import { TextField, Button, Grid } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Grid,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 
 interface FilterComponentProps {
   filters: {
@@ -8,6 +16,10 @@ interface FilterComponentProps {
     startDate: string;
     endDate: string;
     portfolioName: string;
+    side: string;
+    paidWith: string;
+    paidAmountOperator: string;
+    paidAmount: string;
   };
   selectedPortfolios?: string[];
   onFilterChange: (filterName: string, value: string) => void;
@@ -73,6 +85,51 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
           label="Portfolio Name"
           value={filters.portfolioName}
           onChange={(e) => onFilterChange("portfolioName", e.target.value)}
+        />
+      </Grid>
+      <Grid item xs={12} sm={3}>
+        <FormControl fullWidth>
+          <InputLabel>Side</InputLabel>
+          <Select
+            value={filters.side}
+            onChange={(e) => onFilterChange("side", e.target.value as string)}
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="BUY">Buy</MenuItem>
+            <MenuItem value="SELL">Sell</MenuItem>
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid item xs={12} sm={3}>
+        <TextField
+          fullWidth
+          label="Paid With"
+          value={filters.paidWith}
+          onChange={(e) => onFilterChange("paidWith", e.target.value)}
+        />
+      </Grid>
+      <Grid item xs={12} sm={2}>
+        <FormControl fullWidth>
+          <InputLabel>Paid Amount Operator</InputLabel>
+          <Select
+            value={filters.paidAmountOperator}
+            onChange={(e) =>
+              onFilterChange("paidAmountOperator", e.target.value as string)
+            }
+          >
+            <MenuItem value="eq">Equal to</MenuItem>
+            <MenuItem value="lt">Less than</MenuItem>
+            <MenuItem value="gt">Greater than</MenuItem>
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid item xs={12} sm={2}>
+        <TextField
+          fullWidth
+          label="Paid Amount"
+          type="number"
+          value={filters.paidAmount}
+          onChange={(e) => onFilterChange("paidAmount", e.target.value)}
         />
       </Grid>
       <Grid item xs={12}>
