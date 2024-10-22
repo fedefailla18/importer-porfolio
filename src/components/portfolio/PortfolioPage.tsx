@@ -10,11 +10,17 @@ import {
   Tab,
   Button,
   Drawer,
+  CircularProgress,
 } from "@mui/material";
 import { PortfolioDistribution } from "../../redux/types/types";
 import TransactionList from "../transactions/TransactionList";
 import HoldingListPage from "../holdings/HoldingListPage";
 import AddHoldingsForm from "../holdings/AddHoldingsForm";
+import { fetchCoinInformation } from "../../redux/slices/coinInformationSlice";
+import { fetchPortfolioHoldingDistribution } from "../../redux/actions/portfolioActions";
+import { toast } from "react-toastify";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { RootState } from "../../redux/store";
 
 // Define styles using makeStyles
 const StyledContainer = styled(Container)({
@@ -35,7 +41,10 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
   const [predictionBtc, setPredictionBtc] = useState<{
     [key: number]: number;
   }>({});
-
+  const dispatch = useAppDispatch();
+  const coinInformationState = useAppSelector(
+    (state: RootState) => state.coinInformation
+  );
   const sortedHoldings = portfolioDistribution.holdings.slice().sort((a, b) => {
     return 0;
   });
@@ -58,6 +67,16 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
       }
       setIsDrawerOpen(open);
     };
+
+  const handleFetchCoinInformation = () => {
+    dispatch(fetchCoinInformation(portfolioDistribution.portfolioName));
+  };
+
+  const handleCalculateDistribution = (name: string) => {
+    dispatch(fetchPortfolioHoldingDistribution(name)).then(() => {
+      toast.success("Portfolio updated");
+    });
+  };
 
   const renderStats = () => (
     <Paper style={{ marginBottom: "1rem", padding: "1rem" }}>
@@ -126,6 +145,13 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
           >
             Add Holdings
           </Button>
+          <Button
+            onClick={() =>
+              handleCalculateDistribution(portfolioDistribution.portfolioName)
+            }
+          >
+            Calculate Distribution
+          </Button>
           <HoldingListPage
             holdings={sortedHoldings}
             portfolioName={portfolioDistribution.portfolioName}
@@ -137,7 +163,26 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
         </>
       )}
       {activeTab === 1 && (
-        <TransactionList portfolioName={portfolioDistribution.portfolioName} />
+        <>
+          <Box sx={{ mb: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleFetchCoinInformation}
+              disabled={coinInformationState.status === "loading"}
+              sx={{ mr: 2 }}
+            >
+              {coinInformationState.status === "loading" ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Calculate Portfolio From Missing Processed Transactions"
+              )}
+            </Button>
+          </Box>
+          <TransactionList
+            portfolioName={portfolioDistribution.portfolioName}
+          />
+        </>
       )}
       <Drawer anchor="right" open={isDrawerOpen} onClose={toggleDrawer(false)}>
         <Box sx={{ width: 400, padding: 2 }}>

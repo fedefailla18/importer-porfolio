@@ -16,8 +16,8 @@ const Pagination: React.FC<PaginationProps> = ({
   return (
     <MuiPagination
       count={totalPages}
-      page={currentPage + 1}
-      onChange={(_, page) => onPageChange(page - 1)}
+      page={currentPage}
+      onChange={(_, page) => onPageChange(page)}
       color="primary"
       size="large"
       showFirstButton

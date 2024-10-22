@@ -8,19 +8,12 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Tooltip,
 } from "@mui/material";
+import { FetchTransactionsParams } from "../../redux/slices/transactionSlice";
 
 interface FilterComponentProps {
-  filters: {
-    symbol: string;
-    startDate: string;
-    endDate: string;
-    portfolioName: string;
-    side: string;
-    paidWith: string;
-    paidAmountOperator: string;
-    paidAmount: string;
-  };
+  filters: FetchTransactionsParams;
   selectedPortfolios?: string[];
   onFilterChange: (filterName: string, value: string) => void;
   onApplyFilters: () => void;
@@ -38,7 +31,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
         <TextField
           fullWidth
           label="Symbol"
-          value={filters.symbol}
+          value={filters.symbol || ""}
           onChange={(e) => onFilterChange("symbol", e.target.value)}
         />
       </Grid>
@@ -47,7 +40,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
           fullWidth
           label="Start Date"
           type="date"
-          value={filters.startDate}
+          value={filters.startDate || ""}
           onChange={(e) => onFilterChange("startDate", e.target.value)}
           InputLabelProps={{ shrink: true }}
         />
@@ -117,9 +110,15 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
               onFilterChange("paidAmountOperator", e.target.value as string)
             }
           >
-            <MenuItem value="eq">Equal to</MenuItem>
-            <MenuItem value="lt">Less than</MenuItem>
-            <MenuItem value="gt">Greater than</MenuItem>
+            <Tooltip title="Equal to" placement="right">
+              <MenuItem value="=">=</MenuItem>
+            </Tooltip>
+            <Tooltip title="Less than" placement="right">
+              <MenuItem value="<">&lt;</MenuItem>
+            </Tooltip>
+            <Tooltip title="Greater than" placement="right">
+              <MenuItem value=">">&gt;</MenuItem>
+            </Tooltip>
           </Select>
         </FormControl>
       </Grid>

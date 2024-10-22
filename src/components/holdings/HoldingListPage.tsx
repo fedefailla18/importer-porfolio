@@ -48,14 +48,14 @@ const HoldingListPage = ({
     holdings.forEach((holding, index) => {
       setPredictionUsdt((prev) => ({
         ...prev,
-        [index]: holding.amountInUsdt || 0,
+        [index]: holding?.amountInUsdt || 0,
       }));
       setPredictionBtc((prev) => ({
         ...prev,
-        [index]: holding.amountInBtc || 0,
+        [index]: holding?.amountInBtc || 0,
       }));
     });
-  }, [holdings, setPriceMultiplier, setPredictionUsdt, setPredictionBtc]);
+  }, []);
 
   // Function to handle sorting when a table header is clicked
   const handleSort = (field: string) => {
@@ -140,7 +140,7 @@ const HoldingListPage = ({
               <TableCell>
                 <Input
                   type="number"
-                  value={priceMultiplier[index] || 1}
+                  value={priceMultiplier[index]}
                   onChange={(e) => {
                     const multiplier =
                       e.target.value !== "" ? Number(e.target.value) : 1;
@@ -150,8 +150,8 @@ const HoldingListPage = ({
                       [index]: multiplier,
                     }));
 
-                    const amountInUsdt = holding?.amountInUsdt || 0;
-                    const amountInBtc = holding?.amountInBtc || 0;
+                    const amountInUsdt = holding.amountInUsdt;
+                    const amountInBtc = holding.amountInBtc;
 
                     setPredictionUsdt((prevState) => ({
                       ...prevState,

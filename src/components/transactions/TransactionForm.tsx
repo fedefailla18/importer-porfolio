@@ -19,17 +19,18 @@ const TransactionForm: React.FC = () => {
   const [transaction, setTransaction] = useState<Transaction>();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTransaction({ ...transaction, [e.target.name]: e.target.value });
+    //setTransaction({ ...transaction, [e.target.name]: e.target.value });
   };
+
   const handleChange2 = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
   ) => {
     const { name, value } = e.target;
-    setTransaction((prev) => ({ ...prev, [name as string]: value }));
+    setTransaction((prev: any) => ({ ...prev, [name as string]: value }));
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(addTransaction(transaction));
+    if (transaction) dispatch(addTransaction(transaction));
   };
 
   return (
@@ -45,7 +46,7 @@ const TransactionForm: React.FC = () => {
               label="Date (UTC)"
               type="datetime-local"
               name="dateUtc"
-              value={transaction.dateUtc}
+              value={transaction?.dateUtc}
               onChange={handleChange}
               InputLabelProps={{ shrink: true }}
             />
@@ -56,7 +57,7 @@ const TransactionForm: React.FC = () => {
               select
               label="Side"
               name="side"
-              value={transaction.side}
+              value={transaction?.side}
               onChange={handleChange}
             >
               <MenuItem value="BUY">Buy</MenuItem>
@@ -67,7 +68,7 @@ const TransactionForm: React.FC = () => {
               <Select
                 labelId="side-label"
                 name="side"
-                value={transaction.side}
+                value={transaction?.side}
                 //onChange={handleChange2}
               >
                 <MenuItem value="BUY">Buy</MenuItem>
@@ -80,7 +81,7 @@ const TransactionForm: React.FC = () => {
               fullWidth
               label="Pair"
               name="pair"
-              value={transaction.pair}
+              value={transaction?.pair}
               onChange={handleChange}
             />
           </Grid>
@@ -90,7 +91,7 @@ const TransactionForm: React.FC = () => {
               label="Price"
               name="price"
               type="number"
-              value={transaction.price}
+              value={transaction?.price}
               onChange={handleChange}
             />
           </Grid>
@@ -100,7 +101,7 @@ const TransactionForm: React.FC = () => {
               label="Executed"
               name="executed"
               type="number"
-              value={transaction.executed}
+              value={transaction?.executed}
               onChange={handleChange}
             />
           </Grid>
@@ -109,7 +110,7 @@ const TransactionForm: React.FC = () => {
               fullWidth
               label="Symbol"
               name="symbol"
-              value={transaction.symbol}
+              value={transaction?.symbol}
               onChange={handleChange}
             />
           </Grid>
@@ -118,7 +119,7 @@ const TransactionForm: React.FC = () => {
               fullWidth
               label="Paid With"
               name="paidWith"
-              value={transaction.paidWith}
+              value={transaction?.paidWith}
               onChange={handleChange}
             />
           </Grid>
@@ -128,7 +129,7 @@ const TransactionForm: React.FC = () => {
               label="Paid Amount"
               name="paidAmount"
               type="number"
-              value={transaction.paidAmount}
+              value={transaction?.paidAmount}
               onChange={handleChange}
             />
           </Grid>
@@ -138,7 +139,7 @@ const TransactionForm: React.FC = () => {
               label="Fee Amount"
               name="feeAmount"
               type="number"
-              value={transaction.feeAmount}
+              value={transaction?.feeAmount}
               onChange={handleChange}
             />
           </Grid>
@@ -147,7 +148,7 @@ const TransactionForm: React.FC = () => {
               fullWidth
               label="Fee Symbol"
               name="feeSymbol"
-              value={transaction.feeSymbol}
+              value={transaction?.feeSymbol}
               onChange={handleChange}
             />
           </Grid>

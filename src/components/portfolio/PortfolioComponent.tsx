@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import {
-  fetchPortfolio,
-  fetchPortfolioHoldingDistribution,
-} from "../../redux/actions/portfolioActions";
+import { fetchPortfolio } from "../../redux/actions/portfolioActions";
 import PortfolioPage from "./PortfolioPage";
 import { useAppDispatch } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
-import { toast } from "react-toastify";
 import { MenuItem, Select, Button } from "@mui/material";
 
 const PortfolioComponent = () => {
@@ -24,12 +20,6 @@ const PortfolioComponent = () => {
   useEffect(() => {
     dispatch(fetchPortfolio(selectedPortfolio));
   }, [dispatch, selectedPortfolio]);
-
-  const handleCalculateDistribution = (name: string) => {
-    dispatch(fetchPortfolioHoldingDistribution(name)).then(() => {
-      toast.success("Portfolio updated");
-    });
-  };
 
   const handleDownloadPortfolio = () => {
     // Make the API call to download the portfolio as an Excel file
@@ -79,9 +69,6 @@ const PortfolioComponent = () => {
           </MenuItem>
         ))}
       </Select>
-      <Button onClick={() => handleCalculateDistribution(selectedPortfolio)}>
-        Calculate Distribution
-      </Button>
       <Button onClick={handleDownloadPortfolio}>Download Portfolio</Button>
       <PortfolioPage portfolioDistribution={data} />
     </div>

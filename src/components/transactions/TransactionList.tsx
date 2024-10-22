@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../redux/hooks";
-import { fetchTransactions } from "../../redux/slices/transactionSlice";
+import {
+  fetchTransactions,
+  FetchTransactionsParams,
+} from "../../redux/slices/transactionSlice";
 import {
   Container,
   Typography,
@@ -12,10 +15,10 @@ import {
   TableRow,
   Paper,
   CircularProgress,
-  Pagination,
 } from "@mui/material";
 import { RootState } from "../../redux/store";
 import FilterComponent from "../common/FilterComponent";
+import Pagination from "../common/Pagination";
 import { format, parseISO } from "date-fns";
 import { toast } from "react-toastify";
 import { Transaction } from "../../redux/types/types";
@@ -30,54 +33,42 @@ const TransactionList: React.FC<TransactionListProps> = ({
   portfolioName,
 }) => {
   const dispatch = useAppDispatch();
-  const {
-    items: transactions,
-    status,
-    error,
-    pagination,
-  } = useAppSelector((state: RootState) => state.transactions);
+  const { transactions, status, error, pagination } = useAppSelector(
+    (state: RootState) => state.transactions
+  );
 
-  const [filters, setFilters] = useState({
-    symbol: symbol || "",
-    startDate: "",
-    endDate: "",
-    portfolioName: portfolioName || "",
-    side: "",
-    paidWith: "",
+  const [filters, setFilters] = useState<FetchTransactionsParams>({
+    symbol: symbol || undefined,
+    startDate: undefined,
+    endDate: undefined,
+    portfolioName: portfolioName || undefined,
+    side: undefined,
+    paidWith: undefined,
     paidAmountOperator: "eq",
-    paidAmount: "",
+    paidAmount: undefined,
+    page: 0,
+    size: 10,
   });
 
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-
   useEffect(() => {
-    dispatch(
-      fetchTransactions({
-        page: pagination.currentPage,
-        size: pagination.itemsPerPage,
-      })
-    );
+    dispatch(fetchTransactions(filters));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize]);
+  }, []);
 
   const handlePageChange = (page: number) => {
-    dispatch(fetchTransactions({ page, size: pagination.itemsPerPage }));
+    setFilters((prevFilters: any) => ({ ...prevFilters, page: page - 1 }));
   };
 
   const handleFilterChange = (filterName: string, value: string) => {
-    setFilters((prevFilters) => ({ ...prevFilters, [filterName]: value }));
+    setFilters((prevFilters: any) => ({
+      ...prevFilters,
+      [filterName]: value,
+      page: 0,
+    }));
   };
 
   const handleApplyFilters = () => {
-    setPage(1);
-    dispatch(
-      fetchTransactions({
-        ...filters,
-        page: 0,
-        size: pageSize,
-      })
-    );
+    dispatch(fetchTransactions(filters));
   };
 
   const formatDate = (dateUtc: string | undefined) => {
@@ -154,7 +145,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
         </Table>
       </TableContainer>
       <Pagination
-        currentPage={pagination.currentPage}
+        currentPage={pagination.currentPage + 1}
         totalPages={pagination.totalPages}
         onPageChange={handlePageChange}
       />

@@ -3,9 +3,9 @@ export interface HoldingDto {
   symbol: string;
   portfolioName: string;
   amount: number;
-  amountInBtc?: number;
+  amountInBtc: number;
   priceInBtc?: number;
-  amountInUsdt?: number;
+  amountInUsdt: number;
   priceInUsdt?: number;
   percentage?: number;
   totalAmountBought?: number;
@@ -37,8 +37,6 @@ export interface HoldingDetailsState {
 }
 
 export interface Transaction {
-  totalPages: number;
-  number: number;
   id: string;
   dateUtc: string;
   side?: "BUY" | "SELL";
@@ -50,4 +48,24 @@ export interface Transaction {
   paidAmount?: number;
   feeAmount?: number;
   feeSymbol?: string;
+}
+
+export interface PaginatedResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  number: number;
+  size: number;
+}
+
+export interface TransactionState {
+  transactions: Transaction[];
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  };
 }

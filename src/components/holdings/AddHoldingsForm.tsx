@@ -21,6 +21,8 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
     amount: 0,
     portfolioName: "",
     costInUsdt: 0,
+    amountInUsdt: 0,
+    amountInBtc: 0,
   });
   const [holdings, setHoldings] = useState<HoldingDto[]>([
     {
@@ -28,6 +30,8 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
       amount: 0,
       portfolioName: portfolio ? portfolio : "",
       stableTotalCost: 0,
+      amountInUsdt: 0,
+      amountInBtc: 0,
     },
   ]);
 
@@ -39,6 +43,8 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
         amount: 0,
         portfolioName: portfolio ? portfolio : "",
         stableTotalCost: 0,
+        amountInUsdt: 0,
+        amountInBtc: 0,
       },
     ]);
   };
@@ -68,6 +74,8 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
         amount: 0,
         portfolioName: portfolio ? portfolio : "",
         stableTotalCost: 0,
+        amountInUsdt: 0,
+        amountInBtc: 0,
       },
     ]);
   };
