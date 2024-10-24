@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import {
   TableContainer,
-  Paper,
   Table,
   TableHead,
   TableRow,
@@ -9,6 +8,7 @@ import {
   TableSortLabel,
   TableBody,
   Input,
+  Theme,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { HoldingDto } from "../../redux/types/types";
@@ -24,6 +24,33 @@ interface HoldingListPageProps {
     [key: number]: number;
   };
 }
+
+const StyledTableContainer = styled(TableContainer)({
+  maxHeight: "70vh",
+  overflow: "auto",
+  "& table": {
+    borderCollapse: "separate",
+    borderSpacing: 0,
+  },
+});
+
+const StickyTableCell = styled(TableCell)(({ theme }) => ({
+  position: "sticky",
+  backgroundColor: (theme as Theme).palette?.background?.paper || "#fff",
+  zIndex: 2,
+}));
+
+const StickyHeaderCell = styled(StickyTableCell)({
+  top: 0,
+  zIndex: 1,
+});
+
+const StickyColumnCell = styled(StickyTableCell)(
+  ({ index }: { index: number }) => ({
+    left: index === 0 ? 0 : 60,
+    zIndex: 2,
+  })
+);
 
 const HoldingListPage = ({
   holdings,
@@ -85,47 +112,47 @@ const HoldingListPage = ({
   });
 
   return (
-    <TableContainer component={Paper}>
+    <StyledTableContainer>
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell></TableCell>
-            <TableCell>Symbol</TableCell>
-            <TableCell>
+            <StickyHeaderCell></StickyHeaderCell>
+            <StickyHeaderCell>Symbol</StickyHeaderCell>
+            <StickyHeaderCell>
               <TableSortLabel>Amount</TableSortLabel>
-            </TableCell>
-            <TableCell>totalAmountBought</TableCell>
-            <TableCell>totalAmountSold</TableCell>
-            <TableCell>Price in BTC</TableCell>
-            <TableCell>
+            </StickyHeaderCell>
+            <StickyHeaderCell>totalAmountBought</StickyHeaderCell>
+            <StickyHeaderCell>totalAmountSold</StickyHeaderCell>
+            <StickyHeaderCell>Price in BTC</StickyHeaderCell>
+            <StickyHeaderCell>
               <TableSortLabel onClick={() => handleSort("priceInUsdt")}>
                 Price in USDT
               </TableSortLabel>
-            </TableCell>
-            <TableCell>Amount in BTC</TableCell>
-            <TableCell>
+            </StickyHeaderCell>
+            <StickyHeaderCell>Amount in BTC</StickyHeaderCell>
+            <StickyHeaderCell>
               <TableSortLabel onClick={() => handleSort("amountInUsdt")}>
                 Amount in USDT
               </TableSortLabel>
-            </TableCell>
-            <TableCell>Percentage</TableCell>
-            <TableCell>stableTotalCost</TableCell>
-            <TableCell>totalRealizedProfitUsdt</TableCell>
-            <TableCell>currentPositionInUsdt</TableCell>
-            <TableCell>Price Multiplier</TableCell>
-            <TableCell>Prediction USDT</TableCell>
-            <TableCell>Prediction BTC</TableCell>
+            </StickyHeaderCell>
+            <StickyHeaderCell>Percentage</StickyHeaderCell>
+            <StickyHeaderCell>stableTotalCost</StickyHeaderCell>
+            <StickyHeaderCell>totalRealizedProfitUsdt</StickyHeaderCell>
+            <StickyHeaderCell>currentPositionInUsdt</StickyHeaderCell>
+            <StickyHeaderCell>Price Multiplier</StickyHeaderCell>
+            <StickyHeaderCell>Prediction USDT</StickyHeaderCell>
+            <StickyHeaderCell>Prediction BTC</StickyHeaderCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {sortedHoldings?.map((holding: HoldingDto, index: number) => (
             <TableRow key={holding.symbol}>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell>
+              <StickyColumnCell index={0}>{index + 1}</StickyColumnCell>
+              <StickyColumnCell index={0}>
                 <Link to={`/portfolio/${portfolioName}/${holding.symbol}`}>
                   {holding.symbol}
                 </Link>
-              </TableCell>
+              </StickyColumnCell>
               <TableCell>{holding.amount}</TableCell>
               <TableCell>{holding.totalAmountBought}</TableCell>
               <TableCell>{holding.totalAmountSold}</TableCell>
@@ -175,7 +202,7 @@ const HoldingListPage = ({
           ))}
         </TableBody>
       </Table>
-    </TableContainer>
+    </StyledTableContainer>
   );
 };
 

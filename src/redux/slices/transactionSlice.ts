@@ -18,6 +18,7 @@ export interface FetchTransactionsParams {
   paidAmount?: string;
   page: number;
   size: number;
+  sort?: string;
 }
 
 const initialState: TransactionState = {

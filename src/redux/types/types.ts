@@ -37,7 +37,7 @@ export interface HoldingDetailsState {
 }
 
 export interface Transaction {
-  id: string;
+  id?: string;
   dateUtc: string;
   side?: "BUY" | "SELL";
   pair: string;
@@ -48,6 +48,7 @@ export interface Transaction {
   paidAmount?: number;
   feeAmount?: number;
   feeSymbol?: string;
+  portfolioName: string;
 }
 
 export interface PaginatedResponse<T> {

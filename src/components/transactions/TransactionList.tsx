@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import {
   fetchTransactions,
@@ -15,6 +15,11 @@ import {
   TableRow,
   Paper,
   CircularProgress,
+  TableSortLabel,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import { RootState } from "../../redux/store";
 import FilterComponent from "../common/FilterComponent";
@@ -48,27 +53,51 @@ const TransactionList: React.FC<TransactionListProps> = ({
     paidAmount: undefined,
     page: 0,
     size: 10,
+    sort: "dateUtc,desc",
   });
 
+  const [isInitialLoad, setIsInitialLoad] = useState(false);
+
+  const loadTransactions = () => {
+    if (!isInitialLoad) {
+      dispatch(fetchTransactions(filters));
+    }
+  };
+
+  const handleRowsPerPageChange = (event: any) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      size: event.target.value as number,
+      page: 0,
+    }));
+  };
+
   useEffect(() => {
-    dispatch(fetchTransactions(filters));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    //loadTransactions();
   }, []);
 
   const handlePageChange = (page: number) => {
-    setFilters((prevFilters: any) => ({ ...prevFilters, page: page - 1 }));
+    setFilters((prevFilters) => ({ ...prevFilters, page: page - 1 }));
   };
 
   const handleFilterChange = (filterName: string, value: string) => {
-    setFilters((prevFilters: any) => ({
+    setFilters((prevFilters) => ({
       ...prevFilters,
       [filterName]: value,
       page: 0,
     }));
   };
 
+  const handleSort = (property: string) => {
+    const isAsc =
+      filters.sort?.split(",")[0] === property &&
+      filters.sort?.split(",")[1] === "asc";
+    const newSort = `${property},${isAsc ? "desc" : "asc"}`;
+    setFilters((prevFilters) => ({ ...prevFilters, sort: newSort, page: 0 }));
+  };
+
   const handleApplyFilters = () => {
-    dispatch(fetchTransactions(filters));
+    loadTransactions();
   };
 
   const formatDate = (dateUtc: string | undefined) => {
@@ -114,7 +143,13 @@ const TransactionList: React.FC<TransactionListProps> = ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Date</TableCell>
+              <TableSortLabel
+                active={filters.sort?.split(",")[0] === "dateUtc"}
+                direction={filters.sort?.split(",")[1] as "asc" | "desc"}
+                onClick={() => handleSort("dateUtc")}
+              >
+                Date
+              </TableSortLabel>
               <TableCell>Side</TableCell>
               <TableCell>Pair</TableCell>
               <TableCell>Price</TableCell>
@@ -127,28 +162,55 @@ const TransactionList: React.FC<TransactionListProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {transactions.map((transaction: Transaction, index: number) => (
-              <TableRow key={index}>
-                <TableCell>{formatDate(transaction.dateUtc)}</TableCell>
-                <TableCell>{transaction.side}</TableCell>
-                <TableCell>{transaction.pair}</TableCell>
-                <TableCell>{transaction.price}</TableCell>
-                <TableCell>{transaction.executed}</TableCell>
-                <TableCell>{transaction.symbol}</TableCell>
-                <TableCell>{transaction.paidWith}</TableCell>
-                <TableCell>{transaction.paidAmount}</TableCell>
-                <TableCell>{transaction.feeAmount}</TableCell>
-                <TableCell>{transaction.feeSymbol}</TableCell>
-              </TableRow>
-            ))}
+            {transactions.length > 0 ? (
+              transactions.map((transaction: Transaction, index: number) => (
+                <TableRow key={index}>
+                  <TableCell>{formatDate(transaction.dateUtc)}</TableCell>
+                  <TableCell>{transaction.side}</TableCell>
+                  <TableCell>{transaction.pair}</TableCell>
+                  <TableCell>{transaction.price}</TableCell>
+                  <TableCell>{transaction.executed}</TableCell>
+                  <TableCell>{transaction.symbol}</TableCell>
+                  <TableCell>{transaction.paidWith}</TableCell>
+                  <TableCell>{transaction.paidAmount}</TableCell>
+                  <TableCell>{transaction.feeAmount}</TableCell>
+                  <TableCell>{transaction.feeSymbol}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <Typography>No records were found</Typography>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
-      <Pagination
-        currentPage={pagination.currentPage + 1}
-        totalPages={pagination.totalPages}
-        onPageChange={handlePageChange}
-      />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginTop: "1rem",
+        }}
+      >
+        <FormControl variant="outlined" style={{ minWidth: 120 }}>
+          <InputLabel id="rows-per-page-label">Rows per page</InputLabel>
+          <Select
+            labelId="rows-per-page-label"
+            value={filters.size}
+            onChange={(e) => handleRowsPerPageChange(e)}
+            label="Rows per page"
+          >
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={25}>25</MenuItem>
+            <MenuItem value={50}>50</MenuItem>
+            <MenuItem value={100}>100</MenuItem>
+          </Select>
+        </FormControl>
+        <Pagination
+          currentPage={pagination.currentPage + 1}
+          totalPages={pagination.totalPages}
+          onPageChange={handlePageChange}
+        />
+      </div>
     </Container>
   );
 };

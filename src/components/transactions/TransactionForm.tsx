@@ -1,3 +1,4 @@
+// /src/components/transactions/TransactionForm.tsx
 import React, { useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { addTransaction } from "../../redux/slices/transactionSlice";
@@ -13,24 +14,38 @@ import {
   Typography,
 } from "@mui/material";
 import { Transaction } from "../../redux/types/types";
+import { useNavigate } from "react-router-dom";
 
 const TransactionForm: React.FC = () => {
   const dispatch = useAppDispatch();
-  const [transaction, setTransaction] = useState<Transaction>();
+  const navigate = useNavigate();
+  const [transaction, setTransaction] = useState<Transaction>({
+    dateUtc: "",
+    side: "BUY",
+    executed: 0,
+    symbol: "",
+    portfolioName: "",
+    pair: "",
+    price: 0,
+    paidWith: "",
+    paidAmount: 0,
+    feeAmount: 0,
+    feeSymbol: "",
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //setTransaction({ ...transaction, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setTransaction((prev: any) => ({ ...prev, [name]: value }));
   };
 
-  const handleChange2 = (
-    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
-  ) => {
-    const { name, value } = e.target;
-    setTransaction((prev: any) => ({ ...prev, [name as string]: value }));
-  };
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (transaction) dispatch(addTransaction(transaction));
+    try {
+      await dispatch(addTransaction(transaction)).unwrap();
+      navigate("/transactions");
+    } catch (error) {
+      console.error("Failed to add transaction:", error);
+    }
   };
 
   return (
