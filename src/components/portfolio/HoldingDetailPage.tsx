@@ -46,7 +46,6 @@ const HoldingDetailPage: React.FC = () => {
       <p>
         Total Realized Profit USDT: {holdingDetails.totalRealizedProfitUsdt}
       </p>
-      <p>Current Position in USDT: {holdingDetails.currentPositionInUsdt}</p>
     </div>
   );
 };

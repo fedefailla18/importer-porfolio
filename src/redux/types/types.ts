@@ -11,7 +11,6 @@ export interface HoldingDto {
   totalAmountBought?: number;
   totalAmountSold?: number;
   stableTotalCost?: number;
-  currentPositionInUsdt?: number;
   totalRealizedProfitUsdt?: number;
 }
 

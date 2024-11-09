@@ -138,7 +138,6 @@ const HoldingListPage = ({
             <StickyHeaderCell>Percentage</StickyHeaderCell>
             <StickyHeaderCell>stableTotalCost</StickyHeaderCell>
             <StickyHeaderCell>totalRealizedProfitUsdt</StickyHeaderCell>
-            <StickyHeaderCell>currentPositionInUsdt</StickyHeaderCell>
             <StickyHeaderCell>Price Multiplier</StickyHeaderCell>
             <StickyHeaderCell>Prediction USDT</StickyHeaderCell>
             <StickyHeaderCell>Prediction BTC</StickyHeaderCell>
@@ -163,7 +162,6 @@ const HoldingListPage = ({
               <TableCell>{holding.percentage}</TableCell>
               <TableCell>{holding.stableTotalCost}</TableCell>
               <TableCell>{holding.totalRealizedProfitUsdt}</TableCell>
-              <TableCell>{holding.currentPositionInUsdt}</TableCell>
               <TableCell>
                 <Input
                   type="number"

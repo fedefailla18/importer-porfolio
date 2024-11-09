@@ -65,9 +65,6 @@ const HoldingComponent: React.FC = () => {
         <Typography>
           Total Realized Profit USDT: {holdingDetails.totalRealizedProfitUsdt}
         </Typography>
-        <Typography>
-          Current Position in USDT: {holdingDetails.currentPositionInUsdt}
-        </Typography>
       </div>
     );
   };
