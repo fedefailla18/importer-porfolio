@@ -1,14 +1,29 @@
-// src/redux/reducers/holdingDetailsReducer.ts
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+// src/redux/slices/holdingDetailsSlice.ts
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { HoldingDetailsState, HoldingDto } from "../types/types";
-import { fetchHoldingDetails } from "../actions/portfolioActions";
+import axios from "axios";
 
 const initialState: HoldingDetailsState = {
   holdingDetails: null,
-  loading: false,
+  status: "idle",
   error: null,
-  status: "",
 };
+
+export const fetchHoldingDetails = createAsyncThunk(
+  "holdingDetails/fetchHoldingDetails",
+  async ({
+    portfolioName,
+    symbol,
+  }: {
+    portfolioName: string;
+    symbol: string;
+  }) => {
+    const response = await axios.get<HoldingDto>(
+      `http://localhost:8080/portfolio/${portfolioName}/${symbol}`
+    );
+    return response.data;
+  }
+);
 
 const holdingDetailsSlice = createSlice({
   name: "holdingDetails",
@@ -17,19 +32,19 @@ const holdingDetailsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchHoldingDetails.pending, (state) => {
-        state.loading = true;
+        state.status = "loading";
         state.error = null;
       })
       .addCase(
         fetchHoldingDetails.fulfilled,
         (state, action: PayloadAction<HoldingDto>) => {
-          state.loading = false;
+          state.status = "succeeded";
           state.holdingDetails = action.payload;
           state.error = null;
         }
       )
       .addCase(fetchHoldingDetails.rejected, (state, action) => {
-        state.loading = false;
+        state.status = "failed";
         state.error = action.error.message || "An error occurred";
       });
   },

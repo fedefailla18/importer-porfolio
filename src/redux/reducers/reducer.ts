@@ -1,11 +1,15 @@
-import { combineReducers } from "redux";
+// src/redux/reducers/rootReducer.ts
+import { combineReducers } from "@reduxjs/toolkit";
 import portfolioReducer from "./portfolioReducer";
-import { holdingDetailsReducer } from "./holdingDetailsReducer";
+import holdingDetailsSlice from "../slices/holdingDetailsSlice";
+import transactionSlice from "../slices/transactionSlice";
+import coinInformationReducer from "../slices/coinInformationSlice";
 
 const rootReducer = combineReducers({
   portfolio: portfolioReducer,
-  holdingDetails: holdingDetailsReducer,
-  // Add other reducers here if needed
+  holdingDetails: holdingDetailsSlice,
+  transactions: transactionSlice,
+  coinInformation: coinInformationReducer,
 });
 
 export default rootReducer;
