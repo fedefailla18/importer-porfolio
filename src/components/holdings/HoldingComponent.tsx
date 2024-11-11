@@ -75,13 +75,7 @@ const HoldingComponent: React.FC = () => {
         value={holdingDetails}
         onChange={handleHoldingChange}
         style={{ marginBottom: "1rem" }}
-      >
-        {/* {transactions?.map((transaction: Transaction) => (
-          <MenuItem key={transaction.symbol} value={transaction.symbol}>
-            {transaction.symbol}
-          </MenuItem>
-        ))} */}
-      </Select>
+      ></Select>
 
       <div>
         <Paper style={{ marginBottom: "1rem", padding: "1rem" }}>
