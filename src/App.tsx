@@ -1,5 +1,5 @@
 // src/App.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ThemeProvider, CssBaseline } from "@mui/material";
@@ -16,8 +16,22 @@ import { ToastContainer } from "react-toastify";
 import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { useAppDispatch } from "./redux/hooks";
+import { getAuthToken, setupAxiosInterceptors } from "./redux/utils/auth";
+import { login } from "./redux/slices/authSlice";
 
-const App: React.FC = () => {
+const App = () => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    setupAxiosInterceptors();
+    const token = getAuthToken();
+    if (token) {
+      debugger;
+      store.dispatch(login(token));
+    }
+  }, []);
+
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
