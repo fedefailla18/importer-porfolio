@@ -33,7 +33,6 @@ const Login: React.FC = () => {
     e.preventDefault();
     try {
       await dispatch(login({ username, password }));
-      navigate("/");
     } catch (error) {
       console.error("Login failed:", error);
     }

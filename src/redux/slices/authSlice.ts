@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { removeAuthToken, setAuthToken } from "../utils/auth";
+import api from "../utils/api";
 
 interface User {
   id: string;
@@ -31,11 +32,7 @@ const initialState: AuthState = {
 
 interface LoginResponse {
   user: User;
-  token: string;
-}
-
-interface RegisterResponse {
-  message: string;
+  jwt: string;
 }
 
 export const login = createAsyncThunk<
@@ -48,15 +45,13 @@ export const login = createAsyncThunk<
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/auth/login",
-        {
-          credentials,
-        }
-      );
-      const { token, user } = response.data;
-      setAuthToken(token);
-      return { token, user };
+      const response = await api.post("/api/auth/login", {
+        username: credentials.username,
+        password: credentials.password,
+      });
+      const { jwt, user } = response.data;
+      setAuthToken(jwt);
+      return { jwt, user };
     } catch (err) {
       const error = err as AxiosError<AuthError>;
       if (!error.response) {
@@ -85,10 +80,11 @@ export const register = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/auth/register",
-        { username, email, password }
-      );
+      const response = await api.post("/api/auth/register", {
+        username,
+        email,
+        password,
+      });
       return response.data;
     } catch (err) {
       const error = err as AxiosError<AuthError>;
@@ -124,7 +120,7 @@ const authSlice = createSlice({
         state.status = "succeeded";
         state.user = action.payload.user;
         state.isAuthenticated = true;
-        localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("token", action.payload.jwt);
         state.loading = false;
       })
       .addCase(login.rejected, (state, action) => {

@@ -1,6 +1,6 @@
 // src/redux/slices/transactionSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../utils/api";
 import {
   Transaction,
   PaginatedResponse,
@@ -37,8 +37,8 @@ export const fetchTransactions = createAsyncThunk(
   "transactions/fetchTransactions",
   async (params: FetchTransactionsParams, { rejectWithValue }) => {
     try {
-      const response = await axios.get<PaginatedResponse<Transaction>>(
-        `http://localhost:8080/transaction/filter`,
+      const response = await api.get<PaginatedResponse<Transaction>>(
+        `/transaction/filter`,
         { params }
       );
       return response.data;
@@ -52,10 +52,7 @@ export const addTransaction = createAsyncThunk(
   "transactions/addTransaction",
   async (transaction: Omit<Transaction, "id">, { rejectWithValue }) => {
     try {
-      const response = await axios.post<Transaction>(
-        "http://localhost:8080/transaction",
-        transaction
-      );
+      const response = await api.post<Transaction>("/transaction", transaction);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "An error occurred");
