@@ -1,7 +1,7 @@
 // src/redux/slices/portfolioSlice.ts
 import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { HoldingDto, PortfolioDistribution } from "../types/types";
-import axios from "axios";
+import api from "../utils/api";
 
 interface PortfolioState {
   data: PortfolioDistribution | null;
@@ -19,8 +19,8 @@ export const fetchPortfolio = createAsyncThunk(
   "portfolio/fetchPortfolio",
   async (portfolioName: string, { rejectWithValue }) => {
     try {
-      const response = await axios.get<PortfolioDistribution>(
-        `http://localhost:8080/portfolio/${portfolioName}`
+      const response = await api.get<PortfolioDistribution>(
+        `/portfolio/${portfolioName}`
       );
       return response.data;
     } catch (error: any) {
@@ -33,8 +33,8 @@ export const fetchPortfolioHoldingDistribution = createAsyncThunk(
   "portfolio/fetchPortfolioHoldingDistribution",
   async (portfolioName: string, { rejectWithValue }) => {
     try {
-      const response = await axios.get<PortfolioDistribution>(
-        `http://localhost:8080/portfolio/${portfolioName}/distribution`
+      const response = await api.get<PortfolioDistribution>(
+        `/portfolio/${portfolioName}/distribution`
       );
       return response.data;
     } catch (error: any) {
@@ -47,12 +47,9 @@ export const fetchPortfolioHoldingDistribution = createAsyncThunk(
 export const addMultipleHoldings = createAsyncThunk(
   "holdingDetails/addMultipleHoldings",
   async (holdings: HoldingDto[]) => {
-    const response = await axios.post<HoldingDto[]>(
-      `http://localhost:8080/holding/addMultiple`,
-      {
-        holdings,
-      }
-    );
+    const response = await api.post<HoldingDto[]>(`/holding/addMultiple`, {
+      holdings,
+    });
     return response.data;
   }
 );

@@ -1,3 +1,4 @@
+// src/components/portfolio/PortfolioComponent.tsx
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { fetchPortfolio } from "../../redux/actions/portfolioActions";

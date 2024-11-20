@@ -1,7 +1,7 @@
 // src/redux/slices/holdingDetailsSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { HoldingDetailsState, HoldingDto } from "../types/types";
-import axios from "axios";
+import api from "../utils/api";
 
 const initialState: HoldingDetailsState = {
   holdingDetails: null,
@@ -18,8 +18,8 @@ export const fetchHoldingDetails = createAsyncThunk(
     portfolioName: string;
     symbol: string;
   }) => {
-    const response = await axios.get<HoldingDto>(
-      `http://localhost:8080/portfolio/${portfolioName}/${symbol}`
+    const response = await api.get<HoldingDto>(
+      `/portfolio/${portfolioName}/${symbol}`
     );
     return response.data;
   }

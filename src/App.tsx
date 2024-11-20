@@ -1,5 +1,5 @@
 // src/App.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ThemeProvider, CssBaseline } from "@mui/material";
@@ -17,7 +17,7 @@ import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>

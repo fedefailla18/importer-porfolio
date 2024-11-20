@@ -13,6 +13,7 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../redux/store";
 import { logout } from "../../redux/slices/authSlice";
+import { useAppDispatch } from "../../redux/hooks";
 
 const darkTheme = createTheme({
   palette: {
@@ -28,7 +29,7 @@ const darkTheme = createTheme({
 });
 
 const Layout = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated

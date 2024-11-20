@@ -1,6 +1,6 @@
 // src/redux/slices/coinInformationSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../utils/api";
 
 interface CoinInformationResponse {
   // Add the properties of CoinInformationResponse here
@@ -26,8 +26,8 @@ export const fetchCoinInformation = createAsyncThunk(
   "coinInformation/fetchCoinInformation",
   async (portfolio: string, { rejectWithValue }) => {
     try {
-      const response = await axios.post<CoinInformationResponse[]>(
-        `http://localhost:8080/transaction/information/all/${portfolio}`
+      const response = await api.post<CoinInformationResponse[]>(
+        `/transaction/information/all/${portfolio}`
       );
       return response.data;
     } catch (error: any) {
