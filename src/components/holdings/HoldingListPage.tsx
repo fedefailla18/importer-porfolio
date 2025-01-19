@@ -1,3 +1,4 @@
+// src/components/holdings/HoldingListPage.tsx
 import styled from "@emotion/styled";
 import {
   TableContainer,

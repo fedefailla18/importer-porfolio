@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import { removeAuthToken, setAuthToken } from "../utils/auth";
+import api from "../utils/api";
 
 interface User {
   id: string;
@@ -9,9 +11,9 @@ interface User {
 
 interface AuthState {
   user: any | null;
-  token: string | null;
   isAuthenticated: boolean;
   status: "idle" | "loading" | "succeeded" | "failed";
+  loading: boolean;
   error: string | null;
 }
 
@@ -22,41 +24,49 @@ interface AuthError {
 
 const initialState: AuthState = {
   user: null,
-  token: localStorage.getItem("token"),
   isAuthenticated: false,
   status: "idle",
+  loading: false,
   error: null,
 };
 
 interface LoginResponse {
   user: User;
-  token: string;
-}
-
-interface RegisterResponse {
-  message: string;
+  jwt: string;
 }
 
 export const login = createAsyncThunk<
   LoginResponse,
   { username: string; password: string }
->("auth/login", async ({ username, password }, { rejectWithValue }) => {
-  try {
-    const response = await axios.post("http://localhost:8080/api/auth/login", {
-      username,
-      password,
-    });
-    return response.data;
-  } catch (err) {
-    const error = err as AxiosError<AuthError>;
-    if (!error.response) {
-      throw err;
+>(
+  "auth/login",
+  async (
+    credentials: { username: string; password: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await api.post("/api/auth/login", {
+        username: credentials.username,
+        password: credentials.password,
+      });
+      const { jwt, user } = response.data;
+      setAuthToken(jwt);
+      return { jwt, user };
+    } catch (err) {
+      const error = err as AxiosError<AuthError>;
+      if (!error.response) {
+        throw err;
+      }
+      return rejectWithValue({
+        message: error.response.data.message || "Login failed",
+        statusCode: error.response.status,
+      });
     }
-    return rejectWithValue({
-      message: error.response.data.message || "Login failed",
-      statusCode: error.response.status,
-    });
   }
+);
+
+export const logout = createAsyncThunk("auth/logout", async () => {
+  removeAuthToken();
 });
 
 export const register = createAsyncThunk(
@@ -70,10 +80,11 @@ export const register = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/auth/register",
-        { username, email, password }
-      );
+      const response = await api.post("/api/auth/register", {
+        username,
+        email,
+        password,
+      });
       return response.data;
     } catch (err) {
       const error = err as AxiosError<AuthError>;
@@ -94,7 +105,6 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.user = null;
-      state.token = null;
       state.isAuthenticated = false;
       localStorage.removeItem("token");
     },
@@ -103,16 +113,19 @@ const authSlice = createSlice({
     builder
       .addCase(login.pending, (state) => {
         state.status = "loading";
+        state.loading = true;
+        state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.user = action.payload.user;
-        state.token = action.payload.token;
         state.isAuthenticated = true;
-        localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("token", action.payload.jwt);
+        state.loading = false;
       })
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";
+        state.loading = false;
         state.error = action.error.message || "Login failed";
       })
       .addCase(register.pending, (state) => {
@@ -127,7 +140,5 @@ const authSlice = createSlice({
       });
   },
 });
-
-export const { logout } = authSlice.actions;
 
 export default authSlice.reducer;
