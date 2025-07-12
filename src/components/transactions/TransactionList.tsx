@@ -59,9 +59,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const [isInitialLoad, setIsInitialLoad] = useState(false);
 
   const loadTransactions = () => {
-    if (!isInitialLoad) {
-      dispatch(fetchTransactions(filters));
-    }
+    dispatch(fetchTransactions(filters));
   };
 
   const handleRowsPerPageChange = (event: any) => {
@@ -73,8 +71,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
   };
 
   useEffect(() => {
-    //loadTransactions();
-  }, []);
+    loadTransactions();
+  }, [filters]);
 
   const handlePageChange = (page: number) => {
     setFilters((prevFilters) => ({ ...prevFilters, page: page - 1 }));

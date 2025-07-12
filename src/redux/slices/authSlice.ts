@@ -22,9 +22,13 @@ interface AuthError {
   statusCode?: number;
 }
 
+// Check if user is already authenticated from localStorage
+const token = localStorage.getItem("token");
+const user = localStorage.getItem("user");
+
 const initialState: AuthState = {
-  user: null,
-  isAuthenticated: false,
+  user: user ? JSON.parse(user) : null,
+  isAuthenticated: !!token,
   status: "idle",
   loading: false,
   error: null,
@@ -107,6 +111,7 @@ const authSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
     },
   },
   extraReducers: (builder) => {
@@ -121,6 +126,7 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.isAuthenticated = true;
         localStorage.setItem("token", action.payload.jwt);
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
         state.loading = false;
       })
       .addCase(login.rejected, (state, action) => {

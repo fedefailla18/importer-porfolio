@@ -21,11 +21,18 @@ export interface PortfolioDistribution {
   holdings: HoldingDto[];
 }
 
+export interface PortfolioSummary {
+  name: string;
+  balance: number;
+  topHoldings: HoldingDto[];
+}
+
 export interface PortfolioState {
   loading?: boolean;
   data?: PortfolioDistribution | null;
   error: string | null;
   status: string;
+  portfolios: PortfolioSummary[];
 }
 
 export interface HoldingDetailsState {

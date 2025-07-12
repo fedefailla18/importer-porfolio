@@ -1,26 +1,38 @@
 // src/components/portfolio/PortfolioComponent.tsx
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { fetchPortfolio } from "../../redux/actions/portfolioActions";
-import PortfolioPage from "./PortfolioPage";
+import { fetchPortfolio, fetchAllPortfolios, uploadTransactions } from "../../redux/slices/portfolioSlice";
+import PortfolioLandingPage from "./PortfolioLandingPage";
+import EmptyPortfolioState from "./EmptyPortfolioState";
+import CreatePortfolioDialog from "./CreatePortfolioDialog";
 import { useAppDispatch } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
-import { MenuItem, Select, Button } from "@mui/material";
+import { toast } from "react-toastify";
 
 const PortfolioComponent = () => {
   const dispatch = useAppDispatch();
-  const portfoliosName = ["Binance", "MexC", "Buenbit", "all"];
-  const [selectedPortfolio, setSelectedPortfolio] = useState<string>(
-    portfoliosName[0] ?? "Select Portfolio"
-  );
+  const [selectedPortfolio, setSelectedPortfolio] = useState<string>("");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const { data, loading, error } = useSelector(
+  const { data, error, portfolios } = useSelector(
     (state: RootState) => state.portfolio
   );
 
   useEffect(() => {
-    dispatch(fetchPortfolio(selectedPortfolio));
-  }, [dispatch, selectedPortfolio]);
+    dispatch(fetchAllPortfolios());
+  }, []);
+
+  useEffect(() => {
+    if (portfolios?.length > 0 && !selectedPortfolio) {
+      setSelectedPortfolio(portfolios[0].name);
+    }
+  }, [portfolios, selectedPortfolio]);
+
+  useEffect(() => {
+    if (selectedPortfolio) {
+      dispatch(fetchPortfolio(selectedPortfolio));
+    }
+  }, [selectedPortfolio]);
 
   const handleDownloadPortfolio = () => {
     // Make the API call to download the portfolio as an Excel file
@@ -44,35 +56,64 @@ const PortfolioComponent = () => {
       });
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const handleCreatePortfolio = () => {
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleUploadPortfolio = () => {
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleSubmitPortfolio = async (portfolioName: string, file?: File) => {
+    try {
+      if (file) {
+        // Upload transactions to the new portfolio
+        await dispatch(uploadTransactions({ 
+          file, 
+          portfolioName 
+        })).unwrap();
+        toast.success("Portfolio created and transactions uploaded successfully!");
+      } else {
+        // Just create an empty portfolio
+        toast.success("Portfolio created successfully!");
+      }
+      dispatch(fetchAllPortfolios());
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create portfolio");
+      throw error;
+    }
+  };
 
   if (error) {
     return <div>Error: {error}</div>;
   }
 
-  if (!data) {
-    return <div>No data available</div>;
+  // Show empty state if no portfolios are available
+  if (!portfolios || portfolios.length === 0) {
+    return (
+      <>
+        <EmptyPortfolioState
+          onCreatePortfolio={handleCreatePortfolio}
+          onUploadPortfolio={handleUploadPortfolio}
+        />
+        <CreatePortfolioDialog
+          open={isCreateDialogOpen}
+          onClose={() => setIsCreateDialogOpen(false)}
+          onSubmit={handleSubmitPortfolio}
+        />
+      </>
+    );
   }
 
   return (
-    <div>
-      <Select
-        value={selectedPortfolio}
-        onChange={(e) => setSelectedPortfolio(e.target.value)}
-      >
-        <option value="">All Portfolios</option>
-        {/* Map over portfolio names to populate the select options */}
-        {portfoliosName.map((portfolio) => (
-          <MenuItem key={portfolio} value={portfolio}>
-            {portfolio}
-          </MenuItem>
-        ))}
-      </Select>
-      <Button onClick={handleDownloadPortfolio}>Download Portfolio</Button>
-      <PortfolioPage portfolioDistribution={data} />
-    </div>
+    <>
+      <PortfolioLandingPage />
+      <CreatePortfolioDialog
+        open={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onSubmit={handleSubmitPortfolio}
+      />
+    </>
   );
 };
 

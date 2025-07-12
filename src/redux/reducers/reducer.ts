@@ -1,13 +1,13 @@
 // src/redux/reducers/rootReducer.ts
 import { combineReducers } from "@reduxjs/toolkit";
-import portfolioReducer from "./portfolioReducer";
+import portfolioSlice from "../slices/portfolioSlice";
 import holdingDetailsSlice from "../slices/holdingDetailsSlice";
 import transactionSlice from "../slices/transactionSlice";
 import coinInformationReducer from "../slices/coinInformationSlice";
 import authSlice from "../slices/authSlice";
 
 const rootReducer = combineReducers({
-  portfolio: portfolioReducer,
+  portfolio: portfolioSlice,
   holdingDetails: holdingDetailsSlice,
   transactions: transactionSlice,
   coinInformation: coinInformationReducer,

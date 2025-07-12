@@ -13,12 +13,13 @@ import {
   Drawer,
   CircularProgress,
 } from "@mui/material";
+import { CloudUpload as CloudUploadIcon } from "@mui/icons-material";
 import { PortfolioDistribution } from "../../redux/types/types";
 import TransactionList from "../transactions/TransactionList";
 import HoldingListPage from "../holdings/HoldingListPage";
 import AddHoldingsForm from "../holdings/AddHoldingsForm";
 import { fetchCoinInformation } from "../../redux/slices/coinInformationSlice";
-import { fetchPortfolioHoldingDistribution } from "../../redux/actions/portfolioActions";
+import { fetchPortfolioHoldingDistribution, fetchPortfolio } from "../../redux/slices/portfolioSlice";
 import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
@@ -77,6 +78,31 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
     dispatch(fetchPortfolioHoldingDistribution(name)).then(() => {
       toast.success("Portfolio updated");
     });
+  };
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("portfolioName", portfolioDistribution.portfolioName);
+
+      // You would need to create an API endpoint for this
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:8080"}/portfolio/${portfolioDistribution.portfolioName}/upload-holdings`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload file");
+      }
+
+      toast.success("Holdings uploaded successfully!");
+      // Refresh the portfolio data
+      dispatch(fetchPortfolio(portfolioDistribution.portfolioName));
+    } catch (error) {
+      toast.error("Failed to upload holdings file");
+      console.error("Upload error:", error);
+    }
   };
 
   const renderStats = () => (
@@ -139,20 +165,42 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
 
       {activeTab === 0 && sortedHoldings && (
         <>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={toggleDrawer(true)}
-          >
-            Add Holdings
-          </Button>
-          <Button
-            onClick={() =>
-              handleCalculateDistribution(portfolioDistribution.portfolioName)
-            }
-          >
-            Calculate Distribution
-          </Button>
+          <Box sx={{ mb: 2, display: "flex", gap: 2, flexWrap: "wrap" }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={toggleDrawer(true)}
+            >
+              Add Holdings
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() =>
+                handleCalculateDistribution(portfolioDistribution.portfolioName)
+              }
+            >
+              Calculate Distribution
+            </Button>
+            <Button
+              variant="outlined"
+              component="label"
+              startIcon={<CloudUploadIcon />}
+            >
+              Upload Holdings File
+              <input
+                type="file"
+                hidden
+                accept=".csv,.xlsx,.xls"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    // Handle file upload for existing portfolio
+                    handleFileUpload(file);
+                  }
+                }}
+              />
+            </Button>
+          </Box>
           <HoldingListPage
             holdings={sortedHoldings}
             portfolioName={portfolioDistribution.portfolioName}
