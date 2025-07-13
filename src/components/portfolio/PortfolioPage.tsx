@@ -12,18 +12,19 @@ import {
   Button,
   Drawer,
   CircularProgress,
+  Alert,
+  AlertTitle,
 } from "@mui/material";
 import { PortfolioDistribution } from "../../redux/types/types";
 import TransactionList from "../transactions/TransactionList";
 import HoldingListPage from "../holdings/HoldingListPage";
 import AddHoldingsForm from "../holdings/AddHoldingsForm";
 import { fetchCoinInformation } from "../../redux/slices/coinInformationSlice";
-import { fetchPortfolioHoldingDistribution } from "../../redux/actions/portfolioActions";
+import { fetchPortfolioHoldingDistribution } from "../../redux/slices/portfolioSlice";
 import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 
-// Define styles using makeStyles
 const StyledContainer = styled(Container)({
   marginTop: "2rem",
 });
@@ -33,6 +34,7 @@ interface Props {
 }
 
 const PortfolioPage = ({ portfolioDistribution }: Props) => {
+  const dispatch = useAppDispatch();
   const [priceMultiplier, setPriceMultiplier] = useState<{
     [key: number]: number;
   }>({});
@@ -42,11 +44,11 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
   const [predictionBtc, setPredictionBtc] = useState<{
     [key: number]: number;
   }>({});
-  const dispatch = useAppDispatch();
+  const [showCalculationAlert, setShowCalculationAlert] = useState(true);
   const coinInformationState = useAppSelector(
     (state: RootState) => state.coinInformation
   );
-  const sortedHoldings = portfolioDistribution.holdings.slice().sort((a, b) => {
+  const sortedHoldings = portfolioDistribution?.holdings?.slice().sort((a, b) => {
     return 0;
   });
 
@@ -81,13 +83,31 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
 
   const renderStats = () => (
     <Paper style={{ marginBottom: "1rem", padding: "1rem" }}>
-      <Typography variant="h6">Portfolio Stats</Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+        <Typography variant="h6">{portfolioDistribution.portfolioName} Portfolio Stats</Typography>
+        
+        {/* Calculation Status Indicator */}
+        {portfolioDistribution?.totalHoldings === 0 ? (
+          <Alert severity="warning" sx={{ maxWidth: 400 }}>
+            <AlertTitle>Portfolio Not Calculated</AlertTitle>
+            This portfolio hasn't been calculated yet. Click "Calculate Distribution" to process your holdings and get accurate statistics.
+          </Alert>
+        ) : (
+          showCalculationAlert && (
+            <Alert 
+              severity="success" 
+              sx={{ maxWidth: 400 }}
+              onClose={() => setShowCalculationAlert(false)}
+            >
+              <AlertTitle>Portfolio Calculated</AlertTitle>
+              Your portfolio data is up to date. Total holdings: {portfolioDistribution.totalHoldings}
+            </Alert>
+          )
+        )}
+      </Box>
 
       <Typography variant="subtitle1" gutterBottom>
-        Portfolio Name: {portfolioDistribution.portfolioName}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Total USDT: {portfolioDistribution.totalUsdt}
+        Total USDT: {portfolioDistribution.totalInUsdt}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Total Holdings: {portfolioDistribution.totalHoldings}
@@ -139,20 +159,23 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
 
       {activeTab === 0 && sortedHoldings && (
         <>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={toggleDrawer(true)}
-          >
-            Add Holdings
-          </Button>
-          <Button
-            onClick={() =>
-              handleCalculateDistribution(portfolioDistribution.portfolioName)
-            }
-          >
-            Calculate Distribution
-          </Button>
+          <Box sx={{ mb: 2, display: "flex", gap: 2, flexWrap: "wrap" }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={toggleDrawer(true)}
+            >
+              Add Holdings
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() =>
+                handleCalculateDistribution(portfolioDistribution.portfolioName)
+              }
+            >
+              Calculate Distribution
+            </Button>
+          </Box>
           <HoldingListPage
             holdings={sortedHoldings}
             portfolioName={portfolioDistribution.portfolioName}

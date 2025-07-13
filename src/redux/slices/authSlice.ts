@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import { removeAuthToken, setAuthToken } from "../utils/auth";
 import api from "../utils/api";
+import Cookies from "universal-cookie";
 
 interface User {
   id: string;
@@ -22,9 +23,12 @@ interface AuthError {
   statusCode?: number;
 }
 
+const token = localStorage.getItem("token");
+const user = localStorage.getItem("user");
+
 const initialState: AuthState = {
-  user: null,
-  isAuthenticated: false,
+  user: user ? JSON.parse(user) : null,
+  isAuthenticated: !!token,
   status: "idle",
   loading: false,
   error: null,
@@ -51,6 +55,8 @@ export const login = createAsyncThunk<
       });
       const { jwt, user } = response.data;
       setAuthToken(jwt);
+      // Also ensure token is in localStorage for consistency
+      localStorage.setItem("token", jwt);
       return { jwt, user };
     } catch (err) {
       const error = err as AxiosError<AuthError>;
@@ -99,6 +105,21 @@ export const register = createAsyncThunk(
   }
 );
 
+export const validateToken = createAsyncThunk(
+  "auth/validateToken",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/api/auth/validate");
+      return response.data;
+    } catch (error: any) {
+      // If validation fails, clear auth data
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      return rejectWithValue("Token validation failed");
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -107,6 +128,11 @@ const authSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      // Also clear cookies if they exist
+      const cookies = new Cookies();
+      cookies.remove("auth_token", { path: "/" });
+      cookies.remove("refresh_token", { path: "/" });
     },
   },
   extraReducers: (builder) => {
@@ -121,6 +147,7 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.isAuthenticated = true;
         localStorage.setItem("token", action.payload.jwt);
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
         state.loading = false;
       })
       .addCase(login.rejected, (state, action) => {
@@ -137,6 +164,18 @@ const authSlice = createSlice({
       .addCase(register.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Registration failed";
+      })
+      .addCase(validateToken.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(validateToken.fulfilled, (state) => {
+        state.status = "succeeded";
+        state.isAuthenticated = true;
+      })
+      .addCase(validateToken.rejected, (state) => {
+        state.status = "failed";
+        state.isAuthenticated = false;
+        state.user = null;
       });
   },
 });

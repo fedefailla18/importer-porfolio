@@ -16,9 +16,15 @@ export interface HoldingDto {
 
 export interface PortfolioDistribution {
   portfolioName: string;
-  totalUsdt: number;
+  totalInUsdt: number;
   totalHoldings: number;
   holdings: HoldingDto[];
+}
+
+export interface PortfolioSummary {
+  name: string;
+  totalInUsdt: number;
+  topHoldings: HoldingDto[];
 }
 
 export interface PortfolioState {
@@ -26,6 +32,7 @@ export interface PortfolioState {
   data?: PortfolioDistribution | null;
   error: string | null;
   status: string;
+  portfolios: PortfolioSummary[];
 }
 
 export interface HoldingDetailsState {
