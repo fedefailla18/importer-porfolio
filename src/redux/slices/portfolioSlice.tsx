@@ -12,7 +12,7 @@ interface PortfolioState {
 
 interface PortfolioSummary {
   name: string;
-  balance: number;
+  totalInUsdt: number;
   topHoldings: HoldingDto[];
 }
 
@@ -81,7 +81,7 @@ export const fetchPortfolioDetails = createAsyncThunk(
       );
       return {
         name: portfolioName,
-        balance: response.data.totalUsdt,
+        totalInUsdt: response.data.totalInUsdt,
         topHoldings: response.data.holdings.slice(0, 5) // Get top 5 holdings
       };
     } catch (error: any) {
@@ -146,7 +146,12 @@ const portfolioSlice = createSlice({
         fetchPortfolio.fulfilled,
         (state, action: PayloadAction<PortfolioDistribution>) => {
           state.status = "succeeded";
-          state.data = action.payload;
+          // Calculate totalHoldings from holdings array length
+          const portfolioData = {
+            ...action.payload,
+            totalHoldings: action.payload.holdings?.length || 0
+          };
+          state.data = portfolioData;
           state.error = null;
         }
       )
@@ -167,7 +172,7 @@ const portfolioSlice = createSlice({
           // Convert portfolio names to summary objects
           state.portfolios = action.payload.map(name => ({
             name,
-            balance: 0, // Will be updated when we fetch individual portfolios
+            totalInUsdt: 0, // Will be updated when we fetch individual portfolios
             topHoldings: []
           }));
           state.error = null;
@@ -187,7 +192,12 @@ const portfolioSlice = createSlice({
         fetchPortfolioHoldingDistribution.fulfilled,
         (state, action: PayloadAction<PortfolioDistribution>) => {
           state.status = "succeeded";
-          state.data = action.payload;
+          // Calculate totalHoldings from holdings array length
+          const portfolioData = {
+            ...action.payload,
+            totalHoldings: action.payload.holdings?.length || 0
+          };
+          state.data = portfolioData;
           state.error = null;
         }
       )
@@ -206,6 +216,8 @@ const portfolioSlice = createSlice({
         (state, action: PayloadAction<HoldingDto[]>) => {
           if (state?.data) {
             state.data.holdings = [...state.data.holdings, ...action.payload];
+            // Recalculate totalHoldings
+            state.data.totalHoldings = state.data.holdings.length;
           }
         }
       )

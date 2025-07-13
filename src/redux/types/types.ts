@@ -16,14 +16,14 @@ export interface HoldingDto {
 
 export interface PortfolioDistribution {
   portfolioName: string;
-  totalUsdt: number;
+  totalInUsdt: number;
   totalHoldings: number;
   holdings: HoldingDto[];
 }
 
 export interface PortfolioSummary {
   name: string;
-  balance: number;
+  totalInUsdt: number;
   topHoldings: HoldingDto[];
 }
 

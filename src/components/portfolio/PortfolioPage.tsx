@@ -12,19 +12,19 @@ import {
   Button,
   Drawer,
   CircularProgress,
+  Alert,
+  AlertTitle,
 } from "@mui/material";
-import { CloudUpload as CloudUploadIcon } from "@mui/icons-material";
 import { PortfolioDistribution } from "../../redux/types/types";
 import TransactionList from "../transactions/TransactionList";
 import HoldingListPage from "../holdings/HoldingListPage";
 import AddHoldingsForm from "../holdings/AddHoldingsForm";
 import { fetchCoinInformation } from "../../redux/slices/coinInformationSlice";
-import { fetchPortfolioHoldingDistribution, fetchPortfolio } from "../../redux/slices/portfolioSlice";
+import { fetchPortfolioHoldingDistribution } from "../../redux/slices/portfolioSlice";
 import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
 
-// Define styles using makeStyles
 const StyledContainer = styled(Container)({
   marginTop: "2rem",
 });
@@ -34,6 +34,7 @@ interface Props {
 }
 
 const PortfolioPage = ({ portfolioDistribution }: Props) => {
+  const dispatch = useAppDispatch();
   const [priceMultiplier, setPriceMultiplier] = useState<{
     [key: number]: number;
   }>({});
@@ -43,11 +44,11 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
   const [predictionBtc, setPredictionBtc] = useState<{
     [key: number]: number;
   }>({});
-  const dispatch = useAppDispatch();
+  const [showCalculationAlert, setShowCalculationAlert] = useState(true);
   const coinInformationState = useAppSelector(
     (state: RootState) => state.coinInformation
   );
-  const sortedHoldings = portfolioDistribution.holdings.slice().sort((a, b) => {
+  const sortedHoldings = portfolioDistribution?.holdings?.slice().sort((a, b) => {
     return 0;
   });
 
@@ -80,40 +81,33 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
     });
   };
 
-  const handleFileUpload = async (file: File) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("portfolioName", portfolioDistribution.portfolioName);
-
-      // You would need to create an API endpoint for this
-      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:8080"}/portfolio/${portfolioDistribution.portfolioName}/upload-holdings`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to upload file");
-      }
-
-      toast.success("Holdings uploaded successfully!");
-      // Refresh the portfolio data
-      dispatch(fetchPortfolio(portfolioDistribution.portfolioName));
-    } catch (error) {
-      toast.error("Failed to upload holdings file");
-      console.error("Upload error:", error);
-    }
-  };
-
   const renderStats = () => (
     <Paper style={{ marginBottom: "1rem", padding: "1rem" }}>
-      <Typography variant="h6">Portfolio Stats</Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+        <Typography variant="h6">{portfolioDistribution.portfolioName} Portfolio Stats</Typography>
+        
+        {/* Calculation Status Indicator */}
+        {portfolioDistribution?.totalHoldings === 0 ? (
+          <Alert severity="warning" sx={{ maxWidth: 400 }}>
+            <AlertTitle>Portfolio Not Calculated</AlertTitle>
+            This portfolio hasn't been calculated yet. Click "Calculate Distribution" to process your holdings and get accurate statistics.
+          </Alert>
+        ) : (
+          showCalculationAlert && (
+            <Alert 
+              severity="success" 
+              sx={{ maxWidth: 400 }}
+              onClose={() => setShowCalculationAlert(false)}
+            >
+              <AlertTitle>Portfolio Calculated</AlertTitle>
+              Your portfolio data is up to date. Total holdings: {portfolioDistribution.totalHoldings}
+            </Alert>
+          )
+        )}
+      </Box>
 
       <Typography variant="subtitle1" gutterBottom>
-        Portfolio Name: {portfolioDistribution.portfolioName}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Total USDT: {portfolioDistribution.totalUsdt}
+        Total USDT: {portfolioDistribution.totalInUsdt}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Total Holdings: {portfolioDistribution.totalHoldings}
@@ -180,25 +174,6 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
               }
             >
               Calculate Distribution
-            </Button>
-            <Button
-              variant="outlined"
-              component="label"
-              startIcon={<CloudUploadIcon />}
-            >
-              Upload Holdings File
-              <input
-                type="file"
-                hidden
-                accept=".csv,.xlsx,.xls"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    // Handle file upload for existing portfolio
-                    handleFileUpload(file);
-                  }
-                }}
-              />
             </Button>
           </Box>
           <HoldingListPage

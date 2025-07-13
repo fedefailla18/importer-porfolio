@@ -27,11 +27,16 @@ interface HoldingListPageProps {
 }
 
 const StyledTableContainer = styled(TableContainer)({
-  maxHeight: "70vh",
+  maxHeight: "60vh",
   overflow: "auto",
   "& table": {
     borderCollapse: "separate",
     borderSpacing: 0,
+  },
+  "& .MuiTableBody-root": {
+    "& .MuiTableRow-root:hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.04)",
+    },
   },
 });
 

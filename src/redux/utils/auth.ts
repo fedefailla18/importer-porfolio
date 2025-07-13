@@ -10,20 +10,25 @@ export const setAuthToken = (token: string) => {
       maxAge: 3600,
       sameSite: "strict",
     });
-
+    // Also set in localStorage for consistency
+    localStorage.setItem("token", token);
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   } else {
     cookies.remove("auth_token", { path: "/" });
+    localStorage.removeItem("token");
     delete axios.defaults.headers.common["Authorization"];
   }
 };
 
 export const getAuthToken = () => {
-  return cookies.get("auth_token");
+  const cookieToken = cookies.get("auth_token");
+  const localToken = localStorage.getItem("token");
+  return cookieToken || localToken;
 };
 
 export const removeAuthToken = () => {
   cookies.remove("auth_token", { path: "/" });
+  localStorage.removeItem("token");
   delete axios.defaults.headers.common["Authorization"];
 };
 

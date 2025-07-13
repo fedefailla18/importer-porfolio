@@ -41,19 +41,25 @@ const PortfolioLandingPage: React.FC = () => {
 
   // Fetch detailed data for each portfolio
   useEffect(() => {
-    portfolios.forEach(async (portfolio) => {
-      if (!portfolio.balance && !loadingPortfolios[portfolio.name]) {
-        setLoadingPortfolios(prev => ({ ...prev, [portfolio.name]: true }));
-        try {
-          await dispatch(fetchPortfolioDetails(portfolio.name)).unwrap();
-        } catch (error) {
-          console.error(`Failed to fetch portfolio ${portfolio.name}:`, error);
-        } finally {
-          setLoadingPortfolios(prev => ({ ...prev, [portfolio.name]: false }));
+    const loadPortfolioDetails = async () => {
+      for (const portfolio of portfolios) {
+        if (!portfolio.totalInUsdt && !loadingPortfolios[portfolio.name]) {
+          setLoadingPortfolios(prev => ({ ...prev, [portfolio.name]: true }));
+          try {
+            await dispatch(fetchPortfolioDetails(portfolio.name)).unwrap();
+          } catch (error) {
+            console.error(`Failed to fetch portfolio ${portfolio.name}:`, error);
+          } finally {
+            setLoadingPortfolios(prev => ({ ...prev, [portfolio.name]: false }));
+          }
         }
       }
-    });
-  }, [portfolios, dispatch]);
+    };
+
+    if (portfolios.length > 0) {
+      loadPortfolioDetails();
+    }
+  }, [portfolios.length, dispatch]); // Only depend on portfolios.length, not the entire portfolios array
 
   const handleCreatePortfolio = () => {
     setIsCreateDialogOpen(true);
@@ -79,13 +85,13 @@ const PortfolioLandingPage: React.FC = () => {
     }
   };
 
-  const formatBalance = (balance: number) => {
+  const formatBalance = (totalInUsdt: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(balance);
+    }).format(totalInUsdt);
   };
 
   if (status === "loading" && portfolios.length === 0) {
@@ -194,8 +200,8 @@ const PortfolioLandingPage: React.FC = () => {
                   
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="h4" color="primary" fontWeight="bold">
-                      {portfolio.balance > 0 
-                        ? formatBalance(portfolio.balance)
+                      {portfolio.totalInUsdt > 0 
+                        ? formatBalance(portfolio.totalInUsdt)
                         : loadingPortfolios[portfolio.name]
                         ? "Loading..."
                         : "$0.00"

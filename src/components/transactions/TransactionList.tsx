@@ -137,8 +137,16 @@ const TransactionList: React.FC<TransactionListProps> = ({
         onFilterChange={handleFilterChange}
         onApplyFilters={handleApplyFilters}
       />
-      <TableContainer component={Paper}>
-        <Table>
+      <TableContainer component={Paper} sx={{ 
+        maxHeight: "60vh", 
+        overflow: "auto",
+        "& .MuiTableBody-root": {
+          "& .MuiTableRow-root:hover": {
+            backgroundColor: "rgba(0, 0, 0, 0.04)",
+          },
+        },
+      }}>
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               <TableSortLabel

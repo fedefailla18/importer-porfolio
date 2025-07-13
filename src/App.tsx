@@ -1,4 +1,3 @@
-// src/App.tsx
 import React, { useEffect } from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -16,6 +15,23 @@ import { ToastContainer } from "react-toastify";
 import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import PortfolioLandingPage from "./components/portfolio/PortfolioLandingPage";
+import { validateToken } from "./redux/slices/authSlice";
+import { useAppDispatch } from "./redux/hooks";
+
+// Component to handle token validation on app startup
+const AppInitializer: React.FC = () => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      dispatch(validateToken());
+    }
+  }, [dispatch]);
+
+  return null;
+};
 
 const App = () => {
   return (
@@ -23,12 +39,18 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
+          <AppInitializer />
           <Layout />
           <Routes>
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
             <Route element={<ProtectedRoute />}>
-              <Route index element={<PortfolioComponent />} />
+              <Route index element={<PortfolioLandingPage />} />
+              <Route path="portfolio" element={<PortfolioLandingPage />} />
+              <Route
+                path="portfolio/:portfolioName"
+                element={<PortfolioComponent />}
+              />
               <Route
                 path="portfolio/:portfolioName/:symbol"
                 element={<HoldingComponent />}
@@ -42,8 +64,8 @@ const App = () => {
               <Route path="add-transaction" element={<TransactionForm />} />
             </Route>
           </Routes>
+          <ToastContainer />
         </Router>
-        <ToastContainer />
       </ThemeProvider>
     </Provider>
   );
