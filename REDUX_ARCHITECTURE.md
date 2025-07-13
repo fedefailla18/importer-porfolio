@@ -142,12 +142,6 @@ GET /portfolio/download              - Download Excel
 POST /transaction/upload/{portfolio} - Upload transactions
 ```
 
-### **❌ Missing Endpoints:**
-```java
-GET /portfolio/names                 - Get all portfolio names
-GET /transaction/filter              - Get filtered transactions
-```
-
 ## 7. Testing the Fixes
 
 ### **To verify everything works:**
