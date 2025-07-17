@@ -23,6 +23,8 @@ api.interceptors.response.use(
       // Clear authentication data
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      // Don't redirect here - let the ProtectedRoute handle it
+
       // Redirect to login
       window.location.href = "/login";
     }

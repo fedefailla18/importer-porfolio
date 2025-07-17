@@ -10,6 +10,8 @@ import {
   TableBody,
   Input,
   Theme,
+  Tooltip,
+  Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { HoldingDto } from "../../redux/types/types";
@@ -58,6 +60,24 @@ const StickyColumnCell = styled(StickyTableCell)(
   })
 );
 
+// Helper function to format numbers
+const formatNumber = (value: number, decimals: number = 2) => {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(value);
+};
+
+// Helper function to format currency
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+};
+
 const HoldingListPage = ({
   holdings,
   portfolioName,
@@ -66,8 +86,8 @@ const HoldingListPage = ({
   setPredictionUsdt,
   priceMultiplier,
 }: HoldingListPageProps) => {
-  const [sortBy, setSortBy] = useState<string>(""); // State to store the field to sort by
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc"); // State to store the sort direction
+  const [sortBy, setSortBy] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
     // Initialize priceMultiplier with default values
@@ -81,7 +101,7 @@ const HoldingListPage = ({
     holdings.forEach((holding, index) => {
       setPredictionUsdt((prev) => ({
         ...prev,
-        [index]: holding?.amountInUsdt || 0,
+        [index]: holding?.currentPositionInUsdt || 0,
       }));
       setPredictionBtc((prev) => ({
         ...prev,
@@ -105,14 +125,18 @@ const HoldingListPage = ({
       return sortDirection === "asc"
         ? a.symbol.localeCompare(b.symbol)
         : b.symbol.localeCompare(a.symbol);
-    } else if (sortBy === "amountInUsdt") {
-      const aaUsdt = a?.amountInUsdt || 0;
-      const baUsdt = b?.amountInUsdt || 0;
-      return sortDirection === "asc" ? aaUsdt - baUsdt : baUsdt - aaUsdt;
+    } else if (sortBy === "currentPositionInUsdt") {
+      const aValue = a.currentPositionInUsdt ?? 0;
+      const bValue = b.currentPositionInUsdt ?? 0;
+      return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
     } else if (sortBy === "priceInUsdt") {
-      const aaUsdt = a?.priceInUsdt || 0;
-      const baUsdt = b?.priceInUsdt || 0;
-      return sortDirection === "asc" ? aaUsdt - baUsdt : baUsdt - aaUsdt;
+      const aValue = a.priceInUsdt ?? 0;
+      const bValue = b.priceInUsdt ?? 0;
+      return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+    } else if (sortBy === "percentage") {
+      const aValue = a.percentage ?? 0;
+      const bValue = b.percentage ?? 0;
+      return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
     }
     return 0;
   });
@@ -122,31 +146,73 @@ const HoldingListPage = ({
       <Table>
         <TableHead>
           <TableRow>
-            <StickyHeaderCell></StickyHeaderCell>
+            <StickyHeaderCell>#</StickyHeaderCell>
             <StickyHeaderCell>Symbol</StickyHeaderCell>
             <StickyHeaderCell>
-              <TableSortLabel>Amount</TableSortLabel>
+              <Tooltip title="The amount of cryptocurrency held in its native units">
+                <TableSortLabel>Amount</TableSortLabel>
+              </Tooltip>
             </StickyHeaderCell>
-            <StickyHeaderCell>totalAmountBought</StickyHeaderCell>
-            <StickyHeaderCell>totalAmountSold</StickyHeaderCell>
-            <StickyHeaderCell>Price in BTC</StickyHeaderCell>
             <StickyHeaderCell>
-              <TableSortLabel onClick={() => handleSort("priceInUsdt")}>
-                Price in USDT
-              </TableSortLabel>
+              <Tooltip title="The total amount of this cryptocurrency that has been bought across all transactions">
+                <TableSortLabel>Total Bought</TableSortLabel>
+              </Tooltip>
             </StickyHeaderCell>
-            <StickyHeaderCell>Amount in BTC</StickyHeaderCell>
             <StickyHeaderCell>
-              <TableSortLabel onClick={() => handleSort("amountInUsdt")}>
-                Amount in USDT
-              </TableSortLabel>
+              <Tooltip title="The total amount of this cryptocurrency that has been sold across all transactions">
+                <TableSortLabel>Total Sold</TableSortLabel>
+              </Tooltip>
             </StickyHeaderCell>
-            <StickyHeaderCell>Percentage</StickyHeaderCell>
-            <StickyHeaderCell>stableTotalCost</StickyHeaderCell>
-            <StickyHeaderCell>totalRealizedProfitUsdt</StickyHeaderCell>
-            <StickyHeaderCell>Price Multiplier</StickyHeaderCell>
-            <StickyHeaderCell>Prediction USDT</StickyHeaderCell>
-            <StickyHeaderCell>Prediction BTC</StickyHeaderCell>
+            <StickyHeaderCell>
+              <Tooltip title="The current price of one unit of the cryptocurrency in BTC">
+                <TableSortLabel onClick={() => handleSort("priceInBtc")}>Price (BTC)</TableSortLabel>
+              </Tooltip>
+            </StickyHeaderCell>
+            <StickyHeaderCell>
+              <Tooltip title="The current price of one unit of the cryptocurrency in USDT">
+                <TableSortLabel onClick={() => handleSort("priceInUsdt")}>Price (USDT)</TableSortLabel>
+              </Tooltip>
+            </StickyHeaderCell>
+            <StickyHeaderCell>
+              <Tooltip title="The value of the holding converted to BTC">
+                <TableSortLabel>Amount (BTC)</TableSortLabel>
+              </Tooltip>
+            </StickyHeaderCell>
+            <StickyHeaderCell>
+              <Tooltip title="The value of the holding converted to USDT">
+                <TableSortLabel onClick={() => handleSort("currentPositionInUsdt")}>Current Position (USDT)</TableSortLabel>
+              </Tooltip>
+            </StickyHeaderCell>
+            <StickyHeaderCell>
+              <Tooltip title="The percentage this holding represents in the portfolio">
+                <TableSortLabel onClick={() => handleSort("percentage")}>Percentage</TableSortLabel>
+              </Tooltip>
+            </StickyHeaderCell>
+            <StickyHeaderCell>
+              <Tooltip title="The total cost in stable currency (USDT) spent to acquire this holding">
+                <TableSortLabel>Total Cost (USDT)</TableSortLabel>
+              </Tooltip>
+            </StickyHeaderCell>
+            <StickyHeaderCell>
+              <Tooltip title="The total profit realized from selling this cryptocurrency, in USDT">
+                <TableSortLabel>Realized Profit (USDT)</TableSortLabel>
+              </Tooltip>
+            </StickyHeaderCell>
+            <StickyHeaderCell>
+              <Tooltip title="Price multiplier for predictions">
+                <TableSortLabel>Price Multiplier</TableSortLabel>
+              </Tooltip>
+            </StickyHeaderCell>
+            <StickyHeaderCell>
+              <Tooltip title="Predicted value in USDT based on price multiplier">
+                <TableSortLabel>Prediction (USDT)</TableSortLabel>
+              </Tooltip>
+            </StickyHeaderCell>
+            <StickyHeaderCell>
+              <Tooltip title="Predicted value in BTC based on price multiplier">
+                <TableSortLabel>Prediction (BTC)</TableSortLabel>
+              </Tooltip>
+            </StickyHeaderCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -158,16 +224,16 @@ const HoldingListPage = ({
                   {holding.symbol}
                 </Link>
               </StickyColumnCell>
-              <TableCell>{holding.amount}</TableCell>
-              <TableCell>{holding.totalAmountBought}</TableCell>
-              <TableCell>{holding.totalAmountSold}</TableCell>
-              <TableCell>{holding.priceInBtc}</TableCell>
-              <TableCell>{holding.priceInUsdt}</TableCell>
-              <TableCell>{holding.amountInBtc}</TableCell>
-              <TableCell>{holding.amountInUsdt}</TableCell>
-              <TableCell>{holding.percentage}</TableCell>
-              <TableCell>{holding.stableTotalCost}</TableCell>
-              <TableCell>{holding.totalRealizedProfitUsdt}</TableCell>
+              <TableCell>{formatNumber(holding.amount, 6)}</TableCell>
+              <TableCell>{holding.totalAmountBought !== undefined ? formatNumber(holding.totalAmountBought, 6) : '-'}</TableCell>
+              <TableCell>{holding.totalAmountSold !== undefined ? formatNumber(holding.totalAmountSold, 6) : '-'}</TableCell>
+              <TableCell>{holding.priceInBtc !== undefined ? formatNumber(holding.priceInBtc, 8) : '-'}</TableCell>
+              <TableCell>{holding.priceInUsdt !== undefined ? formatCurrency(holding.priceInUsdt) : '-'}</TableCell>
+              <TableCell>{formatNumber(holding.amountInBtc, 8)}</TableCell>
+              <TableCell>{holding.currentPositionInUsdt !== undefined ? formatCurrency(holding.currentPositionInUsdt) : '-'}</TableCell>
+              <TableCell>{holding.percentage !== undefined ? formatNumber(holding.percentage, 2) + '%' : '-'}</TableCell>
+              <TableCell>{holding.stableTotalCost !== undefined ? formatCurrency(holding.stableTotalCost) : '-'}</TableCell>
+              <TableCell>{holding.totalRealizedProfitUsdt !== undefined ? formatCurrency(holding.totalRealizedProfitUsdt) : '-'}</TableCell>
               <TableCell>
                 <Input
                   type="number"
@@ -181,12 +247,12 @@ const HoldingListPage = ({
                       [index]: multiplier,
                     }));
 
-                    const amountInUsdt = holding.amountInUsdt;
+                    const currentPositionInUsdt = holding.currentPositionInUsdt ?? 0;
                     const amountInBtc = holding.amountInBtc;
 
                     setPredictionUsdt((prevState) => ({
                       ...prevState,
-                      [index]: multiplier * amountInUsdt,
+                      [index]: multiplier * currentPositionInUsdt,
                     }));
 
                     setPredictionBtc((prevState) => ({
@@ -197,10 +263,10 @@ const HoldingListPage = ({
                 />
               </TableCell>
               <TableCell>
-                {(priceMultiplier[index] || 1) * (holding?.amountInUsdt || 0)}
+                {formatCurrency((priceMultiplier[index] || 1) * (holding.currentPositionInUsdt ?? 0))}
               </TableCell>
               <TableCell>
-                {(priceMultiplier[index] || 1) * (holding?.amountInBtc || 0)}
+                {formatNumber((priceMultiplier[index] || 1) * holding.amountInBtc, 8)}
               </TableCell>
             </TableRow>
           ))}

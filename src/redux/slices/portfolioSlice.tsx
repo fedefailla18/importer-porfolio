@@ -71,7 +71,6 @@ export const fetchPortfolioHoldingDistribution = createAsyncThunk(
   }
 );
 
-// New action to fetch portfolio details for landing page
 export const fetchPortfolioDetails = createAsyncThunk(
   "portfolio/fetchPortfolioDetails",
   async (portfolioName: string, { rejectWithValue }) => {
@@ -82,7 +81,7 @@ export const fetchPortfolioDetails = createAsyncThunk(
       return {
         name: portfolioName,
         totalInUsdt: response.data.totalInUsdt,
-        topHoldings: response.data.holdings.slice(0, 5) // Get top 5 holdings
+        topHoldings: response.data.holdings.slice(0, 5)
       };
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Failed to fetch portfolio details");
@@ -100,20 +99,27 @@ export const addMultipleHoldings = createAsyncThunk(
   }
 );
 
+export const createPortfolio = createAsyncThunk(
+  "portfolio/createPortfolio",
+  async (portfolioName: string) => {
+    const response = await
+      api.post<PortfolioDistribution>(`/portfolio?portfolioName=${portfolioName}`);
+    return response.data;
+  }
+);
+
 export const uploadTransactions = createAsyncThunk(
   "portfolio/uploadTransactions",
   async ({ file, portfolioName, symbols }: { file: File; portfolioName?: string; symbols?: string[] }, { rejectWithValue }) => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      
+
       if (symbols && symbols.length > 0) {
         symbols.forEach(symbol => formData.append("symbols", symbol));
       }
 
-      const endpoint = portfolioName 
-        ? `/transaction/upload/${portfolioName}`
-        : `/transaction/upload`;
+      const endpoint = `/transaction/upload/${portfolioName}`;
 
       const response = await api.post(endpoint, formData, {
         headers: {
@@ -159,7 +165,7 @@ const portfolioSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "An error occurred";
       })
-      
+
       // Fetch All Portfolios
       .addCase(fetchAllPortfolios.pending, (state) => {
         state.status = "loading";
@@ -182,7 +188,7 @@ const portfolioSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch portfolios";
       })
-      
+
       // Fetch Portfolio Distribution
       .addCase(fetchPortfolioHoldingDistribution.pending, (state) => {
         state.status = "loading";
@@ -205,7 +211,7 @@ const portfolioSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "An error occurred";
       })
-      
+
       // Add Multiple Holdings
       .addCase(addMultipleHoldings.pending, (state) => {
         state.status = "loading";
@@ -225,7 +231,7 @@ const portfolioSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "An error occurred";
       })
-      
+
       // Upload Transactions
       .addCase(uploadTransactions.pending, (state) => {
         state.status = "loading";
@@ -239,7 +245,7 @@ const portfolioSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "Failed to upload transactions";
       })
-      
+
       // Fetch Portfolio Details
       .addCase(fetchPortfolioDetails.pending, (state) => {
         state.status = "loading";

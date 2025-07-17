@@ -6,27 +6,12 @@ import {
   TextField,
   Button,
   Container,
-  ThemeProvider,
-  createTheme,
 } from "@mui/material";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector,  } from "react-redux";
 import { RootState } from "../../redux/store";
 import { logout } from "../../redux/slices/authSlice";
 import { useAppDispatch } from "../../redux/hooks";
-
-const darkTheme = createTheme({
-  palette: {
-    mode: "dark",
-    primary: {
-      main: "#8fbc8f",
-    },
-    background: {
-      default: "#f0f8ff",
-      paper: "#8fbc8f",
-    },
-  },
-});
 
 const Layout = () => {
   const dispatch = useAppDispatch();
@@ -41,7 +26,7 @@ const Layout = () => {
   };
 
   return (
-    <ThemeProvider theme={darkTheme}>
+    <>
       <AppBar position="static" color="primary">
         <Toolbar>
           <Typography variant="h6" style={{ flexGrow: 1 }}>
@@ -93,7 +78,7 @@ const Layout = () => {
       <Container style={{ marginTop: "2rem" }}>
         <Outlet />
       </Container>
-    </ThemeProvider>
+    </>
   );
 };
 

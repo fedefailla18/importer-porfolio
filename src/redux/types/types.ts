@@ -11,11 +11,13 @@ export interface HoldingDto {
   totalAmountBought?: number;
   totalAmountSold?: number;
   stableTotalCost?: number;
+  currentPositionInUsdt?: number;
   totalRealizedProfitUsdt?: number;
 }
 
 export interface PortfolioDistribution {
   portfolioName: string;
+  name: string;
   totalInUsdt: number;
   totalHoldings: number;
   holdings: HoldingDto[];

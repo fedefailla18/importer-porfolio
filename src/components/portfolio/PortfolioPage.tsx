@@ -107,42 +107,54 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
       </Box>
 
       <Typography variant="subtitle1" gutterBottom>
-        Total USDT: {portfolioDistribution.totalInUsdt}
+        Total USDT: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(portfolioDistribution.totalInUsdt)}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Total Holdings: {portfolioDistribution.totalHoldings}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
-        Total Reazlized Profit:{" "}
-        {sortedHoldings
-          .map((e) => e.totalRealizedProfitUsdt)
-          .reduce((acc, curr) => (acc || 0) + (curr || 0), 0)}
+        Total Realized Profit:{" "}
+        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+          sortedHoldings
+            .map((e) => e.totalRealizedProfitUsdt ?? 0)
+            .reduce((acc, curr) => acc + curr, 0)
+        )}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
-        Stable Total Cost:{" "}
-        {sortedHoldings
-          .map((e) => e.stableTotalCost)
-          .reduce((acc, curr) => (acc || 0) + (curr || 0), 0)}
+        Total Cost Basis:{" "}
+        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+          sortedHoldings
+            .map((e) => e.stableTotalCost ?? 0)
+            .reduce((acc, curr) => acc + curr, 0)
+        )}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Current Position in USDT:{" "}
-        {sortedHoldings
-          .map((e) => e.amountInUsdt)
-          .reduce((acc, curr) => (acc || 0) + (curr || 0), 0)}
+        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+          sortedHoldings
+            .map((e) => e.currentPositionInUsdt ?? 0)
+            .reduce((acc, curr) => acc + curr, 0)
+        )}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Current Position in BTC:{" "}
-        {sortedHoldings
-          .map((e) => e.amountInBtc)
-          .reduce((acc, curr) => (acc || 0) + (curr || 0), 0)}
+        {new Intl.NumberFormat('en-US', { minimumFractionDigits: 8, maximumFractionDigits: 8 }).format(
+          sortedHoldings
+            .map((e) => e.amountInBtc)
+            .reduce((acc, curr) => acc + curr, 0)
+        )}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Total Prediction USDT:{" "}
-        {Object.values(predictionUsdt).reduce((acc, curr) => acc + curr, 0)}
+        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+          Object.values(predictionUsdt).reduce((acc, curr) => acc + curr, 0)
+        )}
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Total Prediction BTC:{" "}
-        {Object.values(predictionBtc).reduce((acc, curr) => acc + curr, 0)}
+        {new Intl.NumberFormat('en-US', { minimumFractionDigits: 8, maximumFractionDigits: 8 }).format(
+          Object.values(predictionBtc).reduce((acc, curr) => acc + curr, 0)
+        )}
       </Typography>
     </Paper>
   );

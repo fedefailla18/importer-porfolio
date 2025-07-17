@@ -25,9 +25,18 @@ interface AuthError {
 
 const token = localStorage.getItem("token");
 const user = localStorage.getItem("user");
+let parsedUser = null;
+try {
+  if (user && user !== "undefined" && user !== "null") {
+    parsedUser = JSON.parse(user);
+  }
+} catch (e) {
+  parsedUser = null;
+  localStorage.removeItem("user"); // Clean up bad value
+}
 
 const initialState: AuthState = {
-  user: user ? JSON.parse(user) : null,
+  user: parsedUser,
   isAuthenticated: !!token,
   status: "idle",
   loading: false,
