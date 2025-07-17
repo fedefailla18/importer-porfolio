@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -13,6 +13,7 @@ import {
   Paper,
   Alert,
   CircularProgress,
+  Autocomplete,
 } from "@mui/material";
 import {
   CloudUpload as CloudUploadIcon,
@@ -23,6 +24,8 @@ interface CreatePortfolioDialogProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (portfolioName: string, file?: File) => Promise<void>;
+  defaultTab?: number; 
+  portfolios?: string[];
 }
 
 interface TabPanelProps {
@@ -47,12 +50,14 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-const CreatePortfolioDialog: React.FC<CreatePortfolioDialogProps> = ({
+const PortfolioActionsDialog = ({
   open,
   onClose,
   onSubmit,
-}) => {
-  const [tabValue, setTabValue] = useState(0);
+  defaultTab,
+  portfolios = [],
+}: CreatePortfolioDialogProps) => {
+  const [tabValue, setTabValue] = useState(defaultTab || 0);
   const [portfolioName, setPortfolioName] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -85,6 +90,10 @@ const CreatePortfolioDialog: React.FC<CreatePortfolioDialogProps> = ({
     setIsSubmitting(true);
     setError("");
 
+    if (tabValue === 1) {
+      console.log("Uploading file with portfolioName:", portfolioName, selectedFile);
+    }
+
     try {
       await onSubmit(portfolioName.trim(), selectedFile || undefined);
       handleClose();
@@ -106,12 +115,12 @@ const CreatePortfolioDialog: React.FC<CreatePortfolioDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create New Portfolio</DialogTitle>
+      <DialogTitle>Portfolios Actions</DialogTitle>
       <DialogContent>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs value={tabValue} onChange={handleTabChange}>
-                    <Tab label="Create Empty Portfolio" />
-        <Tab label="Upload Transactions" />
+            <Tab label="Create Empty Portfolio" />
+            <Tab label="Upload Transactions" />
           </Tabs>
         </Box>
 
@@ -131,16 +140,24 @@ const CreatePortfolioDialog: React.FC<CreatePortfolioDialogProps> = ({
 
         <TabPanel value={tabValue} index={1}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Upload a CSV or Excel file with your transaction data. The file should contain 
+            Upload a CSV file with your transaction data. The file should contain
             columns for date, symbol, side (BUY/SELL), amount, and price information.
           </Typography>
-          <TextField
-            fullWidth
-            label="Portfolio Name"
+          <Autocomplete
+            freeSolo
+            options={portfolios}
             value={portfolioName}
-            onChange={(e) => setPortfolioName(e.target.value)}
-            placeholder="e.g., Imported Portfolio"
-            required
+            onInputChange={(_event, newInputValue) => setPortfolioName(newInputValue)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                fullWidth
+                label="Portfolio Name"
+                placeholder="e.g., Imported Portfolio"
+                required
+                sx={{ mb: 3 }}
+              />
+            )}
             sx={{ mb: 3 }}
           />
           <Paper
@@ -209,4 +226,4 @@ const CreatePortfolioDialog: React.FC<CreatePortfolioDialogProps> = ({
   );
 };
 
-export default CreatePortfolioDialog; 
+export default PortfolioActionsDialog; 

@@ -21,14 +21,17 @@ import {
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { fetchAllPortfolios, fetchPortfolioDetails } from "../../redux/slices/portfolioSlice";
 import { RootState } from "../../redux/store";
-import CreatePortfolioDialog from "./CreatePortfolioDialog";
+import PortfolioActionsDialog from "./CreatePortfolioDialog";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import usePortfolioComponent from "./usePortfolioComponent";
 
-const PortfolioLandingPage: React.FC = () => {
+const PortfolioLandingPage = () => {
+  const { handleSubmitPortfolioActions } = usePortfolioComponent();
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isPorfolioActionsDialogOpen, setIsPorfolioActionsDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState(1);
   const [loadingPortfolios, setLoadingPortfolios] = useState<{ [key: string]: boolean }>({});
 
   const { portfolios, status, error } = useAppSelector(
@@ -61,28 +64,18 @@ const PortfolioLandingPage: React.FC = () => {
     }
   }, [portfolios.length, dispatch]); // Only depend on portfolios.length, not the entire portfolios array
 
-  const handleCreatePortfolio = () => {
-    setIsCreateDialogOpen(true);
+  const handleClickCreatePortfolio = () => {
+    setDialogDefaultTab(0);
+    setIsPorfolioActionsDialogOpen(true);
   };
 
-  const handleUploadPortfolio = () => {
-    setIsCreateDialogOpen(true);
+  const handleClickUploadPortfolio = () => {
+    setDialogDefaultTab(1);
+    setIsPorfolioActionsDialogOpen(true);
   };
 
   const handlePortfolioClick = (portfolioName: string) => {
     navigate(`/portfolio/${portfolioName}`);
-  };
-
-  const handleSubmitPortfolio = async (portfolioName: string, file?: File) => {
-    try {
-      // For now, we'll just show a success message
-      // In a real implementation, you'd call the appropriate API
-      toast.success("Portfolio created successfully!");
-      dispatch(fetchAllPortfolios()); // Refresh the list
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create portfolio");
-      throw error;
-    }
   };
 
   const formatBalance = (totalInUsdt: number) => {
@@ -137,14 +130,14 @@ const PortfolioLandingPage: React.FC = () => {
           <Button
             variant="outlined"
             startIcon={<UploadIcon />}
-            onClick={handleUploadPortfolio}
+            onClick={handleClickUploadPortfolio}
           >
             Upload File
           </Button>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={handleCreatePortfolio}
+            onClick={handleClickCreatePortfolio}
           >
             Create Portfolio
           </Button>
@@ -165,7 +158,7 @@ const PortfolioLandingPage: React.FC = () => {
             variant="contained"
             size="large"
             startIcon={<AddIcon />}
-            onClick={handleCreatePortfolio}
+            onClick={handleClickCreatePortfolio}
           >
             Create Your First Portfolio
           </Button>
@@ -257,10 +250,12 @@ const PortfolioLandingPage: React.FC = () => {
       )}
 
       {/* Create Portfolio Dialog */}
-      <CreatePortfolioDialog
-        open={isCreateDialogOpen}
-        onClose={() => setIsCreateDialogOpen(false)}
-        onSubmit={handleSubmitPortfolio}
+      <PortfolioActionsDialog
+        open={isPorfolioActionsDialogOpen}
+        onClose={() => setIsPorfolioActionsDialogOpen(false)}
+        onSubmit={handleSubmitPortfolioActions}
+        defaultTab={dialogDefaultTab}
+        portfolios={portfolios?.map(p => p.name) || []}
       />
     </Container>
   );

@@ -47,23 +47,23 @@ const HoldingComponent: React.FC = () => {
 
     return (
       <div>
-        <Typography>Amount: {holdingDetails.amount}</Typography>
+        <Typography>Amount: {new Intl.NumberFormat('en-US', { minimumFractionDigits: 6, maximumFractionDigits: 6 }).format(holdingDetails.amount)}</Typography>
         <Typography>
-          Total Amount Bought: {holdingDetails.totalAmountBought}
+          Total Amount Bought: {holdingDetails.totalAmountBought !== undefined ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 6, maximumFractionDigits: 6 }).format(holdingDetails.totalAmountBought) : 'Not available'}
         </Typography>
         <Typography>
-          Total Amount Sold: {holdingDetails.totalAmountSold}
+          Total Amount Sold: {holdingDetails.totalAmountSold !== undefined ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 6, maximumFractionDigits: 6 }).format(holdingDetails.totalAmountSold) : 'Not available'}
         </Typography>
-        <Typography>Price in BTC: {holdingDetails.priceInBtc}</Typography>
-        <Typography>Price in USDT: {holdingDetails.priceInUsdt}</Typography>
-        <Typography>Amount in BTC: {holdingDetails.amountInBtc}</Typography>
-        <Typography>Amount in USDT: {holdingDetails.amountInUsdt}</Typography>
-        <Typography>Percentage: {holdingDetails.percentage}</Typography>
+        <Typography>Price in BTC: {holdingDetails.priceInBtc !== undefined ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 8, maximumFractionDigits: 8 }).format(holdingDetails.priceInBtc) : 'Not available'}</Typography>
+        <Typography>Price in USDT: {holdingDetails.priceInUsdt !== undefined ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(holdingDetails.priceInUsdt) : 'Not available'}</Typography>
+        <Typography>Amount in BTC: {new Intl.NumberFormat('en-US', { minimumFractionDigits: 8, maximumFractionDigits: 8 }).format(holdingDetails.amountInBtc)}</Typography>
+        <Typography>Current Position in USDT: {holdingDetails.currentPositionInUsdt !== undefined ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(holdingDetails.currentPositionInUsdt) : 'Not available'}</Typography>
+        <Typography>Percentage: {holdingDetails.percentage !== undefined ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(holdingDetails.percentage) + '%' : 'Not available'}</Typography>
         <Typography>
-          Stable Total Cost: {holdingDetails.stableTotalCost}
+          Total Cost Basis: {holdingDetails.stableTotalCost !== undefined ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(holdingDetails.stableTotalCost) : 'Not available'}
         </Typography>
         <Typography>
-          Total Realized Profit USDT: {holdingDetails.totalRealizedProfitUsdt}
+          Total Realized Profit: {holdingDetails.totalRealizedProfitUsdt !== undefined ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(holdingDetails.totalRealizedProfitUsdt) : 'Not available'}
         </Typography>
       </div>
     );
