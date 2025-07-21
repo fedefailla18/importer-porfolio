@@ -2,6 +2,27 @@
 import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { HoldingDto, PortfolioDistribution } from "../types/types";
 import api from "../utils/api";
+import axios from "axios";
+
+const API_BASE_URL = "http://localhost:8080";
+
+
+export const fetchHoldingDetails = createAsyncThunk<
+  HoldingDto,
+  { portfolioName: string; symbol: string }
+>(
+  "portfolio/fetchHoldingDetails",
+  async ({ portfolioName, symbol }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get<HoldingDto>(
+        `${API_BASE_URL}/portfolio/${portfolioName}/${symbol}`
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "An error occurred");
+    }
+  }
+);
 
 interface PortfolioState {
   data: PortfolioDistribution | null;

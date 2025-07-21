@@ -27,6 +27,7 @@ import Pagination from "../common/Pagination";
 import { format, parseISO } from "date-fns";
 import { toast } from "react-toastify";
 import { Transaction } from "../../redux/types/types";
+import AddTransactionButton from "./AddTransactionButton";
 
 interface TransactionListProps {
   symbol?: string;
@@ -41,7 +42,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const { transactions, status, error, pagination } = useAppSelector(
     (state: RootState) => state.transactions
   );
-
+  const portfolios = useAppSelector((state) => state.portfolio.portfolios.map((p) => p.name));
   const [filters, setFilters] = useState<FetchTransactionsParams>({
     symbol: symbol || undefined,
     startDate: undefined,
@@ -55,8 +56,6 @@ const TransactionList: React.FC<TransactionListProps> = ({
     size: 10,
     sort: "dateUtc,desc",
   });
-
-  const [isInitialLoad, setIsInitialLoad] = useState(false);
 
   const loadTransactions = () => {
     dispatch(fetchTransactions(filters));
@@ -132,10 +131,17 @@ const TransactionList: React.FC<TransactionListProps> = ({
       <Typography variant="h4" gutterBottom>
         Transactions
       </Typography>
+      <AddTransactionButton
+        defaultPortfolioName={portfolioName}
+        variant="contained"
+        color="primary"
+      />
       <FilterComponent
         filters={filters}
         onFilterChange={handleFilterChange}
         onApplyFilters={handleApplyFilters}
+        portfolios={portfolios}
+        selectedPortfolio={portfolioName || ""}
       />
       <TableContainer component={Paper} sx={{ 
         maxHeight: "60vh", 

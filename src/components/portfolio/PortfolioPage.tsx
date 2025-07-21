@@ -19,6 +19,7 @@ import { PortfolioDistribution } from "../../redux/types/types";
 import TransactionList from "../transactions/TransactionList";
 import HoldingListPage from "../holdings/HoldingListPage";
 import AddHoldingsForm from "../holdings/AddHoldingsForm";
+import AddTransactionButton from "../transactions/AddTransactionButton";
 import { fetchCoinInformation } from "../../redux/slices/coinInformationSlice";
 import { fetchPortfolioHoldingDistribution } from "../../redux/slices/portfolioSlice";
 import { toast } from "react-toastify";
@@ -268,7 +269,7 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
         <>
           <Box sx={{ mb: 2 }}>
             <Button
-              variant="contained"
+              variant="outlined"
               color="primary"
               onClick={handleFetchCoinInformation}
               disabled={coinInformationState.status === "loading"}
