@@ -153,12 +153,12 @@ const HoldingListPage = ({
                 <TableSortLabel>Amount</TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
-            <StickyHeaderCell>
+            <StickyHeaderCell style={{ display: 'none' }}>
               <Tooltip title="The total amount of this cryptocurrency that has been bought across all transactions">
                 <TableSortLabel>Total Bought</TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
-            <StickyHeaderCell>
+            <StickyHeaderCell style={{ display: 'none' }}>
               <Tooltip title="The total amount of this cryptocurrency that has been sold across all transactions">
                 <TableSortLabel>Total Sold</TableSortLabel>
               </Tooltip>
@@ -218,15 +218,15 @@ const HoldingListPage = ({
         <TableBody>
           {sortedHoldings?.map((holding: HoldingDto, index: number) => (
             <TableRow key={holding.symbol}>
-              <StickyColumnCell index={0}>{index + 1}</StickyColumnCell>
-              <StickyColumnCell index={0}>
+              <TableCell >{index + 1}</TableCell>
+              <TableCell >
                 <Link to={`/portfolio/${portfolioName}/${holding.symbol}`}>
                   {holding.symbol}
                 </Link>
-              </StickyColumnCell>
+              </TableCell>
               <TableCell>{formatNumber(holding.amount, 6)}</TableCell>
-              <TableCell>{holding.totalAmountBought !== undefined ? formatNumber(holding.totalAmountBought, 6) : '-'}</TableCell>
-              <TableCell>{holding.totalAmountSold !== undefined ? formatNumber(holding.totalAmountSold, 6) : '-'}</TableCell>
+              <TableCell style={{ display: 'none' }}>{holding.totalAmountBought !== undefined ? formatNumber(holding.totalAmountBought, 6) : '-'}</TableCell>
+              <TableCell style={{ display: 'none' }}>{holding.totalAmountSold !== undefined ? formatNumber(holding.totalAmountSold, 6) : '-'}</TableCell>
               <TableCell>{holding.priceInBtc !== undefined ? formatNumber(holding.priceInBtc, 8) : '-'}</TableCell>
               <TableCell>{holding.priceInUsdt !== undefined ? formatCurrency(holding.priceInUsdt) : '-'}</TableCell>
               <TableCell>{formatNumber(holding.amountInBtc, 8)}</TableCell>

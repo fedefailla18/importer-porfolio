@@ -24,6 +24,7 @@ import { fetchPortfolioHoldingDistribution } from "../../redux/slices/portfolioS
 import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { RootState } from "../../redux/store";
+import usePortfolioComponent from "./usePortfolioComponent";
 
 const StyledContainer = styled(Container)({
   marginTop: "2rem",
@@ -34,6 +35,7 @@ interface Props {
 }
 
 const PortfolioPage = ({ portfolioDistribution }: Props) => {
+  const { handleSubmitPortfolioActions } = usePortfolioComponent();
   const dispatch = useAppDispatch();
   const [priceMultiplier, setPriceMultiplier] = useState<{
     [key: number]: number;
@@ -83,81 +85,145 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
 
   const renderStats = () => (
     <Paper style={{ marginBottom: "1rem", padding: "1rem" }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
-        <Typography variant="h6">{portfolioDistribution.portfolioName} Portfolio Stats</Typography>
-        
-        {/* Calculation Status Indicator */}
-        {portfolioDistribution?.totalHoldings === 0 ? (
-          <Alert severity="warning" sx={{ maxWidth: 400 }}>
-            <AlertTitle>Portfolio Not Calculated</AlertTitle>
-            This portfolio hasn't been calculated yet. Click "Calculate Distribution" to process your holdings and get accurate statistics.
-          </Alert>
-        ) : (
-          showCalculationAlert && (
-            <Alert 
-              severity="success" 
-              sx={{ maxWidth: 400 }}
-              onClose={() => setShowCalculationAlert(false)}
-            >
-              <AlertTitle>Portfolio Calculated</AlertTitle>
-              Your portfolio data is up to date. Total holdings: {portfolioDistribution.totalHoldings}
+      {/* Header Section with Title and Right Column */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          mb: 2,
+          gap: 2,
+        }}
+      >
+        {/* Left Column - Portfolio Title */}
+        <Typography variant="h6" sx={{ flexShrink: 0 }}>
+          {portfolioDistribution.portfolioName} Portfolio Stats
+        </Typography>
+
+        {/* Right Column - Alert and Upload Button Stacked */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            maxWidth: 400,
+            minWidth: 300,
+          }}
+        >
+          {/* Alert */}
+          {portfolioDistribution?.totalHoldings === 0 ? (
+            <Alert severity="warning">
+              <AlertTitle>Portfolio Not Calculated</AlertTitle>
+              This portfolio hasn't been calculated yet. Click "Calculate Distribution" to process your holdings and get
+              accurate statistics.
             </Alert>
-          )
-        )}
+          ) : (
+            showCalculationAlert && (
+              <Alert severity="success" onClose={() => setShowCalculationAlert(false)}>
+                <AlertTitle>Portfolio Calculated</AlertTitle>
+                Your portfolio data is up to date. Total holdings: {portfolioDistribution.totalHoldings}
+              </Alert>
+            )
+          )}
+
+          {/* Upload Button */}
+          <Button
+            variant="contained"
+            component="label"
+            color="primary"
+            size="large"
+            sx={{
+              py: 1.5,
+              px: 3,
+              fontSize: "1rem",
+              fontWeight: 600,
+            }}
+          >
+            Upload Portfolio CSV
+            <input
+              type="file"
+              accept=".csv"
+              hidden
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  try {
+                    await handleSubmitPortfolioActions(portfolioDistribution.portfolioName, file)
+                    toast.success("Portfolio transactions uploaded successfully!")
+                  } catch (error: any) {
+                    toast.error(error?.message || "Failed to upload portfolio transactions")
+                  }
+                }
+                // Reset the input so the same file can be uploaded again if needed
+                e.target.value = ""
+              }}
+            />
+          </Button>
+        </Box>
       </Box>
 
-      <Typography variant="subtitle1" gutterBottom>
-        Total USDT: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(portfolioDistribution.totalInUsdt)}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Total Holdings: {portfolioDistribution.totalHoldings}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Total Realized Profit:{" "}
-        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-          sortedHoldings
-            .map((e) => e.totalRealizedProfitUsdt ?? 0)
-            .reduce((acc, curr) => acc + curr, 0)
-        )}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Total Cost Basis:{" "}
-        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-          sortedHoldings
-            .map((e) => e.stableTotalCost ?? 0)
-            .reduce((acc, curr) => acc + curr, 0)
-        )}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Current Position in USDT:{" "}
-        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-          sortedHoldings
-            .map((e) => e.currentPositionInUsdt ?? 0)
-            .reduce((acc, curr) => acc + curr, 0)
-        )}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Current Position in BTC:{" "}
-        {new Intl.NumberFormat('en-US', { minimumFractionDigits: 8, maximumFractionDigits: 8 }).format(
-          sortedHoldings
-            .map((e) => e.amountInBtc)
-            .reduce((acc, curr) => acc + curr, 0)
-        )}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Total Prediction USDT:{" "}
-        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-          Object.values(predictionUsdt).reduce((acc, curr) => acc + curr, 0)
-        )}
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Total Prediction BTC:{" "}
-        {new Intl.NumberFormat('en-US', { minimumFractionDigits: 8, maximumFractionDigits: 8 }).format(
-          Object.values(predictionBtc).reduce((acc, curr) => acc + curr, 0)
-        )}
-      </Typography>
+      {/* Stats Section */}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Typography variant="subtitle1">
+          Total USDT:{" "}
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(portfolioDistribution.totalInUsdt)}
+        </Typography>
+
+        <Typography variant="subtitle1">Total Holdings: {portfolioDistribution.totalHoldings}</Typography>
+
+        <Typography variant="subtitle1">
+          Total Realized Profit:{" "}
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(sortedHoldings.map((e) => e.totalRealizedProfitUsdt ?? 0).reduce((acc, curr) => acc + curr, 0))}
+        </Typography>
+
+        <Typography variant="subtitle1">
+          Total Cost Basis:{" "}
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(sortedHoldings.map((e) => e.stableTotalCost ?? 0).reduce((acc, curr) => acc + curr, 0))}
+        </Typography>
+
+        <Typography variant="subtitle1">
+          Current Position in USDT:{" "}
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(sortedHoldings.map((e) => e.currentPositionInUsdt ?? 0).reduce((acc, curr) => acc + curr, 0))}
+        </Typography>
+
+        <Typography variant="subtitle1">
+          Current Position in BTC:{" "}
+          {new Intl.NumberFormat("en-US", {
+            minimumFractionDigits: 8,
+            maximumFractionDigits: 8,
+          }).format(sortedHoldings.map((e) => e.amountInBtc).reduce((acc, curr) => acc + curr, 0))}
+        </Typography>
+
+        <Typography variant="subtitle1">
+          Total Prediction USDT:{" "}
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(Object.values(predictionUsdt).reduce((acc, curr) => acc + curr, 0))}
+        </Typography>
+
+        <Typography variant="subtitle1">
+          Total Prediction BTC:{" "}
+          {new Intl.NumberFormat("en-US", {
+            minimumFractionDigits: 8,
+            maximumFractionDigits: 8,
+          }).format(Object.values(predictionBtc).reduce((acc, curr) => acc + curr, 0))}
+        </Typography>
+      </Box>
     </Paper>
-  );
+  )
 
   return (
     <StyledContainer maxWidth="xl">
