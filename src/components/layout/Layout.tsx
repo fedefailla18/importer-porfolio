@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 import {
   AppBar,
   Toolbar,
@@ -6,80 +6,80 @@ import {
   TextField,
   Button,
   Container,
-} from "@mui/material";
-import { Link, Outlet, useNavigate } from "react-router-dom";
-import { useSelector,  } from "react-redux";
-import { RootState } from "../../redux/store";
-import { logout } from "../../redux/slices/authSlice";
-import { useAppDispatch } from "../../redux/hooks";
+} from '@mui/material'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../redux/store'
+import { logout } from '../../redux/slices/authSlice'
+import { useAppDispatch } from '../../redux/hooks'
 
 const Layout = () => {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
-  );
+  )
 
   const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
-  };
+    dispatch(logout())
+    navigate('/login')
+  }
 
   return (
     <>
-      <AppBar position="static" color="primary">
+      <AppBar position='static' color='primary'>
         <Toolbar>
-          <Typography variant="h6" style={{ flexGrow: 1 }}>
+          <Typography variant='h6' style={{ flexGrow: 1 }}>
             Crypto Portfolio
           </Typography>
           {isAuthenticated ? (
             <>
-              <Button color="inherit" component={Link} to="/">
+              <Button color='inherit' component={Link} to='/'>
                 Portfolio
               </Button>
-              <Button color="inherit" component={Link} to="/holdings">
+              <Button color='inherit' component={Link} to='/holdings'>
                 Holdings
               </Button>
-              <Button color="inherit" component={Link} to="/transactions">
+              <Button color='inherit' component={Link} to='/transactions'>
                 Transactions
               </Button>
               <TextField
-                variant="outlined"
-                size="small"
-                placeholder="Search"
+                variant='outlined'
+                size='small'
+                placeholder='Search'
                 style={{
-                  marginLeft: "1rem",
-                  backgroundColor: "rgba(255,255,255,0.1)",
+                  marginLeft: '1rem',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
                 }}
               />
-              <Button color="inherit" style={{ marginLeft: "0.5rem" }}>
+              <Button color='inherit' style={{ marginLeft: '0.5rem' }}>
                 Search
               </Button>
               <Button
-                color="inherit"
+                color='inherit'
                 onClick={handleLogout}
-                style={{ marginLeft: "0.5rem" }}
+                style={{ marginLeft: '0.5rem' }}
               >
                 Logout
               </Button>
             </>
           ) : (
             <>
-              <Button color="inherit" component={Link} to="/login">
+              <Button color='inherit' component={Link} to='/login'>
                 Login
               </Button>
-              <Button color="inherit" component={Link} to="/register">
+              <Button color='inherit' component={Link} to='/register'>
                 Register
               </Button>
             </>
           )}
         </Toolbar>
       </AppBar>
-      <Container style={{ marginTop: "2rem" }}>
+      <Container style={{ marginTop: '2rem' }}>
         <Outlet />
       </Container>
     </>
-  );
-};
+  )
+}
 
-export default Layout;
+export default Layout

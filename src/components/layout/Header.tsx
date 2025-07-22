@@ -1,23 +1,23 @@
-import React from "react";
-import { AppBar, Toolbar, Typography, Button } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import React from 'react'
+import { AppBar, Toolbar, Typography, Button } from '@mui/material'
+import { Link as RouterLink } from 'react-router-dom'
 
 const Header = () => {
   return (
-    <AppBar position="static">
+    <AppBar position='static'>
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
           Crypto Portfolio
         </Typography>
-        <Button color="inherit" component={RouterLink} to="/">
+        <Button color='inherit' component={RouterLink} to='/'>
           Dashboard
         </Button>
-        <Button color="inherit" component={RouterLink} to="/add-transaction">
+        <Button color='inherit' component={RouterLink} to='/add-transaction'>
           Add Transaction
         </Button>
       </Toolbar>
     </AppBar>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

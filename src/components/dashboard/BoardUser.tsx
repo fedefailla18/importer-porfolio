@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react'
 
-import { getUserBoard } from "../../services/user.service";
+import { getUserBoard } from '../../services/user.service'
 
 const BoardUser = () => {
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState('')
 
   useEffect(() => {
     getUserBoard().then(
       (response) => {
-        setContent(response.data);
+        setContent(response.data)
       },
       (error) => {
         const _content =
@@ -16,20 +16,20 @@ const BoardUser = () => {
             error.response.data &&
             error.response.data.message) ||
           error.message ||
-          error.toString();
+          error.toString()
 
-        setContent(_content);
+        setContent(_content)
       }
-    );
-  }, []);
+    )
+  }, [])
 
   return (
-    <div className="container">
-      <header className="jumbotron">
+    <div className='container'>
+      <header className='jumbotron'>
         <h3>{content}</h3>
       </header>
     </div>
-  );
-};
+  )
+}
 
-export default BoardUser;
+export default BoardUser

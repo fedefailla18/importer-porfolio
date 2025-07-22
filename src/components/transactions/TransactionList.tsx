@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { useAppSelector, useAppDispatch } from "../../redux/hooks";
+import React, { useEffect, useState } from 'react'
+import { useAppSelector, useAppDispatch } from '../../redux/hooks'
 import {
   fetchTransactions,
   FetchTransactionsParams,
-} from "../../redux/slices/transactionSlice";
+} from '../../redux/slices/transactionSlice'
 import {
   Container,
   Typography,
@@ -20,29 +20,31 @@ import {
   InputLabel,
   MenuItem,
   Select,
-} from "@mui/material";
-import { RootState } from "../../redux/store";
-import FilterComponent from "./FilterComponent";
-import Pagination from "../common/Pagination";
-import { format, parseISO } from "date-fns";
-import { toast } from "react-toastify";
-import { Transaction } from "../../redux/types/types";
-import AddTransactionButton from "./AddTransactionButton";
+} from '@mui/material'
+import { RootState } from '../../redux/store'
+import FilterComponent from './FilterComponent'
+import Pagination from '../common/Pagination'
+import { format, parseISO } from 'date-fns'
+import { toast } from 'react-toastify'
+import { Transaction } from '../../redux/types/types'
+import AddTransactionButton from './AddTransactionButton'
 
 interface TransactionListProps {
-  symbol?: string;
-  portfolioName?: string;
+  symbol?: string
+  portfolioName?: string
 }
 
 const TransactionList: React.FC<TransactionListProps> = ({
   symbol,
   portfolioName,
 }) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
   const { transactions, status, error, pagination } = useAppSelector(
     (state: RootState) => state.transactions
-  );
-  const portfolios = useAppSelector((state) => state.portfolio.portfolios.map((p) => p.name));
+  )
+  const portfolios = useAppSelector((state) =>
+    state.portfolio.portfolios.map((p) => p.name)
+  )
   const [filters, setFilters] = useState<FetchTransactionsParams>({
     symbol: symbol || undefined,
     startDate: undefined,
@@ -50,115 +52,118 @@ const TransactionList: React.FC<TransactionListProps> = ({
     portfolioName: portfolioName || undefined,
     side: undefined,
     paidWith: undefined,
-    paidAmountOperator: "eq",
+    paidAmountOperator: 'eq',
     paidAmount: undefined,
     page: 0,
     size: 10,
-    sort: "dateUtc,desc",
-  });
+    sort: 'dateUtc,desc',
+  })
 
   const loadTransactions = () => {
-    dispatch(fetchTransactions(filters));
-  };
+    dispatch(fetchTransactions(filters))
+  }
 
   const handleRowsPerPageChange = (event: any) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       size: event.target.value as number,
       page: 0,
-    }));
-  };
+    }))
+  }
 
   useEffect(() => {
-    loadTransactions();
-  }, [filters]);
+    loadTransactions()
+  }, [filters])
 
   const handlePageChange = (page: number) => {
-    setFilters((prevFilters) => ({ ...prevFilters, page: page - 1 }));
-  };
+    setFilters((prevFilters) => ({ ...prevFilters, page: page - 1 }))
+  }
 
   const handleFilterChange = (filterName: string, value: string) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       [filterName]: value,
       page: 0,
-    }));
-  };
+    }))
+  }
 
   const handleSort = (property: string) => {
     const isAsc =
-      filters.sort?.split(",")[0] === property &&
-      filters.sort?.split(",")[1] === "asc";
-    const newSort = `${property},${isAsc ? "desc" : "asc"}`;
-    setFilters((prevFilters) => ({ ...prevFilters, sort: newSort, page: 0 }));
-  };
+      filters.sort?.split(',')[0] === property &&
+      filters.sort?.split(',')[1] === 'asc'
+    const newSort = `${property},${isAsc ? 'desc' : 'asc'}`
+    setFilters((prevFilters) => ({ ...prevFilters, sort: newSort, page: 0 }))
+  }
 
   const handleApplyFilters = () => {
-    loadTransactions();
-  };
+    loadTransactions()
+  }
 
   const formatDate = (dateUtc: string | undefined) => {
-    if (!dateUtc) return "N/A";
+    if (!dateUtc) return 'N/A'
     try {
-      return format(parseISO(dateUtc), "yyyy-MM-dd HH:mm:ss");
+      return format(parseISO(dateUtc), 'yyyy-MM-dd HH:mm:ss')
     } catch (error) {
-      console.error("Error parsing date:", dateUtc, error);
-      return "Invalid Date";
+      console.error('Error parsing date:', dateUtc, error)
+      return 'Invalid Date'
     }
-  };
+  }
 
-  if (status === "loading") {
+  if (status === 'loading') {
     return (
       <Container>
         <CircularProgress />
       </Container>
-    );
+    )
   }
 
-  if (status === "failed") {
-    toast.error(`The request faile.  ${error}`);
+  if (status === 'failed') {
+    toast.error(`The request faile.  ${error}`)
     return (
       <Container>
         <TableContainer component={Paper}>
           <Typography>No records were found</Typography>
         </TableContainer>
       </Container>
-    );
+    )
   }
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant='h4' gutterBottom>
         Transactions
       </Typography>
       <AddTransactionButton
         defaultPortfolioName={portfolioName}
-        variant="contained"
-        color="primary"
+        variant='contained'
+        color='primary'
       />
       <FilterComponent
         filters={filters}
         onFilterChange={handleFilterChange}
         onApplyFilters={handleApplyFilters}
         portfolios={portfolios}
-        selectedPortfolio={portfolioName || ""}
+        selectedPortfolio={portfolioName || ''}
       />
-      <TableContainer component={Paper} sx={{ 
-        maxHeight: "60vh", 
-        overflow: "auto",
-        "& .MuiTableBody-root": {
-          "& .MuiTableRow-root:hover": {
-            backgroundColor: "rgba(0, 0, 0, 0.04)",
+      <TableContainer
+        component={Paper}
+        sx={{
+          maxHeight: '60vh',
+          overflow: 'auto',
+          '& .MuiTableBody-root': {
+            '& .MuiTableRow-root:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            },
           },
-        },
-      }}>
+        }}
+      >
         <Table stickyHeader>
           <TableHead>
             <TableRow>
               <TableSortLabel
-                active={filters.sort?.split(",")[0] === "dateUtc"}
-                direction={filters.sort?.split(",")[1] as "asc" | "desc"}
-                onClick={() => handleSort("dateUtc")}
+                active={filters.sort?.split(',')[0] === 'dateUtc'}
+                direction={filters.sort?.split(',')[1] as 'asc' | 'desc'}
+                onClick={() => handleSort('dateUtc')}
               >
                 Date
               </TableSortLabel>
@@ -197,19 +202,19 @@ const TransactionList: React.FC<TransactionListProps> = ({
       </TableContainer>
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginTop: "1rem",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '1rem',
         }}
       >
-        <FormControl variant="outlined" style={{ minWidth: 120 }}>
-          <InputLabel id="rows-per-page-label">Rows per page</InputLabel>
+        <FormControl variant='outlined' style={{ minWidth: 120 }}>
+          <InputLabel id='rows-per-page-label'>Rows per page</InputLabel>
           <Select
-            labelId="rows-per-page-label"
+            labelId='rows-per-page-label'
             value={filters.size}
             onChange={(e) => handleRowsPerPageChange(e)}
-            label="Rows per page"
+            label='Rows per page'
           >
             <MenuItem value={10}>10</MenuItem>
             <MenuItem value={25}>25</MenuItem>
@@ -224,7 +229,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
         />
       </div>
     </Container>
-  );
-};
+  )
+}
 
-export default TransactionList;
+export default TransactionList
