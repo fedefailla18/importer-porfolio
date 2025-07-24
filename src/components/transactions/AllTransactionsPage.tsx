@@ -1,10 +1,10 @@
 // src/components/transactions/AllTransactionsPage.tsx
-import React from 'react'
-import { Button, Container, Typography } from '@mui/material'
-import { Link as RouterLink } from 'react-router-dom'
-import TransactionList from './TransactionList'
+import React from 'react';
+import { Button, Container, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import TransactionList from './TransactionList';
 
-const AllTransactionsPage: React.FC = () => {
+const AllTransactionsPage = () => {
   return (
     <Container>
       <Typography variant='h4' gutterBottom>
@@ -21,7 +21,7 @@ const AllTransactionsPage: React.FC = () => {
       </Button>
       <TransactionList />
     </Container>
-  )
-}
+  );
+};
 
-export default AllTransactionsPage
+export default AllTransactionsPage;

@@ -1,29 +1,20 @@
-import React from 'react'
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  TextField,
-  Button,
-  Container,
-} from '@mui/material'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { RootState } from '../../redux/store'
-import { logout } from '../../redux/slices/authSlice'
-import { useAppDispatch } from '../../redux/hooks'
+import React from 'react';
+import { AppBar, Toolbar, Typography, TextField, Button, Container } from '@mui/material';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
+import { logout } from '../../redux/slices/authSlice';
+import { useAppDispatch } from '../../redux/hooks';
 
 const Layout = () => {
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated
-  )
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
   const handleLogout = () => {
-    dispatch(logout())
-    navigate('/login')
-  }
+    dispatch(logout());
+    navigate('/login');
+  };
 
   return (
     <>
@@ -55,11 +46,7 @@ const Layout = () => {
               <Button color='inherit' style={{ marginLeft: '0.5rem' }}>
                 Search
               </Button>
-              <Button
-                color='inherit'
-                onClick={handleLogout}
-                style={{ marginLeft: '0.5rem' }}
-              >
+              <Button color='inherit' onClick={handleLogout} style={{ marginLeft: '0.5rem' }}>
                 Logout
               </Button>
             </>
@@ -79,7 +66,7 @@ const Layout = () => {
         <Outlet />
       </Container>
     </>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;

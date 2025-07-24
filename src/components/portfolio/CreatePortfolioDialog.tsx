@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -14,28 +14,25 @@ import {
   Alert,
   CircularProgress,
   Autocomplete,
-} from '@mui/material'
-import {
-  CloudUpload as CloudUploadIcon,
-  Add as AddIcon,
-} from '@mui/icons-material'
+} from '@mui/material';
+import { CloudUpload as CloudUploadIcon, Add as AddIcon } from '@mui/icons-material';
 
 interface CreatePortfolioDialogProps {
-  open: boolean
-  onClose: () => void
-  onSubmit: (portfolioName: string, file?: File) => Promise<void>
-  defaultTab?: number
-  portfolios?: string[]
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (portfolioName: string, file?: File) => Promise<void>;
+  defaultTab?: number;
+  portfolios?: string[];
 }
 
 interface TabPanelProps {
-  children?: React.ReactNode
-  index: number
-  value: number
+  children?: React.ReactNode;
+  index: number;
+  value: number;
 }
 
 function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props
+  const { children, value, index, ...other } = props;
 
   return (
     <div
@@ -47,7 +44,7 @@ function TabPanel(props: TabPanelProps) {
     >
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
-  )
+  );
 }
 
 const PortfolioActionsDialog = ({
@@ -57,67 +54,61 @@ const PortfolioActionsDialog = ({
   defaultTab,
   portfolios = [],
 }: CreatePortfolioDialogProps) => {
-  const [tabValue, setTabValue] = useState(defaultTab || 0)
-  const [portfolioName, setPortfolioName] = useState('')
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
+  const [tabValue, setTabValue] = useState(defaultTab || 0);
+  const [portfolioName, setPortfolioName] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue)
-    setError('')
-  }
+    setTabValue(newValue);
+    setError('');
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
     if (file) {
-      setSelectedFile(file)
-      setError('')
+      setSelectedFile(file);
+      setError('');
     }
-  }
+  };
 
   const handleSubmit = async () => {
     if (!portfolioName.trim()) {
-      setError('Portfolio name is required')
-      return
+      setError('Portfolio name is required');
+      return;
     }
 
     if (tabValue === 1 && !selectedFile) {
-      setError('Please select a file to upload')
-      return
+      setError('Please select a file to upload');
+      return;
     }
 
-    setIsSubmitting(true)
-    setError('')
+    setIsSubmitting(true);
+    setError('');
 
     if (tabValue === 1) {
-      console.log(
-        'Uploading file with portfolioName:',
-        portfolioName,
-        selectedFile
-      )
+      console.log('Uploading file with portfolioName:', portfolioName, selectedFile);
     }
 
     try {
-      await onSubmit(portfolioName.trim(), selectedFile || undefined)
-      handleClose()
+      await onSubmit(portfolioName.trim(), selectedFile || undefined);
+      handleClose();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to create portfolio'
-      )
+      setError(err instanceof Error ? err.message : 'Failed to create portfolio');
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleClose = () => {
-    setPortfolioName('')
-    setSelectedFile(null)
-    setError('')
-    setTabValue(0)
-    setIsSubmitting(false)
-    onClose()
-  }
+    setPortfolioName('');
+    setSelectedFile(null);
+    setError('');
+    setTabValue(0);
+    setIsSubmitting(false);
+    onClose();
+  };
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth='sm' fullWidth>
@@ -138,7 +129,7 @@ const PortfolioActionsDialog = ({
             fullWidth
             label='Portfolio Name'
             value={portfolioName}
-            onChange={(e) => setPortfolioName(e.target.value)}
+            onChange={e => setPortfolioName(e.target.value)}
             placeholder='e.g., My Crypto Portfolio'
             required
           />
@@ -146,18 +137,15 @@ const PortfolioActionsDialog = ({
 
         <TabPanel value={tabValue} index={1}>
           <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-            Upload a CSV file with your transaction data. The file should
-            contain columns for date, symbol, side (BUY/SELL), amount, and price
-            information.
+            Upload a CSV file with your transaction data. The file should contain columns for date,
+            symbol, side (BUY/SELL), amount, and price information.
           </Typography>
           <Autocomplete
             freeSolo
             options={portfolios}
             value={portfolioName}
-            onInputChange={(_event, newInputValue) =>
-              setPortfolioName(newInputValue)
-            }
-            renderInput={(params) => (
+            onInputChange={(_event, newInputValue) => setPortfolioName(newInputValue)}
+            renderInput={params => (
               <TextField
                 {...params}
                 fullWidth
@@ -207,8 +195,7 @@ const PortfolioActionsDialog = ({
               </Box>
             )}
             <Typography variant='caption' display='block' sx={{ mt: 1 }}>
-              Supported formats: CSV, Excel (.xlsx, .xls). File should contain
-              transaction data.
+              Supported formats: CSV. File should contain transaction data.
             </Typography>
           </Paper>
         </TabPanel>
@@ -227,15 +214,13 @@ const PortfolioActionsDialog = ({
           onClick={handleSubmit}
           variant='contained'
           disabled={isSubmitting || !portfolioName.trim()}
-          startIcon={
-            isSubmitting ? <CircularProgress size={20} /> : <AddIcon />
-          }
+          startIcon={isSubmitting ? <CircularProgress size={20} /> : <AddIcon />}
         >
           {isSubmitting ? 'Creating...' : 'Create Portfolio'}
         </Button>
       </DialogActions>
     </Dialog>
-  )
-}
+  );
+};
 
-export default PortfolioActionsDialog
+export default PortfolioActionsDialog;

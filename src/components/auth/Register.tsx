@@ -1,27 +1,27 @@
 //src/components/auth/Register.tsx
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
-import { useNavigate } from 'react-router-dom'
-import { TextField, Button, Typography, Container, Box } from '@mui/material'
-import { register } from '../../redux/slices/authSlice'
-import { useAppDispatch } from '../../redux/hooks'
+import { useNavigate } from 'react-router-dom';
+import { TextField, Button, Typography, Container, Box } from '@mui/material';
+import { register } from '../../redux/slices/authSlice';
+import { useAppDispatch } from '../../redux/hooks';
 
 const Register: React.FC = () => {
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      await dispatch(register({ username, email, password }))
-      navigate('/login')
+      await dispatch(register({ username, email, password }));
+      navigate('/login');
     } catch (error) {
-      console.error('Registration failed:', error)
+      console.error('Registration failed:', error);
     }
-  }
+  };
 
   return (
     <Container component='main' maxWidth='xs'>
@@ -47,7 +47,7 @@ const Register: React.FC = () => {
             autoComplete='username'
             autoFocus
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={e => setUsername(e.target.value)}
           />
           <TextField
             margin='normal'
@@ -58,7 +58,7 @@ const Register: React.FC = () => {
             name='email'
             autoComplete='email'
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
           />
           <TextField
             margin='normal'
@@ -70,20 +70,15 @@ const Register: React.FC = () => {
             id='password'
             autoComplete='new-password'
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
           />
-          <Button
-            type='submit'
-            fullWidth
-            variant='contained'
-            sx={{ mt: 3, mb: 2 }}
-          >
+          <Button type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
             Register
           </Button>
         </Box>
       </Box>
     </Container>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;

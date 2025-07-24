@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import {
   Container,
   Typography,
@@ -8,23 +8,23 @@ import {
   Card,
   CardContent,
   CardActions,
-} from '@mui/material'
+} from '@mui/material';
 import {
   Add as AddIcon,
   Upload as UploadIcon,
   Analytics as AnalyticsIcon,
   TrendingUp as TrendingUpIcon,
-} from '@mui/icons-material'
+} from '@mui/icons-material';
 
 interface EmptyPortfolioStateProps {
-  onCreatePortfolio: () => void
-  onUploadPortfolio: () => void
+  onCreatePortfolio: () => void;
+  onUploadPortfolio: () => void;
 }
 
-const EmptyPortfolioState: React.FC<EmptyPortfolioStateProps> = ({
+const EmptyPortfolioState = ({
   onCreatePortfolio,
   onUploadPortfolio,
-}) => {
+}: EmptyPortfolioStateProps) => {
   return (
     <Container maxWidth='lg' sx={{ py: 8 }}>
       <Box textAlign='center' mb={6}>
@@ -32,16 +32,11 @@ const EmptyPortfolioState: React.FC<EmptyPortfolioStateProps> = ({
           Welcome to Crypto Portfolio
         </Typography>
         <Typography variant='h5' color='text.secondary' paragraph>
-          Start tracking your cryptocurrency investments and analyze your
-          portfolio performance
+          Start tracking your cryptocurrency investments and analyze your portfolio performance
         </Typography>
-        <Typography
-          variant='body1'
-          color='text.secondary'
-          sx={{ maxWidth: 600, mx: 'auto' }}
-        >
-          Create your first portfolio to begin monitoring your crypto holdings,
-          track transactions, and get insights into your investment performance.
+        <Typography variant='body1' color='text.secondary' sx={{ maxWidth: 600, mx: 'auto' }}>
+          Create your first portfolio to begin monitoring your crypto holdings, track transactions,
+          and get insights into your investment performance.
         </Typography>
       </Box>
 
@@ -67,8 +62,8 @@ const EmptyPortfolioState: React.FC<EmptyPortfolioStateProps> = ({
                 Create New Portfolio
               </Typography>
               <Typography variant='body2' color='text.secondary'>
-                Start fresh with a new portfolio. Add your holdings manually and
-                track them over time.
+                Start fresh with a new portfolio. Add your holdings manually and track them over
+                time.
               </Typography>
             </CardContent>
             <CardActions sx={{ justifyContent: 'center', pb: 3 }}>
@@ -106,8 +101,8 @@ const EmptyPortfolioState: React.FC<EmptyPortfolioStateProps> = ({
                 Upload Portfolio File
               </Typography>
               <Typography variant='body2' color='text.secondary'>
-                Import your existing portfolio data from CSV or Excel files.
-                We'll help you get started quickly.
+                Import your existing portfolio data from CSV files. We&apos;ll help you get started
+                quickly.
               </Typography>
             </CardContent>
             <CardActions sx={{ justifyContent: 'center', pb: 3 }}>
@@ -145,7 +140,7 @@ const EmptyPortfolioState: React.FC<EmptyPortfolioStateProps> = ({
               </Typography>
             </Box>
             <Typography variant='body2' color='text.secondary'>
-              Monitor your portfolio's growth and performance over time
+              Monitor your portfolio&apos;s growth and performance over time
             </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -187,7 +182,7 @@ const EmptyPortfolioState: React.FC<EmptyPortfolioStateProps> = ({
         </Grid>
       </Box>
     </Container>
-  )
-}
+  );
+};
 
-export default EmptyPortfolioState
+export default EmptyPortfolioState;

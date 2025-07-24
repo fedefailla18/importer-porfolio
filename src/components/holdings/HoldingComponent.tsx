@@ -1,49 +1,41 @@
 // src/components/holdings/HoldingComponent.tsx
-import React, { useEffect } from 'react'
-import { useAppSelector, useAppDispatch } from '../../redux/hooks'
-import { fetchHoldingDetails } from '../../redux/slices/holdingDetailsSlice'
-import { useParams, useNavigate } from 'react-router-dom'
-import {
-  Paper,
-  Typography,
-  Select,
-  CircularProgress,
-  Alert,
-} from '@mui/material'
-import TransactionList from '../transactions/TransactionList'
+import React, { useEffect } from 'react';
+import { useAppSelector, useAppDispatch } from '../../redux/hooks';
+import { fetchHoldingDetails } from '../../redux/slices/holdingDetailsSlice';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Paper, Typography, Select, CircularProgress, Alert } from '@mui/material';
+import TransactionList from '../transactions/TransactionList';
 
-const HoldingComponent: React.FC = () => {
+const HoldingComponent = () => {
   const { portfolioName, symbol } = useParams<{
-    portfolioName: string
-    symbol: string
-  }>()
-  const navigate = useNavigate()
-  const dispatch = useAppDispatch()
+    portfolioName: string;
+    symbol: string;
+  }>();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const {
     holdingDetails,
     status: holdingStatus,
     error: holdingError,
-  } = useAppSelector((state) => state.holdingDetails)
+  } = useAppSelector(state => state.holdingDetails);
 
   useEffect(() => {
     if (portfolioName && symbol) {
-      dispatch(fetchHoldingDetails({ portfolioName, symbol }))
+      dispatch(fetchHoldingDetails({ portfolioName, symbol }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portfolioName, symbol])
+  }, [portfolioName, symbol]);
 
   const handleHoldingChange = (event: any) => {
-    const newSymbol = event.target.value as string
-    navigate(`/holdings/${portfolioName}/${newSymbol}`)
-  }
+    const newSymbol = event.target.value as string;
+    navigate(`/holdings/${portfolioName}/${newSymbol}`);
+  };
 
   const renderHoldingDetails = () => {
-    if (holdingStatus === 'loading') return <CircularProgress />
-    if (holdingStatus === 'failed')
-      return <Alert severity='error'>{holdingError}</Alert>
-    if (!holdingDetails)
-      return <Typography>No holding details available</Typography>
+    if (holdingStatus === 'loading') return <CircularProgress />;
+    if (holdingStatus === 'failed') return <Alert severity='error'>{holdingError}</Alert>;
+    if (!holdingDetails) return <Typography>No holding details available</Typography>;
 
     return (
       <div>
@@ -134,8 +126,8 @@ const HoldingComponent: React.FC = () => {
             : 'Not available'}
         </Typography>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div>
@@ -157,7 +149,7 @@ const HoldingComponent: React.FC = () => {
         <TransactionList symbol={symbol} portfolioName={portfolioName} />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default HoldingComponent
+export default HoldingComponent;

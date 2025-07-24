@@ -1,6 +1,6 @@
 // src/components/auth/Login.tsx
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   TextField,
   Button,
@@ -9,34 +9,32 @@ import {
   Box,
   Alert,
   CircularProgress,
-} from '@mui/material'
-import { login } from '../../redux/slices/authSlice'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+} from '@mui/material';
+import { login } from '../../redux/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
-  const { status, error, isAuthenticated } = useAppSelector(
-    (state) => state.auth
-  )
+  const { status, error, isAuthenticated } = useAppSelector(state => state.auth);
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/')
+      navigate('/');
     }
-  }, [isAuthenticated, navigate])
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      await dispatch(login({ username, password }))
+      await dispatch(login({ username, password }));
     } catch (error) {
-      console.error('Login failed:', error)
+      console.error('Login failed:', error);
     }
-  }
+  };
 
   return (
     <Container component='main' maxWidth='xs'>
@@ -73,7 +71,7 @@ const Login: React.FC = () => {
             autoComplete='username'
             autoFocus
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={e => setUsername(e.target.value)}
           />
           <TextField
             margin='normal'
@@ -85,7 +83,7 @@ const Login: React.FC = () => {
             id='password'
             autoComplete='current-password'
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
           />
           <Button
             type='submit'
@@ -115,7 +113,7 @@ const Login: React.FC = () => {
         </Box>
       </Box>
     </Container>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

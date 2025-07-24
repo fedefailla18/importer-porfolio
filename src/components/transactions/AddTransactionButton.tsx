@@ -1,13 +1,13 @@
-import React, { useState } from 'react'
-import { Button } from '@mui/material'
-import AddTransactionDrawer from './AddTransactionDrawer'
+import React, { useState } from 'react';
+import { Button } from '@mui/material';
+import AddTransactionDrawer from './AddTransactionDrawer';
 
 interface AddTransactionButtonProps {
-  defaultPortfolioName?: string
-  onSuccess?: () => void
-  children?: React.ReactNode
-  variant?: 'contained' | 'outlined' | 'text'
-  color?: 'primary' | 'secondary' | 'inherit'
+  defaultPortfolioName?: string;
+  onSuccess?: () => void;
+  children?: React.ReactNode;
+  variant?: 'contained' | 'outlined' | 'text';
+  color?: 'primary' | 'secondary' | 'inherit';
 }
 
 const AddTransactionButton = ({
@@ -17,10 +17,10 @@ const AddTransactionButton = ({
   variant = 'contained',
   color = 'primary',
 }: AddTransactionButtonProps) => {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
-  const handleOpen = () => setOpen(true)
-  const handleClose = () => setOpen(false)
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   return (
     <>
@@ -34,7 +34,7 @@ const AddTransactionButton = ({
         onSuccess={onSuccess}
       />
     </>
-  )
-}
+  );
+};
 
-export default AddTransactionButton
+export default AddTransactionButton;

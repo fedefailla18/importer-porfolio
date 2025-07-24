@@ -1,18 +1,14 @@
 // src/components/common/Pagination.tsx
-import React from 'react'
-import { Pagination as MuiPagination, PaginationItem } from '@mui/material'
+import React from 'react';
+import { Pagination as MuiPagination, PaginationItem } from '@mui/material';
 
 interface PaginationProps {
-  currentPage: number
-  totalPages: number
-  onPageChange: (page: number) => void
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({
-  currentPage,
-  totalPages,
-  onPageChange,
-}) => {
+const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
   return (
     <MuiPagination
       count={totalPages}
@@ -24,7 +20,7 @@ const Pagination: React.FC<PaginationProps> = ({
       showLastButton
       siblingCount={1}
       boundaryCount={1}
-      renderItem={(item) => (
+      renderItem={item => (
         <PaginationItem
           {...item}
           component='button'
@@ -32,7 +28,7 @@ const Pagination: React.FC<PaginationProps> = ({
         />
       )}
     />
-  )
-}
+  );
+};
 
-export default Pagination
+export default Pagination;

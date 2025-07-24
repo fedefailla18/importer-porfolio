@@ -1,13 +1,13 @@
-import React from 'react'
-import { Drawer, Box, Typography, IconButton } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
-import TransactionForm from './TransactionForm'
+import React from 'react';
+import { Drawer, Box, Typography, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import TransactionForm from './TransactionForm';
 
 interface AddTransactionDrawerProps {
-  open: boolean
-  onClose: () => void
-  defaultPortfolioName?: string
-  onSuccess?: () => void
+  open: boolean;
+  onClose: () => void;
+  defaultPortfolioName?: string;
+  onSuccess?: () => void;
 }
 
 const AddTransactionDrawer = ({
@@ -17,9 +17,9 @@ const AddTransactionDrawer = ({
   onSuccess,
 }: AddTransactionDrawerProps) => {
   const handleSuccess = () => {
-    onClose()
-    if (onSuccess) onSuccess()
-  }
+    onClose();
+    if (onSuccess) onSuccess();
+  };
 
   return (
     <Drawer anchor='right' open={open} onClose={onClose}>
@@ -34,13 +34,10 @@ const AddTransactionDrawer = ({
         <Typography variant='h5' gutterBottom sx={{ mb: 2 }}>
           Add Transaction
         </Typography>
-        <TransactionForm
-          defaultPortfolioName={defaultPortfolioName}
-          onSuccess={handleSuccess}
-        />
+        <TransactionForm defaultPortfolioName={defaultPortfolioName} onSuccess={handleSuccess} />
       </Box>
     </Drawer>
-  )
-}
+  );
+};
 
-export default AddTransactionDrawer
+export default AddTransactionDrawer;

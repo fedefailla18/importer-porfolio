@@ -1,7 +1,7 @@
 // /src/components/transactions/TransactionForm.tsx
-import React, { useState, useEffect } from 'react'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { addTransaction } from '../../redux/slices/transactionSlice'
+import React, { useState, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { addTransaction } from '../../redux/slices/transactionSlice';
 import {
   Button,
   TextField,
@@ -14,24 +14,19 @@ import {
   FormControlLabel,
   Collapse,
   Box,
-} from '@mui/material'
-import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+} from '@mui/material';
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 interface TransactionFormProps {
-  defaultPortfolioName?: string
-  onSuccess?: () => void
+  defaultPortfolioName?: string;
+  onSuccess?: () => void;
 }
 
-const TransactionForm: React.FC<TransactionFormProps> = ({
-  defaultPortfolioName,
-  onSuccess,
-}) => {
-  const dispatch = useAppDispatch()
-  const portfolios = useAppSelector((state) =>
-    state.portfolio.portfolios.map((p) => p.name)
-  )
-  const [showAdvanced, setShowAdvanced] = useState(false)
+const TransactionForm: React.FC<TransactionFormProps> = ({ defaultPortfolioName, onSuccess }) => {
+  const dispatch = useAppDispatch();
+  const portfolios = useAppSelector(state => state.portfolio.portfolios.map(p => p.name));
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [transaction, setTransaction] = useState<any>({
     dateUtc: null,
     side: 'BUY',
@@ -47,56 +42,54 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     feeSymbol: '',
     processed: false,
     lastProcessedAt: null,
-  })
+  });
 
   useEffect(() => {
     if (defaultPortfolioName) {
       setTransaction((prev: any) => ({
         ...prev,
         portfolioName: defaultPortfolioName,
-      }))
+      }));
     }
-  }, [defaultPortfolioName])
+  }, [defaultPortfolioName]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked } = e.target;
     setTransaction((prev: any) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
-    }))
-  }
+    }));
+  };
 
   const handlePortfolioChange = (_event: any, newValue: string | null) => {
-    setTransaction((prev: any) => ({ ...prev, portfolioName: newValue || '' }))
-  }
+    setTransaction((prev: any) => ({ ...prev, portfolioName: newValue || '' }));
+  };
 
   const handleDateChange = (value: Date | null) => {
-    setTransaction((prev: any) => ({ ...prev, dateUtc: value }))
-  }
+    setTransaction((prev: any) => ({ ...prev, dateUtc: value }));
+  };
 
   const handleLastProcessedAtChange = (value: Date | null) => {
-    setTransaction((prev: any) => ({ ...prev, lastProcessedAt: value }))
-  }
+    setTransaction((prev: any) => ({ ...prev, lastProcessedAt: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Map FE state to BE DTO
     const payload = {
       ...transaction,
-      dateUtc: transaction.dateUtc
-        ? new Date(transaction.dateUtc).toISOString()
-        : null,
+      dateUtc: transaction.dateUtc ? new Date(transaction.dateUtc).toISOString() : null,
       lastProcessedAt: transaction.lastProcessedAt
         ? new Date(transaction.lastProcessedAt).toISOString()
         : null,
-    }
+    };
     try {
-      await dispatch(addTransaction(payload)).unwrap()
-      if (onSuccess) onSuccess()
+      await dispatch(addTransaction(payload)).unwrap();
+      if (onSuccess) onSuccess();
     } catch (error) {
-      console.error('Failed to add transaction:', error)
+      console.error('Failed to add transaction:', error);
     }
-  }
+  };
 
   return (
     <Paper elevation={3} sx={{ p: 3, maxWidth: 600, mx: 'auto', mt: 4 }}>
@@ -227,13 +220,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               options={portfolios}
               value={transaction.portfolioName}
               onInputChange={handlePortfolioChange}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  fullWidth
-                  label='Portfolio Name'
-                  required
-                />
+              renderInput={params => (
+                <TextField {...params} fullWidth label='Portfolio Name' required />
               )}
               sx={{ mb: 2 }}
             />
@@ -243,7 +231,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               control={
                 <Switch
                   checked={showAdvanced}
-                  onChange={() => setShowAdvanced((prev) => !prev)}
+                  onChange={() => setShowAdvanced(prev => !prev)}
                   color='primary'
                 />
               }
@@ -293,7 +281,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         </Grid>
       </form>
     </Paper>
-  )
-}
+  );
+};
 
-export default TransactionForm
+export default TransactionForm;

@@ -1,13 +1,13 @@
 // src/components/transactions/TransactionsPage.tsx
-import React, { useEffect, useState } from 'react'
-import { useAppDispatch } from '../../redux/hooks'
-import { fetchTransactions } from '../../redux/slices/transactionSlice'
-import { Container, Typography } from '@mui/material'
-import TransactionList from './TransactionList'
+import React, { useEffect, useState } from 'react';
+import { useAppDispatch } from '../../redux/hooks';
+import { fetchTransactions } from '../../redux/slices/transactionSlice';
+import { Container, Typography } from '@mui/material';
+import TransactionList from './TransactionList';
 
 const TransactionsPage: React.FC = () => {
-  const dispatch = useAppDispatch()
-  const [page, setPage] = useState(1)
+  const dispatch = useAppDispatch();
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     dispatch(
@@ -15,15 +15,8 @@ const TransactionsPage: React.FC = () => {
         page,
         size: 0,
       })
-    )
-  }, [dispatch, page])
-
-  const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    setPage(value)
-  }
+    );
+  }, [dispatch, page]);
 
   return (
     <Container>
@@ -32,7 +25,7 @@ const TransactionsPage: React.FC = () => {
       </Typography>
       <TransactionList />
     </Container>
-  )
-}
+  );
+};
 
-export default TransactionsPage
+export default TransactionsPage;

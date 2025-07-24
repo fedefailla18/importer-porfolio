@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Typography,
@@ -11,81 +11,74 @@ import {
   Chip,
   CircularProgress,
   Alert,
-} from '@mui/material'
+} from '@mui/material';
 import {
   Add as AddIcon,
   Upload as UploadIcon,
   TrendingUp as TrendingUpIcon,
   AccountBalance as AccountBalanceIcon,
-} from '@mui/icons-material'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import {
-  fetchAllPortfolios,
-  fetchPortfolioDetails,
-} from '../../redux/slices/portfolioSlice'
-import { RootState } from '../../redux/store'
-import PortfolioActionsDialog from './CreatePortfolioDialog'
-import { useNavigate } from 'react-router-dom'
-import usePortfolioComponent from './usePortfolioComponent'
+} from '@mui/icons-material';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { fetchAllPortfolios, fetchPortfolioDetails } from '../../redux/slices/portfolioSlice';
+import { RootState } from '../../redux/store';
+import PortfolioActionsDialog from './CreatePortfolioDialog';
+import { useNavigate } from 'react-router-dom';
+import usePortfolioComponent from './usePortfolioComponent';
 
 const PortfolioLandingPage = () => {
-  const { handleSubmitPortfolioActions } = usePortfolioComponent()
+  const { handleSubmitPortfolioActions } = usePortfolioComponent();
 
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
-  const [isPorfolioActionsDialogOpen, setIsPorfolioActionsDialogOpen] =
-    useState(false)
-  const [dialogDefaultTab, setDialogDefaultTab] = useState(1)
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const [isPorfolioActionsDialogOpen, setIsPorfolioActionsDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState(1);
   const [loadingPortfolios, setLoadingPortfolios] = useState<{
-    [key: string]: boolean
-  }>({})
+    [key: string]: boolean;
+  }>({});
 
-  const { portfolios, status, error } = useAppSelector(
-    (state: RootState) => state.portfolio
-  )
+  const { portfolios, status, error } = useAppSelector((state: RootState) => state.portfolio);
 
   useEffect(() => {
-    dispatch(fetchAllPortfolios())
-  }, [dispatch])
+    dispatch(fetchAllPortfolios());
+  }, [dispatch]);
 
-  // Fetch detailed data for each portfolio
   useEffect(() => {
     const loadPortfolioDetails = async () => {
       for (const portfolio of portfolios) {
         if (!portfolio.totalInUsdt && !loadingPortfolios[portfolio.name]) {
-          setLoadingPortfolios((prev) => ({ ...prev, [portfolio.name]: true }))
+          setLoadingPortfolios(prev => ({ ...prev, [portfolio.name]: true }));
           try {
-            await dispatch(fetchPortfolioDetails(portfolio.name)).unwrap()
+            await dispatch(fetchPortfolioDetails(portfolio.name)).unwrap();
           } catch (error) {
-            console.error(`Failed to fetch portfolio ${portfolio.name}:`, error)
+            console.error(`Failed to fetch portfolio ${portfolio.name}:`, error);
           } finally {
-            setLoadingPortfolios((prev) => ({
+            setLoadingPortfolios(prev => ({
               ...prev,
               [portfolio.name]: false,
-            }))
+            }));
           }
         }
       }
-    }
+    };
 
     if (portfolios.length > 0) {
-      loadPortfolioDetails()
+      loadPortfolioDetails();
     }
-  }, [portfolios.length, dispatch]) // Only depend on portfolios.length, not the entire portfolios array
+  }, [portfolios.length, dispatch]);
 
   const handleClickCreatePortfolio = () => {
-    setDialogDefaultTab(0)
-    setIsPorfolioActionsDialogOpen(true)
-  }
+    setDialogDefaultTab(0);
+    setIsPorfolioActionsDialogOpen(true);
+  };
 
   const handleClickUploadPortfolio = () => {
-    setDialogDefaultTab(1)
-    setIsPorfolioActionsDialogOpen(true)
-  }
+    setDialogDefaultTab(1);
+    setIsPorfolioActionsDialogOpen(true);
+  };
 
   const handlePortfolioClick = (portfolioName: string) => {
-    navigate(`/portfolio/${portfolioName}`)
-  }
+    navigate(`/portfolio/${portfolioName}`);
+  };
 
   const formatBalance = (totalInUsdt: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -93,8 +86,8 @@ const PortfolioLandingPage = () => {
       currency: 'USD',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(totalInUsdt)
-  }
+    }).format(totalInUsdt);
+  };
 
   if (status === 'loading' && portfolios.length === 0) {
     return (
@@ -104,7 +97,7 @@ const PortfolioLandingPage = () => {
           Loading portfolios...
         </Typography>
       </Container>
-    )
+    );
   }
 
   if (status === 'failed') {
@@ -113,14 +106,11 @@ const PortfolioLandingPage = () => {
         <Alert severity='error' sx={{ mb: 3 }}>
           {error || 'Failed to load portfolios'}
         </Alert>
-        <Button
-          variant='contained'
-          onClick={() => dispatch(fetchAllPortfolios())}
-        >
+        <Button variant='contained' onClick={() => dispatch(fetchAllPortfolios())}>
           Retry
         </Button>
       </Container>
-    )
+    );
   }
 
   return (
@@ -150,11 +140,7 @@ const PortfolioLandingPage = () => {
           >
             Upload File
           </Button>
-          <Button
-            variant='contained'
-            startIcon={<AddIcon />}
-            onClick={handleClickCreatePortfolio}
-          >
+          <Button variant='contained' startIcon={<AddIcon />} onClick={handleClickCreatePortfolio}>
             Create Portfolio
           </Button>
         </Box>
@@ -163,15 +149,12 @@ const PortfolioLandingPage = () => {
       {/* Portfolios Grid */}
       {portfolios.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 8 }}>
-          <AccountBalanceIcon
-            sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }}
-          />
+          <AccountBalanceIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }} />
           <Typography variant='h5' gutterBottom>
             No portfolios yet
           </Typography>
           <Typography variant='body1' color='text.secondary' sx={{ mb: 3 }}>
-            Create your first portfolio to start tracking your crypto
-            investments
+            Create your first portfolio to start tracking your crypto investments
           </Typography>
           <Button
             variant='contained'
@@ -184,7 +167,7 @@ const PortfolioLandingPage = () => {
         </Box>
       ) : (
         <Grid container spacing={3}>
-          {portfolios.map((portfolio) => (
+          {portfolios.map(portfolio => (
             <Grid item xs={12} sm={6} md={4} key={portfolio.name}>
               <Card
                 sx={{
@@ -212,9 +195,7 @@ const PortfolioLandingPage = () => {
                     <Typography variant='h6' component='h2'>
                       {portfolio.name}
                     </Typography>
-                    {loadingPortfolios[portfolio.name] && (
-                      <CircularProgress size={20} />
-                    )}
+                    {loadingPortfolios[portfolio.name] && <CircularProgress size={20} />}
                   </Box>
 
                   <Box sx={{ mb: 2 }}>
@@ -236,35 +217,32 @@ const PortfolioLandingPage = () => {
                         Top Holdings
                       </Typography>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {portfolio.topHoldings
-                          .slice(0, 5)
-                          .map((holding, index) => (
-                            <Chip
-                              key={holding.symbol}
-                              label={`${holding.symbol} ${holding.amount.toFixed(2)}`}
-                              size='small'
-                              variant='outlined'
-                              color={index < 3 ? 'primary' : 'default'}
-                            />
-                          ))}
+                        {portfolio.topHoldings.slice(0, 5).map((holding, index) => (
+                          <Chip
+                            key={holding.symbol}
+                            label={`${holding.symbol} ${holding.amount.toFixed(2)}`}
+                            size='small'
+                            variant='outlined'
+                            color={index < 3 ? 'primary' : 'default'}
+                          />
+                        ))}
                       </Box>
                     </Box>
                   )}
 
-                  {portfolio.topHoldings.length === 0 &&
-                    !loadingPortfolios[portfolio.name] && (
-                      <Typography variant='body2' color='text.secondary'>
-                        No holdings yet
-                      </Typography>
-                    )}
+                  {portfolio.topHoldings.length === 0 && !loadingPortfolios[portfolio.name] && (
+                    <Typography variant='body2' color='text.secondary'>
+                      No holdings yet
+                    </Typography>
+                  )}
                 </CardContent>
 
                 <CardActions sx={{ justifyContent: 'space-between', p: 2 }}>
                   <Button
                     size='small'
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handlePortfolioClick(portfolio.name)
+                    onClick={e => {
+                      e.stopPropagation();
+                      handlePortfolioClick(portfolio.name);
                     }}
                   >
                     View Details
@@ -283,10 +261,10 @@ const PortfolioLandingPage = () => {
         onClose={() => setIsPorfolioActionsDialogOpen(false)}
         onSubmit={handleSubmitPortfolioActions}
         defaultTab={dialogDefaultTab}
-        portfolios={portfolios?.map((p) => p.name) || []}
+        portfolios={portfolios?.map(p => p.name) || []}
       />
     </Container>
-  )
-}
+  );
+};
 
-export default PortfolioLandingPage
+export default PortfolioLandingPage;

@@ -1,34 +1,32 @@
-import React, { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { useAppSelector, useAppDispatch } from '../../redux/hooks'
-import { fetchHoldingDetails } from '../../redux/slices/holdingDetailsSlice'
+import React, { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from '../../redux/hooks';
+import { fetchHoldingDetails } from '../../redux/slices/holdingDetailsSlice';
 
-const HoldingDetailPage: React.FC = () => {
+const HoldingDetailPage = () => {
   const { portfolioName, symbol } = useParams<{
-    portfolioName: string
-    symbol: string
-  }>()
-  const dispatch = useAppDispatch()
-  const { holdingDetails, status, error, loading } = useAppSelector(
-    (state) => state.holdingDetails
-  )
+    portfolioName: string;
+    symbol: string;
+  }>();
+  const dispatch = useAppDispatch();
+  const { holdingDetails, error, loading } = useAppSelector(state => state.holdingDetails);
 
   useEffect(() => {
     if (portfolioName && symbol) {
-      dispatch(fetchHoldingDetails({ portfolioName, symbol }))
+      dispatch(fetchHoldingDetails({ portfolioName, symbol }));
     }
-  }, [dispatch, portfolioName, symbol])
+  }, [dispatch, portfolioName, symbol]);
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>
+    return <div>Error: {error}</div>;
   }
 
   if (!holdingDetails) {
-    return <div>No data available</div>
+    return <div>No data available</div>;
   }
 
   return (
@@ -121,7 +119,7 @@ const HoldingDetailPage: React.FC = () => {
           : 'Not available'}
       </p>
     </div>
-  )
-}
+  );
+};
 
-export default HoldingDetailPage
+export default HoldingDetailPage;

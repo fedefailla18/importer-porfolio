@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import { useAppSelector, useAppDispatch } from '../../redux/hooks'
-import {
-  fetchTransactions,
-  FetchTransactionsParams,
-} from '../../redux/slices/transactionSlice'
+import React, { useEffect, useState, useCallback } from 'react';
+import { useAppSelector, useAppDispatch } from '../../redux/hooks';
+import { debounce } from 'lodash';
+import { fetchTransactions, FetchTransactionsParams } from '../../redux/slices/transactionSlice';
 import {
   Container,
   Typography,
@@ -20,31 +18,26 @@ import {
   InputLabel,
   MenuItem,
   Select,
-} from '@mui/material'
-import { RootState } from '../../redux/store'
-import FilterComponent from './FilterComponent'
-import Pagination from '../common/Pagination'
-import { format, parseISO } from 'date-fns'
-import { toast } from 'react-toastify'
-import { Transaction } from '../../redux/types/types'
-import AddTransactionButton from './AddTransactionButton'
+} from '@mui/material';
+import { RootState } from '../../redux/store';
+import FilterComponent from './FilterComponent';
+import Pagination from '../common/Pagination';
+import { format, parseISO } from 'date-fns';
+import { toast } from 'react-toastify';
+import { Transaction } from '../../redux/types/types';
+import AddTransactionButton from './AddTransactionButton';
 
 interface TransactionListProps {
-  symbol?: string
-  portfolioName?: string
+  symbol?: string;
+  portfolioName?: string;
 }
 
-const TransactionList: React.FC<TransactionListProps> = ({
-  symbol,
-  portfolioName,
-}) => {
-  const dispatch = useAppDispatch()
+const TransactionList = ({ symbol, portfolioName }: TransactionListProps) => {
+  const dispatch = useAppDispatch();
   const { transactions, status, error, pagination } = useAppSelector(
     (state: RootState) => state.transactions
-  )
-  const portfolios = useAppSelector((state) =>
-    state.portfolio.portfolios.map((p) => p.name)
-  )
+  );
+  const portfolios = useAppSelector(state => state.portfolio.portfolios.map(p => p.name));
   const [filters, setFilters] = useState<FetchTransactionsParams>({
     symbol: symbol || undefined,
     startDate: undefined,
@@ -57,75 +50,80 @@ const TransactionList: React.FC<TransactionListProps> = ({
     page: 0,
     size: 10,
     sort: 'dateUtc,desc',
-  })
+  });
+
+  const debouncedFetch = useCallback(
+    debounce(f => dispatch(fetchTransactions(f)), 500),
+    []
+  );
 
   const loadTransactions = () => {
-    dispatch(fetchTransactions(filters))
-  }
+    dispatch(fetchTransactions(filters));
+  };
 
   const handleRowsPerPageChange = (event: any) => {
-    setFilters((prevFilters) => ({
+    setFilters(prevFilters => ({
       ...prevFilters,
       size: event.target.value as number,
       page: 0,
-    }))
-  }
+    }));
+  };
 
   useEffect(() => {
-    loadTransactions()
-  }, [filters])
+    loadTransactions();
+  }, [filters.page, filters.size, filters.sort]);
 
   const handlePageChange = (page: number) => {
-    setFilters((prevFilters) => ({ ...prevFilters, page: page - 1 }))
-  }
+    setFilters(prevFilters => ({ ...prevFilters, page: page - 1 }));
+  };
 
   const handleFilterChange = (filterName: string, value: string) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [filterName]: value,
-      page: 0,
-    }))
-  }
+    const newFilters = { ...filters, [filterName]: value, page: 0 };
+    setFilters(newFilters);
+    if (filterName === 'symbol') {
+      debouncedFetch(newFilters);
+    } else {
+      loadTransactions();
+    }
+  };
 
   const handleSort = (property: string) => {
-    const isAsc =
-      filters.sort?.split(',')[0] === property &&
-      filters.sort?.split(',')[1] === 'asc'
-    const newSort = `${property},${isAsc ? 'desc' : 'asc'}`
-    setFilters((prevFilters) => ({ ...prevFilters, sort: newSort, page: 0 }))
-  }
+    const isAsc = filters.sort?.split(',')[0] === property && filters.sort?.split(',')[1] === 'asc';
+    const newSort = `${property},${isAsc ? 'desc' : 'asc'}`;
+    setFilters(prevFilters => ({ ...prevFilters, sort: newSort, page: 0 }));
+  };
 
   const handleApplyFilters = () => {
-    loadTransactions()
-  }
+    loadTransactions();
+  };
 
   const formatDate = (dateUtc: string | undefined) => {
-    if (!dateUtc) return 'N/A'
+    if (!dateUtc) return 'N/A';
     try {
-      return format(parseISO(dateUtc), 'yyyy-MM-dd HH:mm:ss')
+      return format(parseISO(dateUtc), 'yyyy-MM-dd HH:mm:ss');
     } catch (error) {
-      console.error('Error parsing date:', dateUtc, error)
-      return 'Invalid Date'
+      console.error('Error parsing date:', dateUtc, error);
+      return 'Invalid Date';
     }
-  }
+  };
 
   if (status === 'loading') {
     return (
       <Container>
         <CircularProgress />
       </Container>
-    )
+    );
   }
 
   if (status === 'failed') {
-    toast.error(`The request faile.  ${error}`)
+    toast.error(`The request faile.  ${error}`);
     return (
       <Container>
         <TableContainer component={Paper}>
           <Typography>No records were found</Typography>
         </TableContainer>
       </Container>
-    )
+    );
   }
 
   return (
@@ -164,6 +162,11 @@ const TransactionList: React.FC<TransactionListProps> = ({
                 active={filters.sort?.split(',')[0] === 'dateUtc'}
                 direction={filters.sort?.split(',')[1] as 'asc' | 'desc'}
                 onClick={() => handleSort('dateUtc')}
+                sx={{
+                  '&.Mui-active': {
+                    color: 'primary.main',
+                  },
+                }}
               >
                 Date
               </TableSortLabel>
@@ -213,7 +216,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
           <Select
             labelId='rows-per-page-label'
             value={filters.size}
-            onChange={(e) => handleRowsPerPageChange(e)}
+            onChange={e => handleRowsPerPageChange(e)}
             label='Rows per page'
           >
             <MenuItem value={10}>10</MenuItem>
@@ -229,7 +232,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
         />
       </div>
     </Container>
-  )
-}
+  );
+};
 
-export default TransactionList
+export default TransactionList;

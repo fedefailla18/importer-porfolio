@@ -1,29 +1,18 @@
 // src/components/holdings/AddHoldingsForm.tsx
-import React, { useState } from 'react'
-import { useAppDispatch } from '../../redux/hooks'
-import { addMultipleHoldings } from '../../redux/slices/portfolioSlice'
-import { TextField, Button, Grid, Typography, IconButton } from '@mui/material'
-import { Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material'
-import { HoldingDto } from '../../redux/types/types'
+import React, { useState } from 'react';
+import { useAppDispatch } from '../../redux/hooks';
+import { addMultipleHoldings } from '../../redux/slices/portfolioSlice';
+import { TextField, Button, Grid, Typography, IconButton } from '@mui/material';
+import { Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
+import { HoldingDto } from '../../redux/types/types';
 
 interface AddHoldingsFormProps {
-  onClose: (event: React.KeyboardEvent | React.MouseEvent) => void
-  portfolio?: string
+  portfolio?: string;
 }
 
-const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
-  onClose,
-  portfolio,
-}) => {
-  const dispatch = useAppDispatch()
-  const [holding, setHolding] = useState({
-    symbol: '',
-    amount: 0,
-    portfolioName: '',
-    costInUsdt: 0,
-    amountInUsdt: 0,
-    amountInBtc: 0,
-  })
+const AddHoldingsForm = ({ portfolio }: AddHoldingsFormProps) => {
+  const dispatch = useAppDispatch();
+
   const [holdings, setHoldings] = useState<HoldingDto[]>([
     {
       symbol: '',
@@ -33,7 +22,7 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
       amountInUsdt: 0,
       amountInBtc: 0,
     },
-  ])
+  ]);
 
   const handleAddRow = () => {
     setHoldings([
@@ -46,28 +35,24 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
         amountInUsdt: 0,
         amountInBtc: 0,
       },
-    ])
-  }
+    ]);
+  };
 
   const handleRemoveRow = (index: number) => {
-    const newHoldings = holdings.filter((_, i) => i !== index)
-    setHoldings(newHoldings)
-  }
+    const newHoldings = holdings.filter((_, i) => i !== index);
+    setHoldings(newHoldings);
+  };
 
-  const handleChange = <K extends keyof HoldingDto>(
-    index: number,
-    field: K,
-    value: any
-  ) => {
-    const newHoldings = [...holdings]
-    const holding = newHoldings[index]
-    holding[field] = value
-    setHoldings(newHoldings)
-  }
+  const handleChange = <K extends keyof HoldingDto>(index: number, field: K, value: any) => {
+    const newHoldings = [...holdings];
+    const holding = newHoldings[index];
+    holding[field] = value;
+    setHoldings(newHoldings);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    dispatch(addMultipleHoldings(holdings))
+    e.preventDefault();
+    dispatch(addMultipleHoldings(holdings));
     setHoldings([
       {
         symbol: '',
@@ -77,18 +62,8 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
         amountInUsdt: 0,
         amountInBtc: 0,
       },
-    ])
-  }
-
-  const handleChangeSingle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setHolding({ ...holding, [e.target.name]: e.target.value })
-  }
-
-  const handleSubmitSingle = (e: React.FormEvent) => {
-    e.preventDefault()
-    dispatch(addMultipleHoldings([holding]))
-    onClose({ type: 'keydown' } as React.KeyboardEvent)
-  }
+    ]);
+  };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -96,19 +71,13 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
         Add Holdings
       </Typography>
       {holdings.map((holding, index) => (
-        <Grid
-          container
-          spacing={2}
-          key={index}
-          alignItems='center'
-          sx={{ mb: 2 }}
-        >
+        <Grid container spacing={2} key={index} alignItems='center' sx={{ mb: 2 }}>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label='Symbol'
               value={holding.symbol}
-              onChange={(e) => handleChange(index, 'symbol', e.target.value)}
+              onChange={e => handleChange(index, 'symbol', e.target.value)}
               required
               sx={{ mb: 2 }}
             />
@@ -119,9 +88,7 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
               label='Amount'
               type='number'
               value={holding.amount}
-              onChange={(e) =>
-                handleChange(index, 'amount', Number(e.target.value))
-              }
+              onChange={e => handleChange(index, 'amount', Number(e.target.value))}
               required
               sx={{ mb: 2 }}
             />
@@ -132,9 +99,7 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
               label='Portfolio'
               value={holding.portfolioName}
               defaultValue={portfolio}
-              onChange={(e) =>
-                handleChange(index, 'portfolioName', e.target.value)
-              }
+              onChange={e => handleChange(index, 'portfolioName', e.target.value)}
               disabled={!!portfolio}
               required
               sx={{ mb: 2 }}
@@ -146,18 +111,13 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
               label='Cost in USDT'
               type='number'
               value={holding.stableTotalCost}
-              onChange={(e) =>
-                handleChange(index, 'stableTotalCost', Number(e.target.value))
-              }
+              onChange={e => handleChange(index, 'stableTotalCost', Number(e.target.value))}
               required
               sx={{ mb: 2 }}
             />
           </Grid>
           <Grid item xs={12}>
-            <IconButton
-              onClick={() => handleRemoveRow(index)}
-              disabled={holdings.length === 1}
-            >
+            <IconButton onClick={() => handleRemoveRow(index)} disabled={holdings.length === 1}>
               <RemoveIcon />
             </IconButton>
           </Grid>
@@ -166,16 +126,11 @@ const AddHoldingsForm: React.FC<AddHoldingsFormProps> = ({
       <Button startIcon={<AddIcon />} onClick={handleAddRow} sx={{ mt: 2 }}>
         Add Another Holding
       </Button>
-      <Button
-        type='submit'
-        variant='contained'
-        color='primary'
-        sx={{ mt: 2, ml: 2 }}
-      >
+      <Button type='submit' variant='contained' color='primary' sx={{ mt: 2, ml: 2 }}>
         Submit Holdings
       </Button>
     </form>
-  )
-}
+  );
+};
 
-export default AddHoldingsForm
+export default AddHoldingsForm;

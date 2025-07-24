@@ -1,5 +1,5 @@
 // src/components/holdings/HoldingListPage.tsx
-import styled from '@emotion/styled'
+import styled from '@emotion/styled';
 import {
   TableContainer,
   Table,
@@ -11,21 +11,20 @@ import {
   Input,
   Theme,
   Tooltip,
-  Typography,
-} from '@mui/material'
-import { Link } from 'react-router-dom'
-import { HoldingDto } from '../../redux/types/types'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+} from '@mui/material';
+import { Link } from 'react-router-dom';
+import { HoldingDto } from '../../redux/types/types';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 interface HoldingListPageProps {
-  holdings: HoldingDto[]
-  portfolioName: string
-  setPriceMultiplier: Dispatch<SetStateAction<{ [key: number]: number }>>
-  setPredictionBtc: Dispatch<SetStateAction<{ [key: number]: number }>>
-  setPredictionUsdt: Dispatch<SetStateAction<{ [key: number]: number }>>
+  holdings: HoldingDto[];
+  portfolioName: string;
+  setPriceMultiplier: Dispatch<SetStateAction<{ [key: number]: number }>>;
+  setPredictionBtc: Dispatch<SetStateAction<{ [key: number]: number }>>;
+  setPredictionUsdt: Dispatch<SetStateAction<{ [key: number]: number }>>;
   priceMultiplier: {
-    [key: number]: number
-  }
+    [key: number]: number;
+  };
 }
 
 const StyledTableContainer = styled(TableContainer)({
@@ -40,43 +39,34 @@ const StyledTableContainer = styled(TableContainer)({
       backgroundColor: 'rgba(0, 0, 0, 0.04)',
     },
   },
-})
+});
 
 const StickyTableCell = styled(TableCell)(({ theme }) => ({
   position: 'sticky',
   backgroundColor: (theme as Theme).palette?.background?.paper || '#fff',
   zIndex: 2,
-}))
+}));
 
 const StickyHeaderCell = styled(StickyTableCell)({
   top: 0,
   zIndex: 1,
-})
+});
 
-const StickyColumnCell = styled(StickyTableCell)(
-  ({ index }: { index: number }) => ({
-    left: index === 0 ? 0 : 60,
-    zIndex: 2,
-  })
-)
-
-// Helper function to format numbers
 const formatNumber = (value: number, decimals: number = 2) => {
   return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  }).format(value)
-}
+  }).format(value);
+};
 
-// Helper function to format currency
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value)
-}
+  }).format(value);
+};
 
 const HoldingListPage = ({
   holdings,
@@ -86,63 +76,60 @@ const HoldingListPage = ({
   setPredictionUsdt,
   priceMultiplier,
 }: HoldingListPageProps) => {
-  const [sortBy, setSortBy] = useState<string>('')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const [sortBy, setSortBy] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
-    // Initialize priceMultiplier with default values
     const initialPriceMultiplier = holdings.reduce(
       (acc, _, index) => {
-        acc[index] = 1
-        return acc
+        acc[index] = 1;
+        return acc;
       },
       {} as { [key: number]: number }
-    )
-    setPriceMultiplier(initialPriceMultiplier)
+    );
+    setPriceMultiplier(initialPriceMultiplier);
 
-    // Initialize predictions
     holdings.forEach((holding, index) => {
-      setPredictionUsdt((prev) => ({
+      setPredictionUsdt(prev => ({
         ...prev,
         [index]: holding?.currentPositionInUsdt || 0,
-      }))
-      setPredictionBtc((prev) => ({
+      }));
+      setPredictionBtc(prev => ({
         ...prev,
         [index]: holding?.amountInBtc || 0,
-      }))
-    })
-  }, [])
+      }));
+    });
+  }, []);
 
-  // Function to handle sorting when a table header is clicked
   const handleSort = (field: string) => {
     if (field === sortBy) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      setSortBy(field)
-      setSortDirection('asc')
+      setSortBy(field);
+      setSortDirection('asc');
     }
-  }
+  };
 
   const sortedHoldings = holdings.slice().sort((a, b) => {
     if (sortBy === 'symbol') {
       return sortDirection === 'asc'
         ? a.symbol.localeCompare(b.symbol)
-        : b.symbol.localeCompare(a.symbol)
+        : b.symbol.localeCompare(a.symbol);
     } else if (sortBy === 'currentPositionInUsdt') {
-      const aValue = a.currentPositionInUsdt ?? 0
-      const bValue = b.currentPositionInUsdt ?? 0
-      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue
+      const aValue = a.currentPositionInUsdt ?? 0;
+      const bValue = b.currentPositionInUsdt ?? 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     } else if (sortBy === 'priceInUsdt') {
-      const aValue = a.priceInUsdt ?? 0
-      const bValue = b.priceInUsdt ?? 0
-      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue
+      const aValue = a.priceInUsdt ?? 0;
+      const bValue = b.priceInUsdt ?? 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     } else if (sortBy === 'percentage') {
-      const aValue = a.percentage ?? 0
-      const bValue = b.percentage ?? 0
-      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue
+      const aValue = a.percentage ?? 0;
+      const bValue = b.percentage ?? 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     }
-    return 0
-  })
+    return 0;
+  });
 
   return (
     <StyledTableContainer>
@@ -187,18 +174,14 @@ const HoldingListPage = ({
             </StickyHeaderCell>
             <StickyHeaderCell>
               <Tooltip title='The value of the holding converted to USDT'>
-                <TableSortLabel
-                  onClick={() => handleSort('currentPositionInUsdt')}
-                >
+                <TableSortLabel onClick={() => handleSort('currentPositionInUsdt')}>
                   Current Position (USDT)
                 </TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
               <Tooltip title='The percentage this holding represents in the portfolio'>
-                <TableSortLabel onClick={() => handleSort('percentage')}>
-                  Percentage
-                </TableSortLabel>
+                <TableSortLabel onClick={() => handleSort('percentage')}>Percentage</TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
@@ -233,9 +216,7 @@ const HoldingListPage = ({
             <TableRow key={holding.symbol}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>
-                <Link to={`/portfolio/${portfolioName}/${holding.symbol}`}>
-                  {holding.symbol}
-                </Link>
+                <Link to={`/portfolio/${portfolioName}/${holding.symbol}`}>{holding.symbol}</Link>
               </TableCell>
               <TableCell>{formatNumber(holding.amount, 6)}</TableCell>
               <TableCell style={{ display: 'none' }}>
@@ -249,14 +230,10 @@ const HoldingListPage = ({
                   : '-'}
               </TableCell>
               <TableCell>
-                {holding.priceInBtc !== undefined
-                  ? formatNumber(holding.priceInBtc, 8)
-                  : '-'}
+                {holding.priceInBtc !== undefined ? formatNumber(holding.priceInBtc, 8) : '-'}
               </TableCell>
               <TableCell>
-                {holding.priceInUsdt !== undefined
-                  ? formatCurrency(holding.priceInUsdt)
-                  : '-'}
+                {holding.priceInUsdt !== undefined ? formatCurrency(holding.priceInUsdt) : '-'}
               </TableCell>
               <TableCell>{formatNumber(holding.amountInBtc, 8)}</TableCell>
               <TableCell>
@@ -265,9 +242,7 @@ const HoldingListPage = ({
                   : '-'}
               </TableCell>
               <TableCell>
-                {holding.percentage !== undefined
-                  ? formatNumber(holding.percentage, 2) + '%'
-                  : '-'}
+                {holding.percentage !== undefined ? formatNumber(holding.percentage, 2) + '%' : '-'}
               </TableCell>
               <TableCell>
                 {holding.stableTotalCost !== undefined
@@ -283,49 +258,43 @@ const HoldingListPage = ({
                 <Input
                   type='number'
                   value={priceMultiplier[index]}
-                  onChange={(e) => {
-                    const multiplier =
-                      e.target.value !== '' ? Number(e.target.value) : 1
+                  onChange={e => {
+                    const multiplier = e.target.value !== '' ? Number(e.target.value) : 1;
 
-                    setPriceMultiplier((prevState) => ({
+                    setPriceMultiplier(prevState => ({
                       ...prevState,
                       [index]: multiplier,
-                    }))
+                    }));
 
-                    const currentPositionInUsdt =
-                      holding.currentPositionInUsdt ?? 0
-                    const amountInBtc = holding.amountInBtc
+                    const currentPositionInUsdt = holding.currentPositionInUsdt ?? 0;
+                    const amountInBtc = holding.amountInBtc;
 
-                    setPredictionUsdt((prevState) => ({
+                    setPredictionUsdt(prevState => ({
                       ...prevState,
                       [index]: multiplier * currentPositionInUsdt,
-                    }))
+                    }));
 
-                    setPredictionBtc((prevState) => ({
+                    setPredictionBtc(prevState => ({
                       ...prevState,
                       [index]: multiplier * amountInBtc,
-                    }))
+                    }));
                   }}
                 />
               </TableCell>
               <TableCell>
                 {formatCurrency(
-                  (priceMultiplier[index] || 1) *
-                    (holding.currentPositionInUsdt ?? 0)
+                  (priceMultiplier[index] || 1) * (holding.currentPositionInUsdt ?? 0)
                 )}
               </TableCell>
               <TableCell>
-                {formatNumber(
-                  (priceMultiplier[index] || 1) * holding.amountInBtc,
-                  8
-                )}
+                {formatNumber((priceMultiplier[index] || 1) * holding.amountInBtc, 8)}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </StyledTableContainer>
-  )
-}
+  );
+};
 
-export default HoldingListPage
+export default HoldingListPage;
