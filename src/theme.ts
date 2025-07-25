@@ -1,25 +1,25 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#1976d2",
+      main: '#388e3c', // Material green
     },
     secondary: {
-      main: "#dc004e",
+      main: '#dc004e',
     },
     background: {
-      default: "#f5f5f5",
+      default: '#f5f5f5',
     },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
-      fontSize: "2.5rem",
+      fontSize: '2.5rem',
       fontWeight: 500,
     },
     h2: {
-      fontSize: "2rem",
+      fontSize: '2rem',
       fontWeight: 500,
     },
   },
