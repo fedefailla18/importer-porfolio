@@ -1,6 +1,6 @@
 // src/components/auth/Login.tsx
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   TextField,
   Button,
@@ -18,12 +18,13 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { status, error, isAuthenticated } = useAppSelector(state => state.auth);
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      navigate(location?.state?.from || '/');
     }
   }, [isAuthenticated, navigate]);
 
