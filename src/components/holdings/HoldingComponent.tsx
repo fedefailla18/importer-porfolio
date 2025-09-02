@@ -6,6 +6,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Paper, Typography, Select, CircularProgress, Alert } from '@mui/material';
 import TransactionList from '../transactions/TransactionList';
 
+interface NumberFormatOptionsStyleRegistry {
+  decimal: never;
+  percent: never;
+  currency: never;
+}
+
 const HoldingComponent = () => {
   const { portfolioName, symbol } = useParams<{
     portfolioName: string;
@@ -32,6 +38,23 @@ const HoldingComponent = () => {
     navigate(`/holdings/${portfolioName}/${newSymbol}`);
   };
 
+  const formatNumber = (
+    number: number,
+    minimumFractionDigits: number,
+    maximumFractionDigits: number,
+    style?: keyof NumberFormatOptionsStyleRegistry,
+    currency?: string
+  ) => {
+    return (
+      new Intl.NumberFormat('en-US', {
+        minimumFractionDigits,
+        maximumFractionDigits,
+        style,
+        currency,
+      }).format(number) || 'Not available'
+    );
+  };
+
   const renderHoldingDetails = () => {
     if (holdingStatus === 'loading') return <CircularProgress />;
     if (holdingStatus === 'failed') return <Alert severity='error'>{holdingError}</Alert>;
@@ -40,90 +63,39 @@ const HoldingComponent = () => {
     return (
       <div>
         <Typography>
-          Amount:{' '}
-          {new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 6,
-            maximumFractionDigits: 6,
-          }).format(holdingDetails.amount)}
+          Amount: {formatNumber(holdingDetails.amount, 6, 6, undefined, undefined)}
         </Typography>
         <Typography>
           Total Amount Bought:{' '}
-          {holdingDetails.totalAmountBought !== undefined
-            ? new Intl.NumberFormat('en-US', {
-                minimumFractionDigits: 6,
-                maximumFractionDigits: 6,
-              }).format(holdingDetails.totalAmountBought)
-            : 'Not available'}
+          {formatNumber(holdingDetails?.totalAmountBought ?? 0, 6, 6, undefined, undefined)}
         </Typography>
         <Typography>
           Total Amount Sold:{' '}
-          {holdingDetails.totalAmountSold !== undefined
-            ? new Intl.NumberFormat('en-US', {
-                minimumFractionDigits: 6,
-                maximumFractionDigits: 6,
-              }).format(holdingDetails.totalAmountSold)
-            : 'Not available'}
+          {formatNumber(holdingDetails?.totalAmountSold ?? 0, 6, 6, undefined, undefined)}
         </Typography>
         <Typography>
-          Price in BTC:{' '}
-          {holdingDetails.priceInBtc !== undefined
-            ? new Intl.NumberFormat('en-US', {
-                minimumFractionDigits: 8,
-                maximumFractionDigits: 8,
-              }).format(holdingDetails.priceInBtc)
-            : 'Not available'}
+          Price in BTC: {formatNumber(holdingDetails?.priceInBtc ?? 0, 6, 6, undefined, undefined)}
         </Typography>
         <Typography>
-          Price in USDT:{' '}
-          {holdingDetails.priceInUsdt !== undefined
-            ? new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-              }).format(holdingDetails.priceInUsdt)
-            : 'Not available'}
+          Price in USDT: {formatNumber(holdingDetails?.priceInUsdt ?? 0, 2, 2, 'currency', 'USD')}
         </Typography>
         <Typography>
-          Amount in BTC:{' '}
-          {new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 8,
-            maximumFractionDigits: 8,
-          }).format(holdingDetails.amountInBtc)}
+          Amount in BTC: {formatNumber(holdingDetails.amountInBtc, 6, 6, undefined, undefined)}
         </Typography>
         <Typography>
           Current Position in USDT:{' '}
-          {holdingDetails.currentPositionInUsdt !== undefined
-            ? new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-              }).format(holdingDetails.currentPositionInUsdt)
-            : 'Not available'}
+          {formatNumber(holdingDetails?.currentPositionInUsdt ?? 0, 2, 2, 'currency', 'USD')}
         </Typography>
         <Typography>
-          Percentage:{' '}
-          {holdingDetails.percentage !== undefined
-            ? new Intl.NumberFormat('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(holdingDetails.percentage) + '%'
-            : 'Not available'}
+          Percentage: {formatNumber(holdingDetails?.percentage ?? 0, 2, 2, 'percent', undefined)}%
         </Typography>
         <Typography>
           Total Cost Basis:{' '}
-          {holdingDetails.stableTotalCost !== undefined
-            ? new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-              }).format(holdingDetails.stableTotalCost)
-            : 'Not available'}
+          {formatNumber(holdingDetails?.stableTotalCost ?? 0, 2, 2, 'currency', 'USD')}
         </Typography>
         <Typography>
           Total Realized Profit:{' '}
-          {holdingDetails.totalRealizedProfitUsdt !== undefined
-            ? new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-              }).format(holdingDetails.totalRealizedProfitUsdt)
-            : 'Not available'}
+          {formatNumber(holdingDetails?.totalRealizedProfitUsdt ?? 0, 2, 2, 'currency', 'USD')}
         </Typography>
       </div>
     );

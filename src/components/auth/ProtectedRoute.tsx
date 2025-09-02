@@ -1,6 +1,6 @@
 //src/components/auth/ProtectedRoute.tsx
 import React, { useEffect } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '../../redux/hooks';
 import { RootState } from '../../redux/store';
@@ -9,6 +9,7 @@ import { CircularProgress, Box } from '@mui/material';
 
 const ProtectedRoute = () => {
   const dispatch = useAppDispatch();
+  const location = useLocation();
   const { isAuthenticated, status } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
