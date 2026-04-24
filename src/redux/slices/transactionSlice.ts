@@ -1,11 +1,7 @@
 // src/redux/slices/transactionSlice.ts
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import api from "../utils/api";
-import {
-  Transaction,
-  PaginatedResponse,
-  TransactionState,
-} from "../types/types";
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import api from '../utils/api';
+import { Transaction, PaginatedResponse, TransactionState } from '../types/types';
 
 export interface FetchTransactionsParams {
   symbol?: string;
@@ -23,7 +19,7 @@ export interface FetchTransactionsParams {
 
 const initialState: TransactionState = {
   transactions: [],
-  status: "idle",
+  status: 'idle',
   error: null,
   pagination: {
     currentPage: 0,
@@ -34,46 +30,45 @@ const initialState: TransactionState = {
 };
 
 export const fetchTransactions = createAsyncThunk(
-  "transactions/fetchTransactions",
+  'transactions/fetchTransactions',
   async (params: FetchTransactionsParams, { rejectWithValue }) => {
     try {
-      const response = await api.get<PaginatedResponse<Transaction>>(
-        `/transaction/filter`,
-        { params }
-      );
+      const response = await api.get<PaginatedResponse<Transaction>>(`/transaction/filter`, {
+        params,
+      });
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || "An error occurred");
+      return rejectWithValue(error.response?.data || 'An error occurred');
     }
   }
 );
 
 export const addTransaction = createAsyncThunk(
-  "transactions/addTransaction",
-  async (transaction: Omit<Transaction, "id">, { rejectWithValue }) => {
+  'transactions/addTransaction',
+  async (transaction: Omit<Transaction, 'id'>, { rejectWithValue }) => {
     try {
-      const response = await api.post<Transaction>("/transaction", transaction);
+      const response = await api.post<Transaction>('/transaction', transaction);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || "An error occurred");
+      return rejectWithValue(error.response?.data || 'An error occurred');
     }
   }
 );
 
 const transactionSlice = createSlice({
-  name: "transactions",
+  name: 'transactions',
   initialState,
   reducers: {},
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(fetchTransactions.pending, (state) => {
-        state.status = "loading";
+      .addCase(fetchTransactions.pending, state => {
+        state.status = 'loading';
         state.error = null;
       })
       .addCase(
         fetchTransactions.fulfilled,
         (state, action: PayloadAction<PaginatedResponse<Transaction>>) => {
-          state.status = "succeeded";
+          state.status = 'succeeded';
           state.transactions = action.payload.content;
           state.pagination = {
             currentPage: action.payload.number,
@@ -85,24 +80,21 @@ const transactionSlice = createSlice({
         }
       )
       .addCase(fetchTransactions.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message || "An error occurred";
+        state.status = 'failed';
+        state.error = action.error.message || 'An error occurred';
       })
-      .addCase(addTransaction.pending, (state) => {
-        state.status = "loading";
+      .addCase(addTransaction.pending, state => {
+        state.status = 'loading';
         state.error = null;
       })
-      .addCase(
-        addTransaction.fulfilled,
-        (state, action: PayloadAction<Transaction>) => {
-          state.status = "succeeded";
-          state.transactions.push(action.payload);
-          state.error = null;
-        }
-      )
+      .addCase(addTransaction.fulfilled, (state, action: PayloadAction<Transaction>) => {
+        state.status = 'succeeded';
+        state.transactions.push(action.payload);
+        state.error = null;
+      })
       .addCase(addTransaction.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message || "An error occurred";
+        state.status = 'failed';
+        state.error = action.error.message || 'An error occurred';
       });
   },
 });

@@ -11,11 +11,13 @@ export interface HoldingDto {
   totalAmountBought?: number;
   totalAmountSold?: number;
   stableTotalCost?: number;
+  currentPositionInUsdt?: number;
   totalRealizedProfitUsdt?: number;
 }
 
 export interface PortfolioDistribution {
   portfolioName: string;
+  name: string;
   totalInUsdt: number;
   totalHoldings: number;
   holdings: HoldingDto[];
@@ -45,7 +47,7 @@ export interface HoldingDetailsState {
 export interface Transaction {
   id?: string;
   dateUtc: string;
-  side?: "BUY" | "SELL";
+  side?: 'BUY' | 'SELL';
   pair: string;
   price?: number;
   executed?: number;
@@ -67,7 +69,7 @@ export interface PaginatedResponse<T> {
 
 export interface TransactionState {
   transactions: Transaction[];
-  status: "idle" | "loading" | "succeeded" | "failed";
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
   pagination: {
     currentPage: number;

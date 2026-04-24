@@ -1,15 +1,15 @@
 //src/components/auth/Register.tsx
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import { useNavigate } from "react-router-dom";
-import { TextField, Button, Typography, Container, Box } from "@mui/material";
-import { register } from "../../redux/slices/authSlice";
-import { useAppDispatch } from "../../redux/hooks";
+import { useNavigate } from 'react-router-dom';
+import { TextField, Button, Typography, Container, Box } from '@mui/material';
+import { register } from '../../redux/slices/authSlice';
+import { useAppDispatch } from '../../redux/hooks';
 
 const Register: React.FC = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -17,67 +17,62 @@ const Register: React.FC = () => {
     e.preventDefault();
     try {
       await dispatch(register({ username, email, password }));
-      navigate("/login");
+      navigate('/login');
     } catch (error) {
-      console.error("Registration failed:", error);
+      console.error('Registration failed:', error);
     }
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component='main' maxWidth='xs'>
       <Box
         sx={{
           marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
       >
-        <Typography component="h1" variant="h5">
+        <Typography component='h1' variant='h5'>
           Register
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+        <Box component='form' onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
-            margin="normal"
+            margin='normal'
             required
             fullWidth
-            id="username"
-            label="Username"
-            name="username"
-            autoComplete="username"
+            id='username'
+            label='Username'
+            name='username'
+            autoComplete='username'
             autoFocus
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={e => setUsername(e.target.value)}
           />
           <TextField
-            margin="normal"
+            margin='normal'
             required
             fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
+            id='email'
+            label='Email Address'
+            name='email'
+            autoComplete='email'
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
           />
           <TextField
-            margin="normal"
+            margin='normal'
             required
             fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="new-password"
+            name='password'
+            label='Password'
+            type='password'
+            id='password'
+            autoComplete='new-password'
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
           />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
+          <Button type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
             Register
           </Button>
         </Box>

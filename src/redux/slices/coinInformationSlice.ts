@@ -1,29 +1,26 @@
 // src/redux/slices/coinInformationSlice.ts
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import api from "../utils/api";
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import api from '../utils/api';
 
 interface CoinInformationResponse {
-  // Add the properties of CoinInformationResponse here
-  // For example:
   symbol: string;
   currentPrice: number;
-  // ... other properties
 }
 
 interface CoinInformationState {
   data: CoinInformationResponse[];
-  status: "idle" | "loading" | "succeeded" | "failed";
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
 
 const initialState: CoinInformationState = {
   data: [],
-  status: "idle",
+  status: 'idle',
   error: null,
 };
 
 export const fetchCoinInformation = createAsyncThunk(
-  "coinInformation/fetchCoinInformation",
+  'coinInformation/fetchCoinInformation',
   async (portfolio: string, { rejectWithValue }) => {
     try {
       const response = await api.post<CoinInformationResponse[]>(
@@ -31,32 +28,32 @@ export const fetchCoinInformation = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || "An error occurred");
+      return rejectWithValue(error.response?.data || 'An error occurred');
     }
   }
 );
 
 const coinInformationSlice = createSlice({
-  name: "coinInformation",
+  name: 'coinInformation',
   initialState,
   reducers: {},
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(fetchCoinInformation.pending, (state) => {
-        state.status = "loading";
+      .addCase(fetchCoinInformation.pending, state => {
+        state.status = 'loading';
         state.error = null;
       })
       .addCase(
         fetchCoinInformation.fulfilled,
         (state, action: PayloadAction<CoinInformationResponse[]>) => {
-          state.status = "succeeded";
+          state.status = 'succeeded';
           state.data = action.payload;
           state.error = null;
         }
       )
       .addCase(fetchCoinInformation.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message || "An error occurred";
+        state.status = 'failed';
+        state.error = action.error.message || 'An error occurred';
       });
   },
 });
