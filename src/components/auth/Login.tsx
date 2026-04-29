@@ -1,6 +1,4 @@
 // src/components/auth/Login.tsx
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import {
   TextField,
   Button,
@@ -9,9 +7,13 @@ import {
   Box,
   Alert,
   CircularProgress,
+  Link,
 } from '@mui/material';
-import { login } from '../../redux/slices/authSlice';
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { login } from '../../redux/slices/authSlice';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -111,6 +113,20 @@ const Login: React.FC = () => {
               'Sign In'
             )}
           </Button>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+            <Link component={RouterLink} to='/register' variant='body2'>
+              Don't have an account? Register
+            </Link>
+            <Link
+              component={RouterLink}
+              to='/getting-started'
+              variant='body2'
+              color='text.secondary'
+            >
+              How does InvestTracker work?
+            </Link>
+          </Box>
         </Box>
       </Box>
     </Container>

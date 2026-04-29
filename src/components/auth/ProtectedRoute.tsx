@@ -1,11 +1,12 @@
 //src/components/auth/ProtectedRoute.tsx
-import React, { useEffect } from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { useAppDispatch } from '../../redux/hooks';
-import { RootState } from '../../redux/store';
-import { validateToken } from '../../redux/slices/authSlice';
 import { CircularProgress, Box } from '@mui/material';
+import React, { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+
+import { useAppDispatch } from '../../redux/hooks';
+import { validateToken } from '../../redux/slices/authSlice';
+import { RootState } from '../../redux/store';
 
 const ProtectedRoute = () => {
   const dispatch = useAppDispatch();

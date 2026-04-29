@@ -1,31 +1,43 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { AxiosError } from 'axios';
-import { removeAuthToken, setAuthToken } from '../utils/auth';
-import api from '../utils/api';
+import { AxiosError, isAxiosError } from 'axios';
 import Cookies from 'universal-cookie';
 
-interface User {
-  id: string;
-  username: string;
-  email: string;
-}
-
-interface AuthState {
-  user: any | null;
-  isAuthenticated: boolean;
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
-  loading: boolean;
-  error: string | null;
-}
+import api from '../utils/api';
+import { removeAuthToken, setAuthToken } from '../utils/auth';
 
 interface AuthError {
   message: string;
   statusCode?: number;
 }
 
+interface User {
+  username?: string;
+  email?: string;
+}
+
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  loading: boolean;
+  error: string | null;
+}
+
+const getAuthErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (isAxiosError<AuthError>(error)) {
+    return error.response?.data?.message || fallbackMessage;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return fallbackMessage;
+};
+
 const token = localStorage.getItem('token');
 const user = localStorage.getItem('user');
-let parsedUser = null;
+let parsedUser: User | null = null;
 try {
   if (user && user !== 'undefined' && user !== 'null') {
     parsedUser = JSON.parse(user);
@@ -44,7 +56,6 @@ const initialState: AuthState = {
 };
 
 interface LoginResponse {
-  user: User;
   jwt: string;
 }
 
@@ -56,10 +67,10 @@ export const login = createAsyncThunk<LoginResponse, { username: string; passwor
         username: credentials.username,
         password: credentials.password,
       });
-      const { jwt, user } = response.data;
+      const { jwt } = response.data;
       setAuthToken(jwt);
       localStorage.setItem('token', jwt);
-      return { jwt, user };
+      return { jwt };
     } catch (err) {
       const error = err as AxiosError<AuthError>;
       if (!error.response) {
@@ -107,12 +118,12 @@ export const validateToken = createAsyncThunk(
   'auth/validateToken',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/api/auth/validate');
+      const response = await api.get('/api/user/current');
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      return rejectWithValue('Token validation failed');
+      return rejectWithValue(getAuthErrorMessage(error, 'Token validation failed'));
     }
   }
 );
@@ -140,16 +151,15 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.user = action.payload.user;
         state.isAuthenticated = true;
         localStorage.setItem('token', action.payload.jwt);
-        localStorage.setItem('user', JSON.stringify(action.payload.user));
         state.loading = false;
       })
       .addCase(login.rejected, (state, action) => {
         state.status = 'failed';
         state.loading = false;
-        state.error = action.error.message || 'Login failed';
+        const payload = action.payload as { message: string } | undefined;
+        state.error = payload?.message || action.error.message || 'Login failed';
       })
       .addCase(register.pending, state => {
         state.status = 'loading';
@@ -159,7 +169,8 @@ const authSlice = createSlice({
       })
       .addCase(register.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message || 'Registration failed';
+        const payload = action.payload as { message: string } | undefined;
+        state.error = payload?.message || action.error.message || 'Registration failed';
       })
       .addCase(validateToken.pending, state => {
         state.status = 'loading';

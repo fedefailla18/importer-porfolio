@@ -1,10 +1,19 @@
 //src/components/auth/Register.tsx
+import {
+  TextField,
+  Button,
+  Typography,
+  Container,
+  Box,
+  Alert,
+  CircularProgress,
+  Link,
+} from '@mui/material';
 import React, { useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
-import { useNavigate } from 'react-router-dom';
-import { TextField, Button, Typography, Container, Box } from '@mui/material';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { register } from '../../redux/slices/authSlice';
-import { useAppDispatch } from '../../redux/hooks';
 
 const Register: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -12,14 +21,13 @@ const Register: React.FC = () => {
   const [password, setPassword] = useState('');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { status, error } = useAppSelector(state => state.auth);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await dispatch(register({ username, email, password }));
+    const result = await dispatch(register({ username, email, password }));
+    if (register.fulfilled.match(result)) {
       navigate('/login');
-    } catch (error) {
-      console.error('Registration failed:', error);
     }
   };
 
@@ -31,12 +39,23 @@ const Register: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          backgroundColor: 'background.paper',
+          padding: 3,
+          borderRadius: 1,
+          boxShadow: 1,
         }}
       >
         <Typography component='h1' variant='h5'>
-          Register
+          Create Account
         </Typography>
-        <Box component='form' onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+
+        {error && status === 'failed' && (
+          <Alert severity='error' sx={{ width: '100%', mt: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        <Box component='form' onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
           <TextField
             margin='normal'
             required
@@ -72,9 +91,45 @@ const Register: React.FC = () => {
             value={password}
             onChange={e => setPassword(e.target.value)}
           />
-          <Button type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
-            Register
+          <Button
+            type='submit'
+            fullWidth
+            variant='contained'
+            sx={{ mt: 3, mb: 2, position: 'relative' }}
+            disabled={status === 'loading'}
+          >
+            {status === 'loading' ? (
+              <>
+                <CircularProgress
+                  size={24}
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    marginTop: '-12px',
+                    marginLeft: '-12px',
+                  }}
+                />
+                Creating account...
+              </>
+            ) : (
+              'Register'
+            )}
           </Button>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+            <Link component={RouterLink} to='/login' variant='body2'>
+              Already have an account? Sign in
+            </Link>
+            <Link
+              component={RouterLink}
+              to='/getting-started'
+              variant='body2'
+              color='text.secondary'
+            >
+              How does InvestTracker work?
+            </Link>
+          </Box>
         </Box>
       </Box>
     </Container>
