@@ -1,6 +1,7 @@
-import React from 'react';
-import { Drawer, Box, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { Drawer, Box, Typography, IconButton } from '@mui/material';
+import React from 'react';
+
 import TransactionForm from './TransactionForm';
 
 interface AddTransactionDrawerProps {

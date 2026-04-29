@@ -1,5 +1,5 @@
 // src/components/common/FilterComponent.tsx
-import React from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   TextField,
   Button,
@@ -14,10 +14,11 @@ import {
   AccordionDetails,
   Typography,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import React from 'react';
+
 import { FetchTransactionsParams } from '../../redux/slices/transactionSlice';
 
 interface FilterComponentProps {
@@ -118,6 +119,8 @@ const FilterComponent = ({
                 <MenuItem value=''>All</MenuItem>
                 <MenuItem value='BUY'>Buy</MenuItem>
                 <MenuItem value='SELL'>Sell</MenuItem>
+                <MenuItem value='DEPOSIT'>Deposit</MenuItem>
+                <MenuItem value='WITHDRAW'>Withdraw</MenuItem>
               </Select>
             </FormControl>
           </Grid>

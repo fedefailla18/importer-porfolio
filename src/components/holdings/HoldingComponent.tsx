@@ -1,9 +1,10 @@
 // src/components/holdings/HoldingComponent.tsx
+import { Paper, Typography, Select, CircularProgress, Alert } from '@mui/material';
 import React, { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { fetchHoldingDetails } from '../../redux/slices/holdingDetailsSlice';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Paper, Typography, Select, CircularProgress, Alert } from '@mui/material';
 import TransactionList from '../transactions/TransactionList';
 
 interface NumberFormatOptionsStyleRegistry {

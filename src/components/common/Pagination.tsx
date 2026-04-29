@@ -1,6 +1,6 @@
 // src/components/common/Pagination.tsx
-import React from 'react';
 import { Pagination as MuiPagination, PaginationItem } from '@mui/material';
+import React from 'react';
 
 interface PaginationProps {
   currentPage: number;

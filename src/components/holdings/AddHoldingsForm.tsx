@@ -1,9 +1,10 @@
 // src/components/holdings/AddHoldingsForm.tsx
+import { Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
+import { TextField, Button, Grid, Typography, IconButton } from '@mui/material';
 import React, { useState } from 'react';
+
 import { useAppDispatch } from '../../redux/hooks';
 import { addMultipleHoldings } from '../../redux/slices/portfolioSlice';
-import { TextField, Button, Grid, Typography, IconButton } from '@mui/material';
-import { Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
 import { HoldingDto } from '../../redux/types/types';
 
 interface AddHoldingsFormProps {

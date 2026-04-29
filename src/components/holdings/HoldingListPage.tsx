@@ -12,9 +12,10 @@ import {
   Theme,
   Tooltip,
 } from '@mui/material';
-import { Link } from 'react-router-dom';
-import { HoldingDto } from '../../redux/types/types';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+
+import { HoldingDto } from '../../redux/types/types';
 
 interface HoldingListPageProps {
   holdings: HoldingDto[];
@@ -25,21 +26,24 @@ interface HoldingListPageProps {
   priceMultiplier: {
     [key: number]: number;
   };
+  maxTableHeight?: string | number;
 }
 
-const StyledTableContainer = styled(TableContainer)({
-  maxHeight: '60vh',
-  overflow: 'auto',
-  '& table': {
-    borderCollapse: 'separate',
-    borderSpacing: 0,
-  },
-  '& .MuiTableBody-root': {
-    '& .MuiTableRow-root:hover': {
-      backgroundColor: 'rgba(0, 0, 0, 0.04)',
+const StyledTableContainer = styled(TableContainer)<{ maxTableHeight?: string | number }>(
+  ({ maxTableHeight = '60vh' }) => ({
+    maxHeight: maxTableHeight,
+    overflow: 'auto',
+    '& table': {
+      borderCollapse: 'separate',
+      borderSpacing: 0,
     },
-  },
-});
+    '& .MuiTableBody-root': {
+      '& .MuiTableRow-root:hover': {
+        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+      },
+    },
+  })
+);
 
 const StickyTableCell = styled(TableCell)(({ theme }) => ({
   position: 'sticky',
@@ -52,7 +56,7 @@ const StickyHeaderCell = styled(StickyTableCell)({
   zIndex: 1,
 });
 
-const formatNumber = (value: number, decimals: number = 2) => {
+const formatNumber = (value: number, decimals = 2) => {
   return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
@@ -75,9 +79,17 @@ const HoldingListPage = ({
   setPredictionBtc,
   setPredictionUsdt,
   priceMultiplier,
+  maxTableHeight,
 }: HoldingListPageProps) => {
   const [sortBy, setSortBy] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  const pnlColor = (value: number | undefined) => {
+    if (value === undefined) return undefined;
+    if (value > 0) return '#2e7d32';
+    if (value < 0) return '#c62828';
+    return undefined;
+  };
 
   useEffect(() => {
     const initialPriceMultiplier = holdings.reduce(
@@ -99,6 +111,7 @@ const HoldingListPage = ({
         [index]: holding?.amountInBtc || 0,
       }));
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSort = (field: string) => {
@@ -127,12 +140,20 @@ const HoldingListPage = ({
       const aValue = a.percentage ?? 0;
       const bValue = b.percentage ?? 0;
       return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    } else if (sortBy === 'totalRealizedProfitUsdt') {
+      const aValue = a.totalRealizedProfitUsdt ?? 0;
+      const bValue = b.totalRealizedProfitUsdt ?? 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    } else if (sortBy === 'unrealizedProfitUsdt') {
+      const aValue = a.unrealizedProfitUsdt ?? 0;
+      const bValue = b.unrealizedProfitUsdt ?? 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     }
     return 0;
   });
 
   return (
-    <StyledTableContainer>
+    <StyledTableContainer maxTableHeight={maxTableHeight}>
       <Table>
         <TableHead>
           <TableRow>
@@ -173,7 +194,7 @@ const HoldingListPage = ({
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
-              <Tooltip title='The value of the holding converted to USDT'>
+              <Tooltip title='Live market value of the currently held amount, in USDT. Calculated as current amount multiplied by the latest USDT market price.'>
                 <TableSortLabel onClick={() => handleSort('currentPositionInUsdt')}>
                   Current Position (USDT)
                 </TableSortLabel>
@@ -185,13 +206,30 @@ const HoldingListPage = ({
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
-              <Tooltip title='The total cost in stable currency (USDT) spent to acquire this holding'>
+              <Tooltip title='Remaining cost basis of the units you still hold, in USDT. This excludes the portion already sold.'>
                 <TableSortLabel>Total Cost (USDT)</TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
-              <Tooltip title='The total profit realized from selling this cryptocurrency, in USDT'>
-                <TableSortLabel>Realized Profit (USDT)</TableSortLabel>
+              <Tooltip title='Accounting realized profit/loss for this asset in USDT. Sell proceeds minus the cost basis of the units sold. Green = profit, Red = loss.'>
+                <TableSortLabel
+                  active={sortBy === 'totalRealizedProfitUsdt'}
+                  direction={sortBy === 'totalRealizedProfitUsdt' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('totalRealizedProfitUsdt')}
+                >
+                  Realized P&amp;L (USDT)
+                </TableSortLabel>
+              </Tooltip>
+            </StickyHeaderCell>
+            <StickyHeaderCell>
+              <Tooltip title='Current position value minus remaining cost basis. Positive means paper gains on open position; negative means paper losses. Green = gain, Red = loss.'>
+                <TableSortLabel
+                  active={sortBy === 'unrealizedProfitUsdt'}
+                  direction={sortBy === 'unrealizedProfitUsdt' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('unrealizedProfitUsdt')}
+                >
+                  Unrealized P&amp;L (USDT)
+                </TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
@@ -249,9 +287,14 @@ const HoldingListPage = ({
                   ? formatCurrency(holding.stableTotalCost)
                   : '-'}
               </TableCell>
-              <TableCell>
+              <TableCell style={{ color: pnlColor(holding.totalRealizedProfitUsdt) }}>
                 {holding.totalRealizedProfitUsdt !== undefined
                   ? formatCurrency(holding.totalRealizedProfitUsdt)
+                  : '-'}
+              </TableCell>
+              <TableCell style={{ color: pnlColor(holding.unrealizedProfitUsdt) }}>
+                {holding.unrealizedProfitUsdt !== undefined
+                  ? formatCurrency(holding.unrealizedProfitUsdt)
                   : '-'}
               </TableCell>
               <TableCell>

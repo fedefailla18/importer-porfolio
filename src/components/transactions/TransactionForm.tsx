@@ -1,7 +1,4 @@
 // /src/components/transactions/TransactionForm.tsx
-import React, { useState, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { addTransaction } from '../../redux/slices/transactionSlice';
 import {
   Button,
   TextField,
@@ -17,6 +14,10 @@ import {
 } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import React, { useState, useEffect } from 'react';
+
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { addTransaction } from '../../redux/slices/transactionSlice';
 
 interface TransactionFormProps {
   defaultPortfolioName?: string;
@@ -35,8 +36,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ defaultPortfolioName,
     portfolioName: defaultPortfolioName || '',
     pair: '',
     price: 0,
-    payedWith: '',
-    payedAmount: 0,
+    paidWith: '',
+    paidAmount: 0,
     fee: '',
     feeAmount: 0,
     feeSymbol: '',
@@ -171,8 +172,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ defaultPortfolioName,
             <TextField
               fullWidth
               label='Payed With'
-              name='payedWith'
-              value={transaction?.payedWith}
+              name='paidWith'
+              value={transaction?.paidWith}
               onChange={handleChange}
             />
           </Grid>
@@ -180,9 +181,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ defaultPortfolioName,
             <TextField
               fullWidth
               label='Payed Amount'
-              name='payedAmount'
+              name='paidAmount'
               type='number'
-              value={transaction?.payedAmount}
+              value={transaction?.paidAmount}
               onChange={handleChange}
             />
           </Grid>

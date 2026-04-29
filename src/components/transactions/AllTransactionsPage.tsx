@@ -1,7 +1,8 @@
 // src/components/transactions/AllTransactionsPage.tsx
-import React from 'react';
 import { Button, Container, Typography } from '@mui/material';
+import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+
 import TransactionList from './TransactionList';
 
 const AllTransactionsPage = () => {
