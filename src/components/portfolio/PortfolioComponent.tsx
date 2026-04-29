@@ -1,15 +1,16 @@
 // src/components/portfolio/PortfolioComponent.tsx
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { fetchPortfolio, fetchAllPortfolios } from '../../redux/slices/portfolioSlice';
+import { useParams } from 'react-router-dom';
+
+import PortfolioActionsDialog from './CreatePortfolioDialog';
+import EmptyPortfolioState from './EmptyPortfolioState';
 import PortfolioLandingPage from './PortfolioLandingPage';
 import PortfolioPage from './PortfolioPage';
-import EmptyPortfolioState from './EmptyPortfolioState';
-import PortfolioActionsDialog from './CreatePortfolioDialog';
-import { useAppDispatch } from '../../redux/hooks';
-import { RootState } from '../../redux/store';
-import { useParams } from 'react-router-dom';
 import usePortfolioComponent from './usePortfolioComponent';
+import { useAppDispatch } from '../../redux/hooks';
+import { fetchPortfolio, fetchAllPortfolios } from '../../redux/slices/portfolioSlice';
+import { RootState } from '../../redux/store';
 
 const PortfolioComponent = () => {
   const { handleSubmitPortfolioActions } = usePortfolioComponent();

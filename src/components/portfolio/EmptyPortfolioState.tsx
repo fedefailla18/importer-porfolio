@@ -1,4 +1,9 @@
-import React from 'react';
+import {
+  Add as AddIcon,
+  Upload as UploadIcon,
+  Analytics as AnalyticsIcon,
+  TrendingUp as TrendingUpIcon,
+} from '@mui/icons-material';
 import {
   Container,
   Typography,
@@ -9,12 +14,7 @@ import {
   CardContent,
   CardActions,
 } from '@mui/material';
-import {
-  Add as AddIcon,
-  Upload as UploadIcon,
-  Analytics as AnalyticsIcon,
-  TrendingUp as TrendingUpIcon,
-} from '@mui/icons-material';
+import React from 'react';
 
 interface EmptyPortfolioStateProps {
   onCreatePortfolio: () => void;

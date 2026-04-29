@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import {
+  Add as AddIcon,
+  Upload as UploadIcon,
+  TrendingUp as TrendingUpIcon,
+  AccountBalance as AccountBalanceIcon,
+} from '@mui/icons-material';
 import {
   Container,
   Typography,
@@ -11,19 +16,17 @@ import {
   Chip,
   CircularProgress,
   Alert,
+  Paper,
 } from '@mui/material';
-import {
-  Add as AddIcon,
-  Upload as UploadIcon,
-  TrendingUp as TrendingUpIcon,
-  AccountBalance as AccountBalanceIcon,
-} from '@mui/icons-material';
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+
+import PortfolioActionsDialog from './CreatePortfolioDialog';
+import usePortfolioComponent from './usePortfolioComponent';
+import UserGuideSection from './UserGuideSection';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { fetchAllPortfolios, fetchPortfolioDetails } from '../../redux/slices/portfolioSlice';
 import { RootState } from '../../redux/store';
-import PortfolioActionsDialog from './CreatePortfolioDialog';
-import { useNavigate } from 'react-router-dom';
-import usePortfolioComponent from './usePortfolioComponent';
 
 const PortfolioLandingPage = () => {
   const { handleSubmitPortfolioActions } = usePortfolioComponent();
@@ -64,6 +67,7 @@ const PortfolioLandingPage = () => {
     if (portfolios.length > 0) {
       loadPortfolioDetails();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfolios.length, dispatch]);
 
   const handleClickCreatePortfolio = () => {
@@ -145,6 +149,27 @@ const PortfolioLandingPage = () => {
           </Button>
         </Box>
       </Box>
+
+      <Paper variant='outlined' sx={{ p: 2.5, mb: 3 }}>
+        <Typography variant='subtitle1' fontWeight={700} gutterBottom>
+          New here? Follow this quick investor flow
+        </Typography>
+        <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+          Create/import portfolio data, validate sync behavior before execution, and use the data
+          dictionary to interpret every metric confidently.
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Button component={RouterLink} to='/manual' variant='outlined' size='small'>
+            Open Manual
+          </Button>
+          <Button component={RouterLink} to='/data-dictionary' variant='outlined' size='small'>
+            Open Data Dictionary
+          </Button>
+          <Button component={RouterLink} to='/binance-activity' variant='outlined' size='small'>
+            Review Binance Activity Guide
+          </Button>
+        </Box>
+      </Paper>
 
       {/* Portfolios Grid */}
       {portfolios.length === 0 ? (
@@ -254,6 +279,8 @@ const PortfolioLandingPage = () => {
           ))}
         </Grid>
       )}
+
+      <UserGuideSection />
 
       {/* Create Portfolio Dialog */}
       <PortfolioActionsDialog

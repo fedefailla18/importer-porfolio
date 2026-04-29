@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { fetchHoldingDetails } from '../../redux/slices/holdingDetailsSlice';
 
