@@ -1,46 +1,80 @@
-# Getting Started with Create React App
+# Importer Portfolio — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React 18 + Redux Toolkit + Material UI 5 + TypeScript. See CLAUDE.md for in-repo conventions and development guidance.
 
-## Available Scripts
+For a comprehensive architecture and UX audit with prioritized next steps, see PROJECT_AUDIT.md.
 
-In the project directory, you can run:
+## Quick Start
 
-### `npm start`
+- Node 18+ recommended
+- Backend: Spring Boot running at http://localhost:9080
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Commands:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- npm install
+- npm start — dev server at http://localhost:3000
+- npm test — Jest watch mode
+- npm run build — production build in build/
 
-### `npm test`
+Environment:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- The app reads the JWT from localStorage (key: token).
+- API base URL and Axios instance live in src/redux/utils/api.ts (preconfigured to 9080 and auto-attaches Authorization header).
 
-### `npm run build`
+## Project Highlights
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Routing in src/App.tsx with protected routes via ProtectedRoute.
+- Redux slices in src/redux/slices; typed hooks in src/redux/hooks.ts.
+- Global API instance in src/redux/utils/api.ts with interceptors for auth + 401 redirect to /login.
+- UI built with Material UI. Reusable table patterns and pagination in components/common and feature folders.
+- Binance Activity page for comparing fresh raw Binance spot trades against InvestTracker portfolio/accounting views.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Full project audit and improvement plan: PROJECT_AUDIT.md
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## UI Conventions (tables with stats + lists)
 
-### `npm run eject`
+Pages that show an entity’s stats followed by a long list use a scrollable table area so the page header/stats remain visible and the list scrolls independently:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- Use a Table inside a TableContainer with maxHeight: 60vh and overflow: auto.
+- Enable stickyHeader on the Table and make header TableCell sticky with position: sticky; top: 0 and a background color from theme.palette.background.paper to avoid transparency artifacts.
+- Example implementations:
+  - Holdings list: src/components/holdings/HoldingListPage.tsx
+  - Transactions list: src/components/transactions/TransactionList.tsx
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+When adding new list pages, mirror this pattern to keep UX consistent for large datasets.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+CTA placement:
+- Primary page actions related to the entity (e.g., Upload CSV, Calculate Distribution, Fetch Missing Transactions) should live in the page header’s right column so they’re always visible above the scrollable list.
+- Contextual actions specific to a tab (e.g., Add Holdings) can appear within that tab’s content area.
+- Account-wide read-only diagnostics or reconciliation views should be exposed as dedicated routes from the navbar. Example: the Binance Activity page.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Truncation + Tooltip helper:
+- Use the shared utility to handle long labels/text consistently across headers and cells.
+- Component: src/components/common/TruncateWithTooltip.tsx
+- Usage example:
+  
+  ```tsx
+  import TruncateWithTooltip from './components/common/TruncateWithTooltip';
 
-## Learn More
+  // Inside a TableCell or any layout
+  <TruncateWithTooltip text={pair} maxWidth={160} />
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+  // As Typography with variant and wider max width
+  <TruncateWithTooltip
+    typography
+    typographyVariant="h6"
+    text={`${portfolioName} Portfolio Stats`}
+    maxWidth="60vw"
+  />
+  ```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Authentication Notes
+
+- Login stores the JWT in localStorage.
+- ProtectedRoute validates token on load; on 401 the Axios interceptor clears storage and redirects to /login.
+
+## Contributing
+
+- Follow code style and guidelines in CLAUDE.md.
+- Prefer Redux Toolkit slices and typed hooks.
+- For tables, follow the UI Conventions above (scrollable containers + sticky headers) to ensure consistent behavior across the app.
