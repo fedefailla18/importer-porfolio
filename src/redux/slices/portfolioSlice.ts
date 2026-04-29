@@ -1,22 +1,31 @@
 // src/redux/slices/portfolioSlice.ts
 import { PayloadAction, createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { HoldingDto, PortfolioDistribution } from '../types/types';
-import api from '../utils/api';
-import axios from 'axios';
+import { isAxiosError } from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080';
+import { HoldingDto, Portfolio, PortfolioDistribution } from '../types/types';
+import api from '../utils/api';
+
+const getErrorPayload = (error: unknown, fallbackMessage: string) => {
+  if (isAxiosError(error)) {
+    return error.response?.data || fallbackMessage;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return fallbackMessage;
+};
 
 export const fetchHoldingDetails = createAsyncThunk<
   HoldingDto,
   { portfolioName: string; symbol: string }
 >('portfolio/fetchHoldingDetails', async ({ portfolioName, symbol }, { rejectWithValue }) => {
   try {
-    const response = await axios.get<HoldingDto>(
-      `${API_BASE_URL}/portfolio/${portfolioName}/${symbol}`
-    );
+    const response = await api.get<HoldingDto>(`/portfolio/${portfolioName}/${symbol}`);
     return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data || 'An error occurred');
+  } catch (error: unknown) {
+    return rejectWithValue(getErrorPayload(error, 'An error occurred'));
   }
 });
 
@@ -47,8 +56,8 @@ export const fetchPortfolio = createAsyncThunk(
     try {
       const response = await api.get<PortfolioDistribution>(`/portfolio?name=${portfolioName}`);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'An error occurred');
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorPayload(error, 'An error occurred'));
     }
   }
 );
@@ -66,8 +75,8 @@ export const fetchAllPortfolios = createAsyncThunk(
         console.warn('Portfolio names endpoint not available, using default list');
         return ['Binance', 'MexC', 'Buenbit'];
       }
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch portfolios');
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorPayload(error, 'Failed to fetch portfolios'));
     }
   }
 );
@@ -80,8 +89,8 @@ export const fetchPortfolioHoldingDistribution = createAsyncThunk(
         `/portfolio/distribution?portfolioName=${portfolioName}`
       );
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'An error occurred');
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorPayload(error, 'An error occurred'));
     }
   }
 );
@@ -93,11 +102,11 @@ export const fetchPortfolioDetails = createAsyncThunk(
       const response = await api.get<PortfolioDistribution>(`/portfolio?name=${portfolioName}`);
       return {
         name: portfolioName,
-        totalInUsdt: response.data.totalInUsdt,
+        totalInUsdt: response.data.totalUsdt,
         topHoldings: response.data.holdings.slice(0, 5),
       };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch portfolio details');
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorPayload(error, 'Failed to fetch portfolio details'));
     }
   }
 );
@@ -114,11 +123,13 @@ export const addMultipleHoldings = createAsyncThunk(
 
 export const createPortfolio = createAsyncThunk(
   'portfolio/createPortfolio',
-  async (portfolioName: string) => {
-    const response = await api.post<PortfolioDistribution>(
-      `/portfolio?portfolioName=${portfolioName}`
-    );
-    return response.data;
+  async (portfolioName: string, { rejectWithValue }) => {
+    try {
+      const response = await api.post<Portfolio>(`/portfolio/${encodeURIComponent(portfolioName)}`);
+      return response.data;
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorPayload(error, 'Failed to create portfolio'));
+    }
   }
 );
 
@@ -144,8 +155,8 @@ export const uploadTransactions = createAsyncThunk(
         },
       });
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'Failed to upload transactions');
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorPayload(error, 'Failed to upload transactions'));
     }
   }
 );
@@ -252,6 +263,25 @@ const portfolioSlice = createSlice({
       .addCase(uploadTransactions.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to upload transactions';
+      })
+
+      // Create Portfolio
+      .addCase(createPortfolio.pending, state => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(createPortfolio.fulfilled, (state, action: PayloadAction<Portfolio>) => {
+        state.status = 'succeeded';
+        state.portfolios.push({
+          name: action.payload.name,
+          totalInUsdt: 0,
+          topHoldings: [],
+        });
+        state.error = null;
+      })
+      .addCase(createPortfolio.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = (action.payload as string) || 'Failed to create portfolio';
       })
 
       // Fetch Portfolio Details

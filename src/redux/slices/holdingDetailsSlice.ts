@@ -1,5 +1,6 @@
 // src/redux/slices/holdingDetailsSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+
 import { HoldingDetailsState, HoldingDto } from '../types/types';
 import api from '../utils/api';
 

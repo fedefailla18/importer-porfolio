@@ -1,20 +1,31 @@
 // src/redux/slices/coinInformationSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+
 import api from '../utils/api';
 
 interface CoinInformationResponse {
-  symbol: string;
+  coinName: string;
   currentPrice: number;
+}
+
+interface PortfolioProcessingResult {
+  coinInformation: CoinInformationResponse[];
+  processedCount: number;
+  totalTransactions: number;
 }
 
 interface CoinInformationState {
   data: CoinInformationResponse[];
+  processedCount: number | null;
+  totalTransactions: number | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
 
 const initialState: CoinInformationState = {
   data: [],
+  processedCount: null,
+  totalTransactions: null,
   status: 'idle',
   error: null,
 };
@@ -23,7 +34,7 @@ export const fetchCoinInformation = createAsyncThunk(
   'coinInformation/fetchCoinInformation',
   async (portfolio: string, { rejectWithValue }) => {
     try {
-      const response = await api.post<CoinInformationResponse[]>(
+      const response = await api.post<PortfolioProcessingResult>(
         `/transaction/information/all/${portfolio}`
       );
       return response.data;
@@ -45,9 +56,11 @@ const coinInformationSlice = createSlice({
       })
       .addCase(
         fetchCoinInformation.fulfilled,
-        (state, action: PayloadAction<CoinInformationResponse[]>) => {
+        (state, action: PayloadAction<PortfolioProcessingResult>) => {
           state.status = 'succeeded';
-          state.data = action.payload;
+          state.data = action.payload.coinInformation;
+          state.processedCount = action.payload.processedCount;
+          state.totalTransactions = action.payload.totalTransactions;
           state.error = null;
         }
       )
