@@ -1,10 +1,14 @@
 // src/redux/reducers/rootReducer.ts
 import { combineReducers } from '@reduxjs/toolkit';
-import portfolioSlice from '../slices/portfolioSlice';
-import holdingDetailsSlice from '../slices/holdingDetailsSlice';
-import transactionSlice from '../slices/transactionSlice';
-import coinInformationReducer from '../slices/coinInformationSlice';
+
 import authSlice from '../slices/authSlice';
+import binanceSpotActivityReducer from '../slices/binanceSpotActivitySlice';
+import mexcSpotActivityReducer from '../slices/mexcSpotActivitySlice';
+import coinInformationReducer from '../slices/coinInformationSlice';
+import exchangeConfigReducer from '../slices/exchangeConfigSlice';
+import holdingDetailsSlice from '../slices/holdingDetailsSlice';
+import portfolioSlice from '../slices/portfolioSlice';
+import transactionSlice from '../slices/transactionSlice';
 
 const rootReducer = combineReducers({
   portfolio: portfolioSlice,
@@ -12,6 +16,9 @@ const rootReducer = combineReducers({
   transactions: transactionSlice,
   coinInformation: coinInformationReducer,
   auth: authSlice,
+  exchangeConfig: exchangeConfigReducer,
+  binanceSpotActivity: binanceSpotActivityReducer,
+  mexcSpotActivity: mexcSpotActivityReducer,
 });
 
 export default rootReducer;
