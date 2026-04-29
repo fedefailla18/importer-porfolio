@@ -1,15 +1,19 @@
+import { AppBar, Button, Container, Toolbar, Typography, Stack, Divider } from '@mui/material';
 import React from 'react';
-import { AppBar, Toolbar, Typography, TextField, Button, Container } from '@mui/material';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/store';
-import { logout } from '../../redux/slices/authSlice';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+
+import { useSyncNotifications } from '../../hooks/useSyncNotifications';
 import { useAppDispatch } from '../../redux/hooks';
+import { logout } from '../../redux/slices/authSlice';
+import { RootState } from '../../redux/store';
+import { getAuthToken } from '../../redux/utils/auth';
 
 const Layout = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  useSyncNotifications(isAuthenticated ? getAuthToken() : null);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -20,36 +24,44 @@ const Layout = () => {
     <>
       <AppBar position='static' color='primary'>
         <Toolbar>
-          <Typography variant='h6' style={{ flexGrow: 1 }}>
+          <Typography variant='h6' sx={{ flexGrow: 1 }}>
             Crypto Portfolio
           </Typography>
           {isAuthenticated ? (
-            <>
+            <Stack direction='row' spacing={1} alignItems='center'>
               <Button color='inherit' component={Link} to='/'>
-                Portfolio
+                Home
               </Button>
-              <Button color='inherit' component={Link} to='/holdings'>
-                Holdings
+              <Button color='inherit' component={Link} to='/portfolio'>
+                Portfolios
               </Button>
               <Button color='inherit' component={Link} to='/transactions'>
                 Transactions
               </Button>
-              <TextField
-                variant='outlined'
-                size='small'
-                placeholder='Search'
-                style={{
-                  marginLeft: '1rem',
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                }}
-              />
-              <Button color='inherit' style={{ marginLeft: '0.5rem' }}>
-                Search
+              <Button color='inherit' component={Link} to='/binance-activity'>
+                Binance
               </Button>
-              <Button color='inherit' onClick={handleLogout} style={{ marginLeft: '0.5rem' }}>
+              <Button color='inherit' component={Link} to='/mexc-activity'>
+                MEXC
+              </Button>
+              <Button color='inherit' component={Link} to='/manual'>
+                Manual
+              </Button>
+              <Button color='inherit' component={Link} to='/data-dictionary'>
+                Data Dictionary
+              </Button>
+              <Divider
+                orientation='vertical'
+                flexItem
+                sx={{ borderColor: 'rgba(255,255,255,0.25)' }}
+              />
+              <Button color='inherit' component={Link} to='/settings'>
+                Settings
+              </Button>
+              <Button color='inherit' onClick={handleLogout}>
                 Logout
               </Button>
-            </>
+            </Stack>
           ) : (
             <>
               <Button color='inherit' component={Link} to='/login'>
@@ -62,7 +74,7 @@ const Layout = () => {
           )}
         </Toolbar>
       </AppBar>
-      <Container style={{ marginTop: '2rem' }}>
+      <Container sx={{ mt: 3 }}>
         <Outlet />
       </Container>
     </>
