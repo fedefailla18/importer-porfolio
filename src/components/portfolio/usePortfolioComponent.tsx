@@ -6,11 +6,16 @@ import {
   fetchAllPortfolios,
   createPortfolio,
 } from '../../redux/slices/portfolioSlice';
+import { ExchangeName } from '../../redux/types/types';
 
 const usePortfolioComponent = () => {
   const dispatch = useAppDispatch();
 
-  const handleSubmitPortfolioActions = async (portfolioName: string, file?: File) => {
+  const handleSubmitPortfolioActions = async (
+    portfolioName: string,
+    file?: File,
+    exchangeName?: ExchangeName
+  ) => {
     try {
       if (file) {
         await dispatch(
@@ -21,7 +26,7 @@ const usePortfolioComponent = () => {
         ).unwrap();
         toast.success('Transactions uploaded successfully!');
       } else {
-        await dispatch(createPortfolio(portfolioName)).unwrap();
+        await dispatch(createPortfolio({ portfolioName, exchangeName })).unwrap();
         toast.success('Portfolio created successfully!');
       }
       dispatch(fetchAllPortfolios());

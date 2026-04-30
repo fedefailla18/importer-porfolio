@@ -18,6 +18,7 @@ export interface HoldingDto {
 
 export interface PortfolioDistribution {
   portfolioName: string;
+  exchangeName?: ExchangeName | null;
   totalUsdt: number;
   totalBuySpentUsdt?: number;
   totalSellEarnedUsdt?: number;
@@ -90,6 +91,7 @@ export interface TransactionState {
 export interface Portfolio {
   id: string;
   name: string;
+  exchangeName?: ExchangeName | null;
   creationDate: string | null;
   created: string | null;
   createdBy: string | null;

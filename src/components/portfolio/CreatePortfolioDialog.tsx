@@ -17,10 +17,12 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 
+import { ExchangeName } from '../../redux/types/types';
+
 interface CreatePortfolioDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (portfolioName: string, file?: File) => Promise<void>;
+  onSubmit: (portfolioName: string, file?: File, exchangeName?: ExchangeName) => Promise<void>;
   defaultTab?: number;
   portfolios?: string[];
 }
@@ -110,6 +112,19 @@ const PortfolioActionsDialog = ({
     onClose();
   };
 
+  const handleQuickCreate = async (exchangeName: ExchangeName) => {
+    setIsSubmitting(true);
+    setError('');
+    try {
+      await onSubmit(exchangeName, undefined, exchangeName);
+      handleClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create portfolio');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth='sm' fullWidth>
       <DialogTitle>Portfolios Actions</DialogTitle>
@@ -125,6 +140,22 @@ const PortfolioActionsDialog = ({
           <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
             Create a new empty portfolio and add your holdings manually.
           </Typography>
+          <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+            <Button
+              variant='outlined'
+              onClick={() => handleQuickCreate('BINANCE')}
+              disabled={isSubmitting}
+            >
+              One-click Binance Portfolio
+            </Button>
+            <Button
+              variant='outlined'
+              onClick={() => handleQuickCreate('MEXC')}
+              disabled={isSubmitting}
+            >
+              One-click MexC Portfolio
+            </Button>
+          </Box>
           <TextField
             fullWidth
             label='Portfolio Name'

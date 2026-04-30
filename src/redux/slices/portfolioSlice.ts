@@ -2,7 +2,7 @@
 import { PayloadAction, createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { isAxiosError } from 'axios';
 
-import { HoldingDto, Portfolio, PortfolioDistribution } from '../types/types';
+import { ExchangeName, HoldingDto, Portfolio, PortfolioDistribution } from '../types/types';
 import api from '../utils/api';
 
 const getErrorPayload = (error: unknown, fallbackMessage: string) => {
@@ -121,11 +121,22 @@ export const addMultipleHoldings = createAsyncThunk(
   }
 );
 
+export interface CreatePortfolioRequest {
+  portfolioName: string;
+  exchangeName?: ExchangeName;
+}
+
 export const createPortfolio = createAsyncThunk(
   'portfolio/createPortfolio',
-  async (portfolioName: string, { rejectWithValue }) => {
+  async ({ portfolioName, exchangeName }: CreatePortfolioRequest, { rejectWithValue }) => {
     try {
-      const response = await api.post<Portfolio>(`/portfolio/${encodeURIComponent(portfolioName)}`);
+      const response = await api.post<Portfolio>(
+        `/portfolio/${encodeURIComponent(portfolioName)}`,
+        null,
+        {
+          params: { exchangeName },
+        }
+      );
       return response.data;
     } catch (error: unknown) {
       return rejectWithValue(getErrorPayload(error, 'Failed to create portfolio'));

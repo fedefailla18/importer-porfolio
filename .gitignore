@@ -34,3 +34,5 @@ yarn-error.log*
 .env.production.local
 
 *.csv
+
+.idea

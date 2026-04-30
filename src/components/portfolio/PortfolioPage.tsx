@@ -45,6 +45,8 @@ const StyledContainer = styled(Container)({
 });
 
 const PORTFOLIO_LIST_HEIGHT = '72vh';
+const BINANCE_LABEL = 'binance';
+const MEXC_LABEL = 'mexc';
 
 // Title handled via TruncateWithTooltip now
 
@@ -113,7 +115,17 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
   const [clearing, setClearing] = useState(false);
   const coinInformationState = useAppSelector((state: RootState) => state.coinInformation);
   const syncStatus = useAppSelector((state: RootState) => state.exchangeConfig.syncStatus);
-  const sortedHoldings = portfolioDistribution?.holdings?.slice().sort((a, b) => {
+  const supportsBinance =
+    portfolioDistribution.exchangeName === 'BINANCE' ||
+    (portfolioDistribution.exchangeName == null &&
+      portfolioDistribution.portfolioName.toLowerCase().includes(BINANCE_LABEL));
+  const supportsMexc =
+    portfolioDistribution.exchangeName === 'MEXC' ||
+    (portfolioDistribution.exchangeName == null &&
+      portfolioDistribution.portfolioName.toLowerCase().includes(MEXC_LABEL));
+  const showBinanceActions = supportsBinance || (!supportsBinance && !supportsMexc);
+  const showMexcActions = supportsMexc || (!supportsBinance && !supportsMexc);
+  const sortedHoldings = portfolioDistribution?.holdings?.slice().sort(() => {
     return 0;
   });
 
@@ -325,50 +337,58 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
                 'Fetch Missing Transactions'
               )}
             </Button>
-            <Button
-              variant='outlined'
-              color='secondary'
-              onClick={() => setSyncExplainAction('syncBinance')}
-              disabled={syncStatus === 'loading'}
-            >
-              {syncStatus === 'loading' ? (
-                <CircularProgress size={20} color='inherit' />
-              ) : (
-                'Sync from Binance'
-              )}
-            </Button>
-            <Button
-              variant='outlined'
-              color='secondary'
-              onClick={() => setSyncExplainAction('syncMexc')}
-              disabled={syncStatus === 'loading'}
-            >
-              {syncStatus === 'loading' ? (
-                <CircularProgress size={20} color='inherit' />
-              ) : (
-                'Sync from MexC'
-              )}
-            </Button>
-            <Button
-              variant='outlined'
-              color='secondary'
-              onClick={() => {
-                setFullSyncExchange('BINANCE');
-                setFullSyncOpen(true);
-              }}
-            >
-              Full Historical Sync (Binance)
-            </Button>
-            <Button
-              variant='outlined'
-              color='secondary'
-              onClick={() => {
-                setFullSyncExchange('MEXC');
-                setFullSyncOpen(true);
-              }}
-            >
-              Full Historical Sync (MexC)
-            </Button>
+            {showBinanceActions && (
+              <Button
+                variant='outlined'
+                color='secondary'
+                onClick={() => setSyncExplainAction('syncBinance')}
+                disabled={syncStatus === 'loading'}
+              >
+                {syncStatus === 'loading' ? (
+                  <CircularProgress size={20} color='inherit' />
+                ) : (
+                  'Sync from Binance'
+                )}
+              </Button>
+            )}
+            {showMexcActions && (
+              <Button
+                variant='outlined'
+                color='secondary'
+                onClick={() => setSyncExplainAction('syncMexc')}
+                disabled={syncStatus === 'loading'}
+              >
+                {syncStatus === 'loading' ? (
+                  <CircularProgress size={20} color='inherit' />
+                ) : (
+                  'Sync from MexC'
+                )}
+              </Button>
+            )}
+            {showBinanceActions && (
+              <Button
+                variant='outlined'
+                color='secondary'
+                onClick={() => {
+                  setFullSyncExchange('BINANCE');
+                  setFullSyncOpen(true);
+                }}
+              >
+                Full Historical Sync (Binance)
+              </Button>
+            )}
+            {showMexcActions && (
+              <Button
+                variant='outlined'
+                color='secondary'
+                onClick={() => {
+                  setFullSyncExchange('MEXC');
+                  setFullSyncOpen(true);
+                }}
+              >
+                Full Historical Sync (MexC)
+              </Button>
+            )}
             <Button variant='outlined' color='error' onClick={() => setClearConfirmOpen(true)}>
               Clear All Transactions
             </Button>

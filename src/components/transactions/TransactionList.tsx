@@ -138,6 +138,7 @@ const TransactionList = ({ symbol, portfolioName, maxTableHeight }: TransactionL
   const [deleteDialogId, setDeleteDialogId] = useState<number | null>(null);
   const [fullSyncOpen, setFullSyncOpen] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetch = useCallback(
     debounce(f => dispatch(fetchTransactions(f)), 500),
     []
@@ -153,6 +154,7 @@ const TransactionList = ({ symbol, portfolioName, maxTableHeight }: TransactionL
 
   useEffect(() => {
     loadTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.page, filters.size, filters.sort]);
 
   const handlePageChange = (page: number) => {
@@ -407,6 +409,7 @@ const TransactionList = ({ symbol, portfolioName, maxTableHeight }: TransactionL
           portfolioName={portfolioName}
           open={fullSyncOpen}
           onClose={() => setFullSyncOpen(false)}
+          exchangeName={'BINANCE'}
         />
       )}
     </Container>
