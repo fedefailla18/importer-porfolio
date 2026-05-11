@@ -46,12 +46,12 @@ const InvestorHubPage = () => {
             cta: 'Open Portfolios',
           },
           {
-            title: 'Binance Activity',
+            title: 'Exchange Integrations',
             description:
-              'Read what the Binance fetch does, what data it touches, and then start it explicitly.',
+              'View raw account data from Binance, MEXC, and InvertirOnline — exactly as each platform reports it, before any portfolio processing.',
             icon: <CandlestickChartIcon color='primary' />,
-            to: '/binance-activity',
-            cta: 'Review Binance Flow',
+            to: '/exchanges',
+            cta: 'View Exchanges',
           },
           {
             title: 'Manual User Guide',

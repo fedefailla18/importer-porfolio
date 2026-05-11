@@ -165,8 +165,8 @@ const PortfolioLandingPage = () => {
           <Button component={RouterLink} to='/data-dictionary' variant='outlined' size='small'>
             Open Data Dictionary
           </Button>
-          <Button component={RouterLink} to='/binance-activity' variant='outlined' size='small'>
-            Review Binance Activity Guide
+          <Button component={RouterLink} to='/exchanges' variant='outlined' size='small'>
+            Exchange Integrations
           </Button>
         </Box>
       </Paper>

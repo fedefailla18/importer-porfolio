@@ -1,3 +1,4 @@
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
@@ -32,8 +33,8 @@ const steps = [
     body: 'Use "Fetch Missing Transactions" to run accounting processing for unprocessed records.',
   },
   {
-    label: 'Sync with Binance (optional)',
-    body: 'Open Binance guide first, review what will be fetched, then trigger incremental or full sync.',
+    label: 'Sync with Binance or MexC (optional)',
+    body: 'Add read-only API keys in Settings. Then press "Sync from Binance" or "Sync from MexC" on the portfolio page. Incremental sync fetches only trades newer than the last sync. Use full historical sync to backfill a date range from scratch.',
   },
   {
     label: 'Interpret P&L and cashflow',
@@ -92,7 +93,7 @@ const ManualUserPage = () => {
         </Typography>
       </Paper>
 
-      <Paper variant='outlined' sx={{ p: 2 }}>
+      <Paper variant='outlined' sx={{ p: 2, mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
           <SyncAltIcon color='primary' />
           <Typography variant='subtitle1' fontWeight={700}>
@@ -100,7 +101,26 @@ const ManualUserPage = () => {
           </Typography>
         </Box>
         <Typography variant='body2' color='text.secondary'>
-          Sync Binance → Fetch Missing Transactions → Calculate Distribution → Review P&amp;L cards.
+          Sync Binance / MexC → Fetch Missing Transactions → Calculate Distribution → Review P&amp;L
+          cards.
+        </Typography>
+      </Paper>
+
+      <Paper variant='outlined' sx={{ p: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <AccountBalanceIcon color='primary' />
+          <Typography variant='subtitle1' fontWeight={700}>
+            InvertirOnline (IOL)
+          </Typography>
+        </Box>
+        <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
+          IOL is an Argentine brokerage. Configure credentials in Settings (username → API Key,
+          password → API Secret). Once connected, the IOL tab shows your Argentine and US market
+          holdings, ARS/USD account balances, and full operations history.
+        </Typography>
+        <Typography variant='body2' color='text.secondary'>
+          Data is read-only — IOL credentials are only used to query your account, never to place
+          orders.
         </Typography>
       </Paper>
     </Container>

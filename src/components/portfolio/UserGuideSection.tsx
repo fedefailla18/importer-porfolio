@@ -193,7 +193,7 @@ const UserGuideSection: React.FC = () => {
         </AccordionDetails>
       </Accordion>
 
-      {/* Binance API sync */}
+      {/* Exchange API sync */}
       <Accordion
         expanded={expanded === 'binance'}
         onChange={handleChange('binance')}
@@ -201,15 +201,13 @@ const UserGuideSection: React.FC = () => {
         sx={{ mb: 1 }}
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography fontWeight={600}>Binance API sync</Typography>
-            <Chip label='New' color='secondary' size='small' />
-          </Box>
+          <Typography fontWeight={600}>Exchange API sync — Binance &amp; MexC</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-            Connect read-only Binance API keys to let InvestTracker automatically fetch and import
-            your trade history — no CSV exports needed.
+            Connect read-only API keys for Binance or MexC to let InvestTracker automatically fetch
+            and import your trade history — no CSV exports needed. Both exchanges follow the same
+            setup flow.
           </Typography>
 
           <Stepper orientation='vertical' nonLinear>
@@ -228,7 +226,7 @@ const UserGuideSection: React.FC = () => {
                     >
                       Settings → Exchange Settings
                     </Button>{' '}
-                    and enter your Binance API Key and API Secret. Use{' '}
+                    and enter your API Key and API Secret for each exchange. Use{' '}
                     <strong>read-only keys with no withdrawal permissions</strong>. Your secret is
                     encrypted at rest (AES) and is never returned by the API.
                   </>
@@ -237,12 +235,17 @@ const UserGuideSection: React.FC = () => {
               {
                 icon: <SyncIcon fontSize='small' />,
                 label: 'Trigger a sync',
-                body: 'Open any portfolio and press "Sync from Binance". The system discovers all assets with a non-zero balance on your Binance account, finds the relevant trading pairs, and fetches every trade.',
+                body: 'Open any portfolio and press "Sync from Binance" or "Sync from MexC". The system discovers your assets, finds the relevant trading pairs, and fetches every trade since the last sync.',
               },
               {
                 icon: <TrendingUpIcon fontSize='small' />,
                 label: 'Incremental updates',
-                body: 'The sync is incremental. After the first full import, subsequent syncs only fetch trades newer than the last sync timestamp — keeping things fast and within Binance API rate limits.',
+                body: 'The sync is incremental. After the first import, subsequent syncs only fetch trades newer than the last sync timestamp — keeping things fast and within API rate limits.',
+              },
+              {
+                icon: <SyncIcon fontSize='small' />,
+                label: 'Full historical sync (optional)',
+                body: 'Use "Full Sync" to backfill a specific date range from scratch. Useful for an initial import or to repair gaps in historical data. Runs in the background — you\'ll get a notification when it completes.',
               },
               {
                 icon: <CalculateIcon fontSize='small' />,
@@ -287,9 +290,10 @@ const UserGuideSection: React.FC = () => {
             sx={{ mt: 2, p: 2, bgcolor: 'warning.50', borderColor: 'warning.200' }}
           >
             <Typography variant='body2' color='text.secondary'>
-              <strong>Tip:</strong> Binance API keys must have <em>Read Info</em> and{' '}
-              <em>Read Spot &amp; Margin Trading</em> permissions. Disable all write and withdrawal
-              permissions for maximum security.
+              <strong>Tip:</strong> Binance keys need <em>Read Info</em> and{' '}
+              <em>Read Spot &amp; Margin Trading</em> permissions. MexC keys need <em>Read Only</em>{' '}
+              (Spot). Disable all write and withdrawal permissions on both exchanges for maximum
+              security.
             </Typography>
           </Paper>
         </AccordionDetails>
@@ -353,8 +357,15 @@ const UserGuideSection: React.FC = () => {
               },
               {
                 name: 'MexC',
-                methods: ['CSV export'],
-                notes: 'Export from Orders → Spot Orders → Export.',
+                methods: ['CSV export', 'Direct API sync'],
+                notes:
+                  'Export from Orders → Spot Orders → Export. API sync requires read-only keys.',
+              },
+              {
+                name: 'InvertirOnline (IOL)',
+                methods: ['Direct API sync'],
+                notes:
+                  'Argentine brokerage. Configure username + password in Settings. Fetches AR and US market holdings, account balances, and operations history.',
               },
             ].map(exchange => (
               <Grid item xs={12} sm={6} key={exchange.name}>

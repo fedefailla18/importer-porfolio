@@ -9,15 +9,18 @@ import Login from './components/auth/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Register from './components/auth/Register';
 import BinanceSpotActivityPage from './components/binance/BinanceSpotActivityPage';
-import MexcSpotActivityPage from './components/mexc/MexcSpotActivityPage';
 import ExchangeConfigPage from './components/exchange/ExchangeConfigPage';
+import ExchangesLandingPage from './components/exchange/ExchangesLandingPage';
 import HoldingComponent from './components/holdings/HoldingComponent';
+import IolPage from './components/iol/IolPage';
 import Layout from './components/layout/Layout';
+import MexcSpotActivityPage from './components/mexc/MexcSpotActivityPage';
 import DataDictionaryPage from './components/onboarding/DataDictionaryPage';
 import GettingStartedPage from './components/onboarding/GettingStartedPage';
 import InvestorHubPage from './components/onboarding/InvestorHubPage';
 import ManualUserPage from './components/onboarding/ManualUserPage';
 import PortfolioComponent from './components/portfolio/PortfolioComponent';
+import PortfolioHubPage from './components/portfolio/PortfolioHubPage';
 import PortfolioLandingPage from './components/portfolio/PortfolioLandingPage';
 import AllTransactionsPage from './components/transactions/AllTransactionsPage';
 import TransactionForm from './components/transactions/TransactionForm';
@@ -48,8 +51,11 @@ const App = () => {
                 <Route path='transactions' element={<AllTransactionsPage />} />
                 <Route path='holdings' element={<HoldingComponent />} />
                 <Route path='add-transaction' element={<TransactionForm />} />
+                <Route path='portfolio-hub' element={<PortfolioHubPage />} />
+                <Route path='exchanges' element={<ExchangesLandingPage />} />
                 <Route path='binance-activity' element={<BinanceSpotActivityPage />} />
                 <Route path='mexc-activity' element={<MexcSpotActivityPage />} />
+                <Route path='iol' element={<IolPage />} />
                 <Route path='settings' element={<ExchangeConfigPage />} />
               </Route>
             </Route>

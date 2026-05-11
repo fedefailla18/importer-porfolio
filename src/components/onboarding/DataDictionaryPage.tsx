@@ -42,12 +42,14 @@ const dictionary = [
       'Processes transactions that exist but are not yet fully accounted into holdings and P&L.',
   },
   {
-    term: 'Sync from Binance',
-    definition: 'Imports newer trades from Binance based on last sync timestamp.',
+    term: 'Exchange API Sync (Binance / MexC)',
+    definition:
+      'Incremental import of new trades since the last sync timestamp. Requires read-only API keys configured in Settings.',
   },
   {
     term: 'Full Historical Sync',
-    definition: 'Backfills complete Binance history in a selected time range.',
+    definition:
+      'Backfills complete trade history for a selected date range. Supported for both Binance and MexC. Use when doing an initial import or repairing historical data gaps.',
   },
 ];
 

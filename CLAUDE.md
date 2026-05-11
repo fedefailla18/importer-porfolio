@@ -19,10 +19,10 @@ Linting is enforced via ESLint (`react-app` + Prettier). Formatting: single quot
 
 **Backend**: Spring Boot at `http://localhost:9080` (see `src/redux/utils/api.ts` for the Axios instance). All API calls go through this single Axios instance which auto-attaches the `Authorization: Bearer <token>` header from localStorage and redirects to `/login` on 401.
 
-**Routing** (`App.tsx`): Public routes (`/login`, `/register`) and protected routes wrapped in `<ProtectedRoute>`, which validates the JWT via Redux before rendering.
+**Routing** (`App.tsx`): Public routes (`/login`, `/register`) and protected routes wrapped in `<ProtectedRoute>`. Key routes: `/portfolio-hub` → `PortfolioHubPage`, `/portfolio` → `PortfolioLandingPage`, `/exchanges` → `ExchangesLandingPage`.
 
 **State** (`src/redux/`):
-- `slices/` — one slice per domain: `auth`, `portfolio`, `holdingDetails`, `transactions`, `coinInformation`, `exchangeConfig`
+- `slices/` — one slice per domain: `auth`, `portfolio`, `holdingDetails`, `transactions`, `coinInformation`, `exchangeConfig`, `binanceSpotActivity`, `mexcSpotActivity`, `iol`
 - `store/index.ts` — `configureStore` with combined reducer
 - `reducers/reducer.ts` — `combineReducers` root
 - `hooks.ts` — typed `useAppDispatch` / `useAppSelector` (always use these instead of raw hooks)
@@ -32,12 +32,22 @@ Linting is enforced via ESLint (`react-app` + Prettier). Formatting: single quot
 
 **Component tree** (`src/components/`):
 - `auth/` — Login, Register, ProtectedRoute
-- `layout/` — Layout (AppBar nav), Header
-- `portfolio/` — landing page, detail page, create/upload dialog, custom hook `usePortfolioComponent`
+- `layout/` — Layout (AppBar nav with grouped dropdowns)
+- `portfolio/` — `PortfolioHubPage` (landing), `PortfolioLandingPage` (list), detail page, create/upload dialog, custom hook `usePortfolioComponent`
 - `holdings/` — list, detail, add-multiple form
 - `transactions/` — list, filter, add form/drawer, pagination
-- `exchange/` — ExchangeConfigPage (Binance API key management)
+- `exchange/` — `ExchangesLandingPage` (integration overview), `ExchangeConfigPage` (credentials)
+- `binance/` — BinanceSpotActivityPage (spot trades, sync controls)
+- `mexc/` — MexcSpotActivityPage (spot trades, sync controls)
+- `iol/` — IolPage (4-tab view: Overview, AR Portfolio, US Portfolio, Operations)
 - `common/` — Pagination
+
+**Navigation structure** (authenticated):
+- **Dashboard** → `/`
+- **Portfolio** (dropdown): Overview → `/portfolio-hub` · My Portfolios → `/portfolio` · Transactions → `/transactions`
+- **Exchanges** (dropdown): Overview → `/exchanges` · Binance → `/binance-activity` · MEXC → `/mexc-activity` · IOL → `/iol`
+- **Help** (dropdown): Manual → `/manual` · Data Dictionary → `/data-dictionary`
+- **Avatar menu**: Settings → `/settings` · Logout
 
 **Auth flow**: Login dispatches `login()` thunk → stores JWT in localStorage → `isAuthenticated` true. On page reload `ProtectedRoute` dispatches `validateToken()`. A 401 response from any API call clears localStorage and redirects to `/login`.
 
@@ -84,6 +94,11 @@ The backend is the source of truth. Key endpoints (all require `Authorization: B
 | Exchange | POST | `/transaction/sync/binance/full?portfolio=&startDate=&endDate=` | Full historical sync (epoch ms, optional) → `"Full historical sync initiated successfully"` |
 | Exchange | POST | `/transaction/sync/mexc/full?portfolio=&startDate=&endDate=` | Full historical MexC sync (epoch ms, optional) → `"Full historical MexC sync initiated successfully"` |
 | Transactions | DELETE | `/transaction/{id}` | Delete single transaction (user-ownership verified) → 204 No Content |
+| IOL | GET | `/api/integration/iol/profile` | → `IolProfileResponse` |
+| IOL | GET | `/api/integration/iol/account-statement` | → `IolAccountStatementResponse` |
+| IOL | GET | `/api/integration/iol/portfolio/{country}` | `country`: `argentina` or `estados_unidos` → `IolPortfolioResponse` |
+| IOL | GET | `/api/integration/iol/operations` | → `IolOperationResponse[]` |
+| IOL | GET | `/api/integration/iol/operations/{number}` | → `IolOperationResponse` (single operation detail) |
 
 **`PortfolioDistribution` shape** (BE canonical):
 ```text
@@ -126,6 +141,41 @@ JwtResponse { jwt: string }
 // id, username, email, roles are null — do not rely on them
 ```
 
+## IOL (InvertirOnline) Integration
+
+IOL is an Argentine stock broker. Credentials are stored in `UserExchangeConfig` with `exchangeName = 'IOL'`; the username goes into `apiKey` and the password into the encrypted `apiSecret`. Configure at `/settings` before using `/iol`.
+
+**Redux slice**: `src/redux/slices/iolSlice.ts` — exports 5 thunks:
+- `fetchIolProfile()` — user identity, investor profile, comitente account number
+- `fetchIolAccountStatement()` — ARS/USD account balances across cuentas (comitente, inversora, etc.)
+- `fetchIolPortfolio(country: 'argentina' | 'estados_unidos')` — holdings per market; uses a single shared thunk with per-country status fields (`portfolioArStatus` / `portfolioUsStatus`) differentiated via `action.meta.arg`
+- `fetchIolOperations()` — full operations history
+- `fetchIolOperationDetails(number: number)` — single operation detail, stored in `selectedOperation`
+
+Also exports the `clearSelectedOperation` action.
+
+**IolPage tabs** (`src/components/iol/IolPage.tsx`):
+- **Overview** — profile card (investor profile chip, contact info) + account summary cards + cuentas table
+- **AR Portfolio** — Argentine market holdings; P&L color-coded via `success.main` / `error.main`
+- **US Portfolio** — US market holdings; same layout as AR tab
+- **Operations** — filterable/paginated operations table with a side Drawer for operation details (fetches on row click)
+
+Data is lazy-loaded: profile + account statement load on mount; each portfolio/operations tab loads on first activation.
+
+**Response shapes** (all types in `src/redux/types/types.ts`):
+```text
+IolProfile       { nombreUsuario, nombre, apellido, email, cuit, perfilInversor, cuentaComitente, estado }
+IolAccountStatement { cuentas: IolCuenta[], totalPesos, totalDolares, totalConvertedUsd, exchangeRate }
+IolCuenta        { numero, tipo, moneda, disponible, comprometido, saldo, titulosValorizados, total }
+IolPortfolio     { activos: IolActivo[] }
+IolActivo        { simbolo, descripcion, cantidad, valorizado, ultimoPrecio, variacion, ppc,
+                   gananciaPorcentaje, gananciaDinero, tipo, valorizadoUsd, exchangeRate }
+IolOperation     { numero, fechaOrden, tipo, estado, simbolo, cantidad, precio, monto,
+                   modalidad, montoUsd, exchangeRate }
+```
+
+**Credential error handling**: If the user has no IOL config saved, the BE throws `IllegalArgumentException`. The FE slice catches it; pages should check for `error` in state and prompt the user to configure credentials at `/settings`.
+
 ## Notes
 
 **`ExchangeConfig` response shape** (from `GET /api/exchange/config`):
@@ -161,3 +211,38 @@ Both return **202 Accepted** immediately; sync runs in a BE background thread. `
 JwtResponse { jwt: string }
 // id, username, email, roles are null — do not rely on them
 ```
+
+## IOL (InvertirOnline) Integration
+
+IOL is an Argentine stock broker. Credentials are stored in `UserExchangeConfig` with `exchangeName = 'IOL'`; the username goes into `apiKey` and the password into the encrypted `apiSecret`. Configure at `/settings` before using `/iol`.
+
+**Redux slice**: `src/redux/slices/iolSlice.ts` — exports 5 thunks:
+- `fetchIolProfile()` — user identity, investor profile, comitente account number
+- `fetchIolAccountStatement()` — ARS/USD account balances across cuentas (comitente, inversora, etc.)
+- `fetchIolPortfolio(country: 'argentina' | 'estados_unidos')` — holdings per market; uses a single shared thunk with per-country status fields (`portfolioArStatus` / `portfolioUsStatus`) differentiated via `action.meta.arg`
+- `fetchIolOperations()` — full operations history
+- `fetchIolOperationDetails(number: number)` — single operation detail, stored in `selectedOperation`
+
+Also exports the `clearSelectedOperation` action.
+
+**IolPage tabs** (`src/components/iol/IolPage.tsx`):
+- **Overview** — profile card (investor profile chip, contact info) + account summary cards + cuentas table
+- **AR Portfolio** — Argentine market holdings; P&L color-coded via `success.main` / `error.main`
+- **US Portfolio** — US market holdings; same layout as AR tab
+- **Operations** — filterable/paginated operations table with a side Drawer for operation details (fetches on row click)
+
+Data is lazy-loaded: profile + account statement load on mount; each portfolio/operations tab loads on first activation.
+
+**Response shapes** (all types in `src/redux/types/types.ts`):
+```text
+IolProfile       { nombreUsuario, nombre, apellido, email, cuit, perfilInversor, cuentaComitente, estado }
+IolAccountStatement { cuentas: IolCuenta[], totalPesos, totalDolares, totalConvertedUsd, exchangeRate }
+IolCuenta        { numero, tipo, moneda, disponible, comprometido, saldo, titulosValorizados, total }
+IolPortfolio     { activos: IolActivo[] }
+IolActivo        { simbolo, descripcion, cantidad, valorizado, ultimoPrecio, variacion, ppc,
+                   gananciaPorcentaje, gananciaDinero, tipo, valorizadoUsd, exchangeRate }
+IolOperation     { numero, fechaOrden, tipo, estado, simbolo, cantidad, precio, monto,
+                   modalidad, montoUsd, exchangeRate }
+```
+
+**Credential error handling**: If the user has no IOL config saved, the BE throws `IllegalArgumentException`. The FE slice catches it; pages should check for `error` in state and prompt the user to configure credentials at `/settings`.

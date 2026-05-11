@@ -1,6 +1,12 @@
 // src/components/portfolio/PortfolioPage.tsx
 
+import CalculateIcon from '@mui/icons-material/Calculate';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import FindInPageIcon from '@mui/icons-material/FindInPage';
+import HistoryIcon from '@mui/icons-material/History';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import SyncIcon from '@mui/icons-material/Sync';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import {
   Container,
   Typography,
@@ -22,14 +28,21 @@ import {
   AlertTitle,
   Theme,
   Tooltip,
+  Chip,
+  Divider,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 import usePortfolioComponent from './usePortfolioComponent';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { fetchCoinInformation } from '../../redux/slices/coinInformationSlice';
-import { syncBinance, syncMexc, resetSyncStatus } from '../../redux/slices/exchangeConfigSlice';
+import {
+  syncBinance,
+  syncMexc,
+  resetSyncStatus,
+  fetchExchangeConfigs,
+} from '../../redux/slices/exchangeConfigSlice';
 import { fetchPortfolioHoldingDistribution } from '../../redux/slices/portfolioSlice';
 import { clearPortfolioTransactions } from '../../redux/slices/transactionSlice';
 import { RootState } from '../../redux/store';
@@ -108,13 +121,35 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
   const [showCalculationAlert, setShowCalculationAlert] = useState(true);
   const [fullSyncOpen, setFullSyncOpen] = useState(false);
   const [fullSyncExchange, setFullSyncExchange] = useState<ExchangeName>('BINANCE');
-  const [syncExplainAction, setSyncExplainAction] = useState<
-    null | 'calculate' | 'fetchMissing' | 'syncBinance' | 'syncMexc'
-  >(null);
+  const [syncExplainAction, setSyncExplainAction] = useState<null | 'syncBinance' | 'syncMexc'>(
+    null
+  );
   const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
   const coinInformationState = useAppSelector((state: RootState) => state.coinInformation);
   const syncStatus = useAppSelector((state: RootState) => state.exchangeConfig.syncStatus);
+  const exchangeConfigs = useAppSelector((state: RootState) => state.exchangeConfig.configs);
+
+  useEffect(() => {
+    if (exchangeConfigs.length === 0) {
+      dispatch(fetchExchangeConfigs());
+    }
+  }, [dispatch, exchangeConfigs.length]);
+
+  const binanceConfig = exchangeConfigs.find(c => c.exchangeName === 'BINANCE');
+  const mexcConfig = exchangeConfigs.find(c => c.exchangeName === 'MEXC');
+
+  const formatSyncDate = (ts: number | null | undefined): string | null => {
+    if (!ts) return null;
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(ts));
+  };
+
   const supportsBinance =
     portfolioDistribution.exchangeName === 'BINANCE' ||
     (portfolioDistribution.exchangeName == null &&
@@ -123,8 +158,8 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
     portfolioDistribution.exchangeName === 'MEXC' ||
     (portfolioDistribution.exchangeName == null &&
       portfolioDistribution.portfolioName.toLowerCase().includes(MEXC_LABEL));
-  const showBinanceActions = supportsBinance || (!supportsBinance && !supportsMexc);
-  const showMexcActions = supportsMexc || (!supportsBinance && !supportsMexc);
+  const showBinanceActions = supportsBinance;
+  const showMexcActions = supportsMexc;
   const sortedHoldings = portfolioDistribution?.holdings?.slice().sort(() => {
     return 0;
   });
@@ -213,23 +248,8 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
     });
   };
 
-  const actionDescriptions: Record<NonNullable<typeof syncExplainAction>, string> = {
-    calculate:
-      'Rebuilds portfolio distribution, allocations, and valuation metrics from currently available transactions.',
-    fetchMissing:
-      'Processes transactions that are still marked as unprocessed and updates holdings/cost basis consistency.',
-    syncBinance:
-      'Pulls incremental trades from Binance for this portfolio based on the latest sync checkpoint.',
-    syncMexc:
-      'Pulls incremental trades from MexC for this portfolio based on the latest sync checkpoint.',
-  };
-
   const handleConfirmGuidedAction = () => {
-    if (syncExplainAction === 'calculate') {
-      handleCalculateDistribution(portfolioDistribution.portfolioName);
-    } else if (syncExplainAction === 'fetchMissing') {
-      handleFetchCoinInformation();
-    } else if (syncExplainAction === 'syncBinance') {
+    if (syncExplainAction === 'syncBinance') {
       handleSyncBinance();
     } else if (syncExplainAction === 'syncMexc') {
       handleSyncMexc();
@@ -239,161 +259,277 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
 
   const renderStats = () => (
     <Paper style={{ marginBottom: '1rem', padding: '1rem' }}>
-      {/* Header Section with Title and Right Column */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          mb: 2,
-          gap: 2,
-        }}
-      >
-        {/* Left Column - Portfolio Title */}
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <TruncateWithTooltip
-            typography
-            typographyVariant='h6'
-            maxWidth='60vw'
-            text={`${portfolioDistribution.portfolioName} Portfolio Stats`}
-            title={`${portfolioDistribution.portfolioName} Portfolio Stats`}
+      {/* Title row */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+        <TruncateWithTooltip
+          typography
+          typographyVariant='h6'
+          maxWidth='60vw'
+          text={`${portfolioDistribution.portfolioName} Portfolio Stats`}
+          title={`${portfolioDistribution.portfolioName} Portfolio Stats`}
+        />
+        {portfolioDistribution.exchangeName && (
+          <Chip
+            label={portfolioDistribution.exchangeName}
+            size='small'
+            color='secondary'
+            variant='outlined'
+            sx={{ fontWeight: 600, fontSize: '0.75rem' }}
           />
-        </Box>
+        )}
+      </Box>
 
-        {/* Right Column - Alert and Actions Stacked */}
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            maxWidth: 400,
-            minWidth: 300,
-          }}
+      {/* Alert — full width */}
+      {portfolioDistribution?.totalHoldings === 0 ? (
+        <Alert severity='warning' sx={{ mb: 2 }}>
+          <AlertTitle>Portfolio Not Calculated</AlertTitle>
+          This portfolio hasn't been calculated yet. Click "Calculate Distribution" to process your
+          holdings and get accurate statistics.
+        </Alert>
+      ) : (
+        showCalculationAlert && (
+          <Alert severity='success' onClose={() => setShowCalculationAlert(false)} sx={{ mb: 2 }}>
+            <AlertTitle>Portfolio Calculated</AlertTitle>
+            Your portfolio data is up to date. Total holdings: {portfolioDistribution.totalHoldings}
+          </Alert>
+        )
+      )}
+
+      {/* ── Actions Panel ─────────────────────────────────── */}
+      <Box sx={{ mt: 2, mb: 2 }}>
+        {/* Section: Add Transactions */}
+        <Typography
+          variant='overline'
+          color='text.secondary'
+          sx={{ fontWeight: 600, letterSpacing: 1 }}
         >
-          {/* Alert */}
-          {portfolioDistribution?.totalHoldings === 0 ? (
-            <Alert severity='warning'>
-              <AlertTitle>Portfolio Not Calculated</AlertTitle>
-              This portfolio hasn't been calculated yet. Click "Calculate Distribution" to process
-              your holdings and get accurate statistics.
-            </Alert>
-          ) : (
-            showCalculationAlert && (
-              <Alert severity='success' onClose={() => setShowCalculationAlert(false)}>
-                <AlertTitle>Portfolio Calculated</AlertTitle>
-                Your portfolio data is up to date. Total holdings:{' '}
-                {portfolioDistribution.totalHoldings}
-              </Alert>
-            )
+          Add Transactions
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 0.5, mb: 0.5 }}>
+          {/* Upload CSV — primary CTA */}
+          <Tooltip
+            title='Import a Binance or MexC CSV / Excel export. Supported formats: Binance CSV, MexC CSV, Excel (.xlsx).'
+            arrow
+            placement='top'
+          >
+            <Button
+              variant='contained'
+              component='label'
+              color='primary'
+              startIcon={<UploadFileIcon />}
+            >
+              Upload CSV
+              <input
+                type='file'
+                accept='.csv,.xlsx'
+                hidden
+                onChange={async e => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    try {
+                      await handleSubmitPortfolioActions(portfolioDistribution.portfolioName, file);
+                      toast.success('Portfolio transactions uploaded successfully!');
+                    } catch (error: any) {
+                      toast.error(error?.message || 'Failed to upload portfolio transactions');
+                    }
+                  }
+                  e.target.value = '';
+                }}
+              />
+            </Button>
+          </Tooltip>
+
+          {/* Binance incremental sync */}
+          {showBinanceActions && (
+            <Tooltip
+              title={`Fetch Binance trades newer than the last sync checkpoint and import them into this portfolio.${binanceConfig?.lastSyncTimestamp ? ` Last synced: ${formatSyncDate(binanceConfig.lastSyncTimestamp)}.` : ' No sync recorded yet.'}`}
+              arrow
+              placement='top'
+            >
+              <span>
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  startIcon={
+                    syncStatus === 'loading' ? (
+                      <CircularProgress size={16} color='inherit' />
+                    ) : (
+                      <SyncIcon />
+                    )
+                  }
+                  onClick={() => setSyncExplainAction('syncBinance')}
+                  disabled={syncStatus === 'loading'}
+                >
+                  Sync Binance
+                </Button>
+              </span>
+            </Tooltip>
           )}
 
-          {/* Actions */}
-          <Button
-            variant='contained'
-            component='label'
-            color='primary'
-            size='large'
-            sx={{
-              py: 1.5,
-              px: 3,
-              fontSize: '1rem',
-              fontWeight: 600,
-            }}
-          >
-            Upload Portfolio CSV
-            <input
-              type='file'
-              accept='.csv'
-              hidden
-              onChange={async e => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  try {
-                    await handleSubmitPortfolioActions(portfolioDistribution.portfolioName, file);
-                    toast.success('Portfolio transactions uploaded successfully!');
-                  } catch (error: any) {
-                    toast.error(error?.message || 'Failed to upload portfolio transactions');
-                  }
-                }
-                // Reset the input so the same file can be uploaded again if needed
-                e.target.value = '';
-              }}
-            />
-          </Button>
-
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Button variant='outlined' onClick={() => setSyncExplainAction('calculate')}>
-              Calculate Distribution
-            </Button>
-            <Button
-              variant='outlined'
-              color='primary'
-              onClick={() => setSyncExplainAction('fetchMissing')}
-              disabled={coinInformationState.status === 'loading'}
+          {/* MexC incremental sync */}
+          {showMexcActions && (
+            <Tooltip
+              title={`Fetch MexC trades newer than the last sync checkpoint and import them into this portfolio.${mexcConfig?.lastSyncTimestamp ? ` Last synced: ${formatSyncDate(mexcConfig.lastSyncTimestamp)}.` : ' No sync recorded yet.'}`}
+              arrow
+              placement='top'
             >
-              {coinInformationState.status === 'loading' ? (
-                <CircularProgress size={20} color='inherit' />
-              ) : (
-                'Fetch Missing Transactions'
-              )}
-            </Button>
-            {showBinanceActions && (
+              <span>
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  startIcon={
+                    syncStatus === 'loading' ? (
+                      <CircularProgress size={16} color='inherit' />
+                    ) : (
+                      <SyncIcon />
+                    )
+                  }
+                  onClick={() => setSyncExplainAction('syncMexc')}
+                  disabled={syncStatus === 'loading'}
+                >
+                  Sync MexC
+                </Button>
+              </span>
+            </Tooltip>
+          )}
+
+          {/* Full sync — lower visual weight */}
+          {showBinanceActions && (
+            <Tooltip
+              title='Backfill the complete Binance trade history for a custom date range. Runs in the background — you will receive a notification when it completes.'
+              arrow
+              placement='top'
+            >
               <Button
-                variant='outlined'
+                variant='text'
                 color='secondary'
-                onClick={() => setSyncExplainAction('syncBinance')}
-                disabled={syncStatus === 'loading'}
-              >
-                {syncStatus === 'loading' ? (
-                  <CircularProgress size={20} color='inherit' />
-                ) : (
-                  'Sync from Binance'
-                )}
-              </Button>
-            )}
-            {showMexcActions && (
-              <Button
-                variant='outlined'
-                color='secondary'
-                onClick={() => setSyncExplainAction('syncMexc')}
-                disabled={syncStatus === 'loading'}
-              >
-                {syncStatus === 'loading' ? (
-                  <CircularProgress size={20} color='inherit' />
-                ) : (
-                  'Sync from MexC'
-                )}
-              </Button>
-            )}
-            {showBinanceActions && (
-              <Button
-                variant='outlined'
-                color='secondary'
+                size='small'
+                startIcon={<HistoryIcon />}
                 onClick={() => {
                   setFullSyncExchange('BINANCE');
                   setFullSyncOpen(true);
                 }}
               >
-                Full Historical Sync (Binance)
+                Full Sync (Binance)
               </Button>
-            )}
-            {showMexcActions && (
+            </Tooltip>
+          )}
+          {showMexcActions && (
+            <Tooltip
+              title='Backfill the complete MexC trade history for a custom date range. Runs in the background — you will receive a notification when it completes.'
+              arrow
+              placement='top'
+            >
               <Button
-                variant='outlined'
+                variant='text'
                 color='secondary'
+                size='small'
+                startIcon={<HistoryIcon />}
                 onClick={() => {
                   setFullSyncExchange('MEXC');
                   setFullSyncOpen(true);
                 }}
               >
-                Full Historical Sync (MexC)
+                Full Sync (MexC)
               </Button>
-            )}
-            <Button variant='outlined' color='error' onClick={() => setClearConfirmOpen(true)}>
-              Clear All Transactions
-            </Button>
-          </Box>
+            </Tooltip>
+          )}
         </Box>
+
+        {/* Last sync pills — shown only when timestamps exist */}
+        {((showBinanceActions && binanceConfig?.lastSyncTimestamp) ||
+          (showMexcActions && mexcConfig?.lastSyncTimestamp)) && (
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1.5 }}>
+            {showBinanceActions && binanceConfig?.lastSyncTimestamp && (
+              <Chip
+                icon={<SyncIcon />}
+                label={`Binance: last synced ${formatSyncDate(binanceConfig.lastSyncTimestamp)}`}
+                size='small'
+                variant='outlined'
+                color='secondary'
+                sx={{ fontSize: '0.7rem' }}
+              />
+            )}
+            {showMexcActions && mexcConfig?.lastSyncTimestamp && (
+              <Chip
+                icon={<SyncIcon />}
+                label={`MexC: last synced ${formatSyncDate(mexcConfig.lastSyncTimestamp)}`}
+                size='small'
+                variant='outlined'
+                color='secondary'
+                sx={{ fontSize: '0.7rem' }}
+              />
+            )}
+          </Box>
+        )}
+
+        <Divider sx={{ my: 1.5 }} />
+
+        {/* Section: Process & Refresh */}
+        <Typography
+          variant='overline'
+          color='text.secondary'
+          sx={{ fontWeight: 600, letterSpacing: 1 }}
+        >
+          Process &amp; Refresh
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 0.5, mb: 1.5 }}>
+          <Tooltip
+            title='Recalculates holdings, USDT/BTC valuations, and allocation percentages from your full transaction history.'
+            arrow
+            placement='top'
+          >
+            <Button
+              variant='outlined'
+              startIcon={<CalculateIcon />}
+              onClick={() => handleCalculateDistribution(portfolioDistribution.portfolioName)}
+            >
+              Calculate Distribution
+            </Button>
+          </Tooltip>
+          <Tooltip
+            title="Runs the cost-basis engine over transactions that haven't been processed yet, updating holdings and P&L."
+            arrow
+            placement='top'
+          >
+            <span>
+              <Button
+                variant='outlined'
+                color='primary'
+                startIcon={
+                  coinInformationState.status === 'loading' ? (
+                    <CircularProgress size={16} color='inherit' />
+                  ) : (
+                    <FindInPageIcon />
+                  )
+                }
+                onClick={handleFetchCoinInformation}
+                disabled={coinInformationState.status === 'loading'}
+              >
+                Fetch Missing Transactions
+              </Button>
+            </span>
+          </Tooltip>
+        </Box>
+
+        <Divider sx={{ my: 1.5 }} />
+
+        {/* Danger zone */}
+        <Tooltip
+          title='Permanently deletes all transactions in this portfolio. Holdings and P&L will reset. Cannot be undone — you will need to re-sync or re-upload to repopulate data.'
+          arrow
+          placement='top'
+        >
+          <Button
+            variant='text'
+            color='error'
+            size='small'
+            startIcon={<DeleteSweepIcon />}
+            onClick={() => setClearConfirmOpen(true)}
+          >
+            Clear All Transactions
+          </Button>
+        </Tooltip>
       </Box>
 
       {/* Stats Section */}
@@ -517,8 +653,41 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
           },
         ];
 
+        const formatTxDate = (iso: string | null | undefined) => {
+          if (!iso) return null;
+          return new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          }).format(new Date(iso));
+        };
+        const oldest = formatTxDate(portfolioDistribution.oldestTransactionDate);
+        const newest = formatTxDate(portfolioDistribution.newestTransactionDate);
+
         return (
           <>
+            {oldest && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.75,
+                  mb: 2,
+                  color: 'text.secondary',
+                }}
+              >
+                <HistoryIcon sx={{ fontSize: 16 }} />
+                <Typography variant='caption'>
+                  Transaction history: <strong>{oldest}</strong>
+                  {newest && oldest !== newest && (
+                    <>
+                      {' → '}
+                      <strong>{newest}</strong>
+                    </>
+                  )}
+                </Typography>
+              </Box>
+            )}
             <Grid container spacing={2} sx={{ mb: 1 }}>
               {positionStats.map(stat => (
                 <Grid item xs={12} sm={6} md={3} key={stat.label}>
@@ -647,10 +816,40 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
         maxWidth='sm'
         fullWidth
       >
-        <DialogTitle>Confirm Portfolio Action</DialogTitle>
+        <DialogTitle>Confirm Sync Action</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            {syncExplainAction ? actionDescriptions[syncExplainAction] : ''}
+          <DialogContentText component='div'>
+            {syncExplainAction === 'syncBinance' && (
+              <>
+                This will fetch all Binance trades{' '}
+                <strong>newer than the last sync checkpoint</strong> and import them into this
+                portfolio.{' '}
+                {binanceConfig?.lastSyncTimestamp ? (
+                  <>
+                    Last synced: <strong>{formatSyncDate(binanceConfig.lastSyncTimestamp)}</strong>.
+                  </>
+                ) : (
+                  <>
+                    <strong>No prior sync recorded</strong> — all available trades will be fetched.
+                  </>
+                )}
+              </>
+            )}
+            {syncExplainAction === 'syncMexc' && (
+              <>
+                This will fetch all MexC trades <strong>newer than the last sync checkpoint</strong>{' '}
+                and import them into this portfolio.{' '}
+                {mexcConfig?.lastSyncTimestamp ? (
+                  <>
+                    Last synced: <strong>{formatSyncDate(mexcConfig.lastSyncTimestamp)}</strong>.
+                  </>
+                ) : (
+                  <>
+                    <strong>No prior sync recorded</strong> — all available trades will be fetched.
+                  </>
+                )}
+              </>
+            )}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

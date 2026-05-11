@@ -3,10 +3,11 @@ import { combineReducers } from '@reduxjs/toolkit';
 
 import authSlice from '../slices/authSlice';
 import binanceSpotActivityReducer from '../slices/binanceSpotActivitySlice';
-import mexcSpotActivityReducer from '../slices/mexcSpotActivitySlice';
 import coinInformationReducer from '../slices/coinInformationSlice';
 import exchangeConfigReducer from '../slices/exchangeConfigSlice';
 import holdingDetailsSlice from '../slices/holdingDetailsSlice';
+import { iolReducer } from '../slices/iolSlice';
+import mexcSpotActivityReducer from '../slices/mexcSpotActivitySlice';
 import portfolioSlice from '../slices/portfolioSlice';
 import transactionSlice from '../slices/transactionSlice';
 
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   exchangeConfig: exchangeConfigReducer,
   binanceSpotActivity: binanceSpotActivityReducer,
   mexcSpotActivity: mexcSpotActivityReducer,
+  iol: iolReducer,
 });
 
 export default rootReducer;

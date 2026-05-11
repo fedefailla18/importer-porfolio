@@ -27,6 +27,8 @@ export interface PortfolioDistribution {
   totalUnrealizedProfitUsdt?: number;
   totalHoldings: number; // computed by FE slice from holdings.length
   holdings: HoldingDto[];
+  oldestTransactionDate?: string | null;
+  newestTransactionDate?: string | null;
 }
 
 export interface PortfolioSummary {
@@ -97,7 +99,7 @@ export interface Portfolio {
   createdBy: string | null;
 }
 
-export type ExchangeName = 'BINANCE' | 'MEXC';
+export type ExchangeName = 'BINANCE' | 'MEXC' | 'IOL';
 
 export interface ExchangeConfigRequest {
   exchangeName: ExchangeName;
@@ -217,5 +219,86 @@ export interface MexcSpotActivityResponse {
 export interface MexcSpotActivityState {
   data: MexcSpotActivityResponse | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
+}
+
+// ── IOL (InvertirOnline) integration ──────────────────────────────────────────
+
+export interface IolCuenta {
+  numero: string;
+  tipo: string;
+  moneda: string;
+  disponible: number;
+  comprometido: number;
+  saldo: number;
+  titulosValorizados: number;
+  total: number;
+}
+
+export interface IolAccountStatement {
+  cuentas: IolCuenta[];
+  totalPesos: number;
+  totalDolares: number;
+  totalConvertedUsd: number | null;
+  exchangeRate: number | null;
+}
+
+export interface IolActivo {
+  simbolo: string;
+  descripcion: string;
+  cantidad: number;
+  valorizado: number;
+  ultimoPrecio: number;
+  variacion: number;
+  ppc: number;
+  gananciaPorcentaje: number;
+  gananciaDinero: number;
+  tipo: string;
+  valorizadoUsd: number | null;
+  exchangeRate: number | null;
+}
+
+export interface IolPortfolio {
+  activos: IolActivo[];
+}
+
+export interface IolOperation {
+  numero: number;
+  fechaOrden: string;
+  tipo: string;
+  estado: string;
+  simbolo: string;
+  cantidad: number;
+  precio: number;
+  monto: number;
+  modalidad: string;
+  montoUsd: number | null;
+  exchangeRate: number | null;
+}
+
+export interface IolProfile {
+  nombreUsuario: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  cuit: string;
+  perfilInversor: string;
+  cuentaComitente: string;
+  estado: string;
+}
+
+export interface IolState {
+  profile: IolProfile | null;
+  profileStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  accountStatement: IolAccountStatement | null;
+  accountStatementStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  portfolioAr: IolPortfolio | null;
+  portfolioArStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  portfolioUs: IolPortfolio | null;
+  portfolioUsStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  operations: IolOperation[];
+  operationsStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  selectedOperation: IolOperation | null;
+  selectedOperationStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
