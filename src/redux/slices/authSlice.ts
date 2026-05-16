@@ -153,13 +153,17 @@ const authSlice = createSlice({
       })
       .addCase(register.pending, state => {
         state.status = 'loading';
+        state.loading = true;
+        state.error = null;
       })
       .addCase(register.fulfilled, state => {
         state.status = 'succeeded';
+        state.loading = false;
       })
       .addCase(register.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message || 'Registration failed';
+        state.loading = false;
+        state.error = (action.payload as AuthError)?.message || action.error.message || 'Registration failed';
       })
       .addCase(validateToken.pending, state => {
         state.status = 'loading';

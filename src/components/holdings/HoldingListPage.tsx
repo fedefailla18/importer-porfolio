@@ -115,17 +115,45 @@ const HoldingListPage = ({
       return sortDirection === 'asc'
         ? a.symbol.localeCompare(b.symbol)
         : b.symbol.localeCompare(a.symbol);
-    } else if (sortBy === 'currentPositionInUsdt') {
-      const aValue = a.currentPositionInUsdt ?? 0;
-      const bValue = b.currentPositionInUsdt ?? 0;
+    } else if (sortBy === 'amount') {
+      const aValue = a.amount ?? 0;
+      const bValue = b.amount ?? 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    } else if (sortBy === 'totalAmountBought') {
+      const aValue = a.totalAmountBought ?? 0;
+      const bValue = b.totalAmountBought ?? 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    } else if (sortBy === 'totalAmountSold') {
+      const aValue = a.totalAmountSold ?? 0;
+      const bValue = b.totalAmountSold ?? 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    } else if (sortBy === 'priceInBtc') {
+      const aValue = a.priceInBtc ?? 0;
+      const bValue = b.priceInBtc ?? 0;
       return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     } else if (sortBy === 'priceInUsdt') {
       const aValue = a.priceInUsdt ?? 0;
       const bValue = b.priceInUsdt ?? 0;
       return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    } else if (sortBy === 'amountInBtc') {
+      const aValue = a.amountInBtc ?? 0;
+      const bValue = b.amountInBtc ?? 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    } else if (sortBy === 'currentPositionInUsdt') {
+      const aValue = a.currentPositionInUsdt ?? 0;
+      const bValue = b.currentPositionInUsdt ?? 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     } else if (sortBy === 'percentage') {
       const aValue = a.percentage ?? 0;
       const bValue = b.percentage ?? 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    } else if (sortBy === 'stableTotalCost') {
+      const aValue = a.stableTotalCost ?? 0;
+      const bValue = b.stableTotalCost ?? 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    } else if (sortBy === 'totalRealizedProfitUsdt') {
+      const aValue = a.totalRealizedProfitUsdt ?? 0;
+      const bValue = b.totalRealizedProfitUsdt ?? 0;
       return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     }
     return 0;
@@ -140,58 +168,112 @@ const HoldingListPage = ({
             <StickyHeaderCell>Symbol</StickyHeaderCell>
             <StickyHeaderCell>
               <Tooltip title='The amount of cryptocurrency held in its native units'>
-                <TableSortLabel>Amount</TableSortLabel>
+                <TableSortLabel
+                  active={sortBy === 'amount'}
+                  direction={sortBy === 'amount' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('amount')}
+                >
+                  Amount
+                </TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell style={{ display: 'none' }}>
               <Tooltip title='The total amount of this cryptocurrency that has been bought across all transactions'>
-                <TableSortLabel>Total Bought</TableSortLabel>
+                <TableSortLabel
+                  active={sortBy === 'totalAmountBought'}
+                  direction={sortBy === 'totalAmountBought' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('totalAmountBought')}
+                >
+                  Total Bought
+                </TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell style={{ display: 'none' }}>
               <Tooltip title='The total amount of this cryptocurrency that has been sold across all transactions'>
-                <TableSortLabel>Total Sold</TableSortLabel>
+                <TableSortLabel
+                  active={sortBy === 'totalAmountSold'}
+                  direction={sortBy === 'totalAmountSold' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('totalAmountSold')}
+                >
+                  Total Sold
+                </TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
               <Tooltip title='The current price of one unit of the cryptocurrency in BTC'>
-                <TableSortLabel onClick={() => handleSort('priceInBtc')}>
+                <TableSortLabel
+                  active={sortBy === 'priceInBtc'}
+                  direction={sortBy === 'priceInBtc' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('priceInBtc')}
+                >
                   Price (BTC)
                 </TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
               <Tooltip title='The current price of one unit of the cryptocurrency in USDT'>
-                <TableSortLabel onClick={() => handleSort('priceInUsdt')}>
+                <TableSortLabel
+                  active={sortBy === 'priceInUsdt'}
+                  direction={sortBy === 'priceInUsdt' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('priceInUsdt')}
+                >
                   Price (USDT)
                 </TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
               <Tooltip title='The value of the holding converted to BTC'>
-                <TableSortLabel>Amount (BTC)</TableSortLabel>
+                <TableSortLabel
+                  active={sortBy === 'amountInBtc'}
+                  direction={sortBy === 'amountInBtc' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('amountInBtc')}
+                >
+                  Amount (BTC)
+                </TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
               <Tooltip title='The value of the holding converted to USDT'>
-                <TableSortLabel onClick={() => handleSort('currentPositionInUsdt')}>
+                <TableSortLabel
+                  active={sortBy === 'currentPositionInUsdt'}
+                  direction={sortBy === 'currentPositionInUsdt' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('currentPositionInUsdt')}
+                >
                   Current Position (USDT)
                 </TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
               <Tooltip title='The percentage this holding represents in the portfolio'>
-                <TableSortLabel onClick={() => handleSort('percentage')}>Percentage</TableSortLabel>
+                <TableSortLabel
+                  active={sortBy === 'percentage'}
+                  direction={sortBy === 'percentage' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('percentage')}
+                >
+                  Percentage
+                </TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
               <Tooltip title='The total cost in stable currency (USDT) spent to acquire this holding'>
-                <TableSortLabel>Total Cost (USDT)</TableSortLabel>
+                <TableSortLabel
+                  active={sortBy === 'stableTotalCost'}
+                  direction={sortBy === 'stableTotalCost' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('stableTotalCost')}
+                >
+                  Total Cost (USDT)
+                </TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
               <Tooltip title='The total profit realized from selling this cryptocurrency, in USDT'>
-                <TableSortLabel>Realized Profit (USDT)</TableSortLabel>
+                <TableSortLabel
+                  active={sortBy === 'totalRealizedProfitUsdt'}
+                  direction={sortBy === 'totalRealizedProfitUsdt' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('totalRealizedProfitUsdt')}
+                >
+                  Realized Profit (USDT)
+                </TableSortLabel>
               </Tooltip>
             </StickyHeaderCell>
             <StickyHeaderCell>
