@@ -8,4 +8,3 @@ test('renders login page by default', () => {
   const loginHeading = screen.getByRole('heading', { name: /login/i });
   expect(loginHeading).toBeInTheDocument();
 });
-
