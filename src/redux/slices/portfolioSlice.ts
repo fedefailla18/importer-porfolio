@@ -34,6 +34,10 @@ interface PortfolioState {
   portfolios: PortfolioSummary[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
+  myPortfolios: Portfolio[];
+  myPortfoliosStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  consolidateStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  consolidateResult: { movedCount: number; skippedCount: number } | null;
 }
 
 interface PortfolioSummary {
@@ -47,6 +51,10 @@ const initialState: PortfolioState = {
   portfolios: [],
   status: 'idle',
   error: null,
+  myPortfolios: [],
+  myPortfoliosStatus: 'idle',
+  consolidateStatus: 'idle',
+  consolidateResult: null,
 };
 
 // Async thunks
@@ -172,12 +180,52 @@ export const uploadTransactions = createAsyncThunk(
   }
 );
 
+// "Portfolio vs Exchanges": unlike /portfolio/names (plain strings), this returns each
+// portfolio's exchangeName so the FE can tell manually-managed portfolios (exchangeName: null)
+// apart from exchange-synced ones — used to build the "consolidate from" picker.
+export const fetchMyPortfolios = createAsyncThunk(
+  'portfolio/fetchMyPortfolios',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get<Portfolio[]>('/portfolio/mine');
+      return response.data;
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorPayload(error, 'Failed to fetch portfolios'));
+    }
+  }
+);
+
+export interface ConsolidatePortfolioRequest {
+  source: string;
+  target: string;
+}
+
+export const consolidatePortfolio = createAsyncThunk(
+  'portfolio/consolidate',
+  async ({ source, target }: ConsolidatePortfolioRequest, { rejectWithValue }) => {
+    try {
+      const response = await api.post<{ movedCount: number; skippedCount: number }>(
+        '/portfolio/consolidate',
+        null,
+        { params: { source, target } }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorPayload(error, 'Failed to consolidate portfolio'));
+    }
+  }
+);
+
 const portfolioSlice = createSlice({
   name: 'portfolio',
   initialState,
   reducers: {
     clearPortfolioData: state => {
       state.data = null;
+    },
+    resetConsolidateStatus: state => {
+      state.consolidateStatus = 'idle';
+      state.consolidateResult = null;
     },
   },
   extraReducers: builder => {
@@ -315,9 +363,30 @@ const portfolioSlice = createSlice({
       .addCase(fetchPortfolioDetails.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to fetch portfolio details';
+      })
+      .addCase(fetchMyPortfolios.pending, state => {
+        state.myPortfoliosStatus = 'loading';
+      })
+      .addCase(fetchMyPortfolios.fulfilled, (state, action: PayloadAction<Portfolio[]>) => {
+        state.myPortfoliosStatus = 'succeeded';
+        state.myPortfolios = action.payload;
+      })
+      .addCase(fetchMyPortfolios.rejected, state => {
+        state.myPortfoliosStatus = 'failed';
+      })
+      .addCase(consolidatePortfolio.pending, state => {
+        state.consolidateStatus = 'loading';
+        state.consolidateResult = null;
+      })
+      .addCase(consolidatePortfolio.fulfilled, (state, action) => {
+        state.consolidateStatus = 'succeeded';
+        state.consolidateResult = action.payload;
+      })
+      .addCase(consolidatePortfolio.rejected, state => {
+        state.consolidateStatus = 'failed';
       });
   },
 });
 
-export const { clearPortfolioData } = portfolioSlice.actions;
+export const { clearPortfolioData, resetConsolidateStatus } = portfolioSlice.actions;
 export default portfolioSlice.reducer;

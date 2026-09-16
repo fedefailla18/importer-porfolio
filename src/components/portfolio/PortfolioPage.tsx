@@ -5,6 +5,7 @@ import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import FindInPageIcon from '@mui/icons-material/FindInPage';
 import HistoryIcon from '@mui/icons-material/History';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import MergeIcon from '@mui/icons-material/MergeType';
 import SyncIcon from '@mui/icons-material/Sync';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import {
@@ -48,6 +49,7 @@ import { clearPortfolioTransactions } from '../../redux/slices/transactionSlice'
 import { RootState } from '../../redux/store';
 import { ExchangeName, PortfolioDistribution } from '../../redux/types/types';
 import BinanceSyncDialog from '../common/BinanceSyncDialog';
+import ConsolidateDialog from '../common/ConsolidateDialog';
 import TruncateWithTooltip from '../common/TruncateWithTooltip';
 import AddHoldingsForm from '../holdings/AddHoldingsForm';
 import HoldingListPage from '../holdings/HoldingListPage';
@@ -58,8 +60,6 @@ const StyledContainer = styled(Container)({
 });
 
 const PORTFOLIO_LIST_HEIGHT = '72vh';
-const BINANCE_LABEL = 'binance';
-const MEXC_LABEL = 'mexc';
 
 // Title handled via TruncateWithTooltip now
 
@@ -126,6 +126,7 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
   );
   const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [consolidateOpen, setConsolidateOpen] = useState(false);
   const coinInformationState = useAppSelector((state: RootState) => state.coinInformation);
   const syncStatus = useAppSelector((state: RootState) => state.exchangeConfig.syncStatus);
   const exchangeConfigs = useAppSelector((state: RootState) => state.exchangeConfig.configs);
@@ -150,14 +151,12 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
     }).format(new Date(ts));
   };
 
-  const supportsBinance =
-    portfolioDistribution.exchangeName === 'BINANCE' ||
-    (portfolioDistribution.exchangeName == null &&
-      portfolioDistribution.portfolioName.toLowerCase().includes(BINANCE_LABEL));
-  const supportsMexc =
-    portfolioDistribution.exchangeName === 'MEXC' ||
-    (portfolioDistribution.exchangeName == null &&
-      portfolioDistribution.portfolioName.toLowerCase().includes(MEXC_LABEL));
+  // Sync buttons only ever show on that exchange's own dedicated portfolio (exchangeName is an
+  // exact match) — never on a manually-managed portfolio, even if its name happens to contain
+  // "binance"/"mexc". The backend enforces this too (400 PortfolioNotExchangeOwnedException),
+  // but gating it here as well means the user never sees a sync button that would just fail.
+  const supportsBinance = portfolioDistribution.exchangeName === 'BINANCE';
+  const supportsMexc = portfolioDistribution.exchangeName === 'MEXC';
   const showBinanceActions = supportsBinance;
   const showMexcActions = supportsMexc;
   const sortedHoldings = portfolioDistribution?.holdings?.slice().sort(() => {
@@ -216,17 +215,27 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
     });
   };
 
+  const handleSyncError = (msg: string) => {
+    if (msg?.includes('not configured')) {
+      toast.error('API keys not configured. Go to Settings to connect your account.');
+    } else if (msg?.includes('exchange portfolio')) {
+      // Backend refused to sync into this portfolio (PortfolioNotExchangeOwnedException) —
+      // shouldn't normally be reachable since the sync button only shows on exchangeName-matched
+      // portfolios, but covers direct API misuse / a future gating bug gracefully either way.
+      toast.error(
+        "This portfolio isn't the dedicated exchange portfolio for this sync. Use Consolidate to bring exchange data into a manual portfolio instead."
+      );
+    } else {
+      toast.error(`Sync failed: ${msg || 'Unknown error'}`);
+    }
+  };
+
   const handleSyncBinance = () => {
     dispatch(syncBinance(portfolioDistribution.portfolioName)).then(action => {
       if (syncBinance.fulfilled.match(action)) {
         toast.success('Binance sync completed. Refresh to see new transactions.');
       } else {
-        const msg = action.payload as string;
-        if (msg?.includes('not configured')) {
-          toast.error('Binance API keys not configured. Go to Settings to connect your account.');
-        } else {
-          toast.error(`Sync failed: ${msg || 'Unknown error'}`);
-        }
+        handleSyncError(action.payload as string);
       }
       dispatch(resetSyncStatus());
     });
@@ -237,12 +246,7 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
       if (syncMexc.fulfilled.match(action)) {
         toast.success('MexC sync completed. Refresh to see new transactions.');
       } else {
-        const msg = action.payload as string;
-        if (msg?.includes('not configured')) {
-          toast.error('MexC API keys not configured. Go to Settings to connect your account.');
-        } else {
-          toast.error(`Sync failed: ${msg || 'Unknown error'}`);
-        }
+        handleSyncError(action.payload as string);
       }
       dispatch(resetSyncStatus());
     });
@@ -461,6 +465,37 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
               />
             )}
           </Box>
+        )}
+
+        {/* Section: Reconcile with Exchanges — only on manually-managed portfolios; exchange
+            portfolios (exchangeName set) are themselves the source, not a consolidate target. */}
+        {portfolioDistribution.exchangeName == null && (
+          <>
+            <Divider sx={{ my: 1.5 }} />
+            <Typography
+              variant='overline'
+              color='text.secondary'
+              sx={{ fontWeight: 600, letterSpacing: 1 }}
+            >
+              Reconcile with Exchanges
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 0.5, mb: 0.5 }}>
+              <Tooltip
+                title='Bring transactions synced from Binance/MexC into this manually-managed portfolio, once you have reviewed them under Exchanges.'
+                arrow
+                placement='top'
+              >
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  startIcon={<MergeIcon />}
+                  onClick={() => setConsolidateOpen(true)}
+                >
+                  Consolidate
+                </Button>
+              </Tooltip>
+            </Box>
+          </>
         )}
 
         <Divider sx={{ my: 1.5 }} />
@@ -784,6 +819,15 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
         exchangeName={fullSyncExchange}
         open={fullSyncOpen}
         onClose={() => setFullSyncOpen(false)}
+      />
+
+      <ConsolidateDialog
+        targetPortfolioName={portfolioDistribution.portfolioName}
+        open={consolidateOpen}
+        onClose={() => setConsolidateOpen(false)}
+        onConsolidated={() =>
+          dispatch(fetchPortfolioHoldingDistribution(portfolioDistribution.portfolioName))
+        }
       />
 
       <Dialog open={clearConfirmOpen} onClose={() => !clearing && setClearConfirmOpen(false)}>

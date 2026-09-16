@@ -9,6 +9,7 @@ import holdingDetailsSlice from '../slices/holdingDetailsSlice';
 import { iolReducer } from '../slices/iolSlice';
 import mexcSpotActivityReducer from '../slices/mexcSpotActivitySlice';
 import portfolioSlice from '../slices/portfolioSlice';
+import syncJobsReducer from '../slices/syncJobsSlice';
 import transactionSlice from '../slices/transactionSlice';
 
 const rootReducer = combineReducers({
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   binanceSpotActivity: binanceSpotActivityReducer,
   mexcSpotActivity: mexcSpotActivityReducer,
   iol: iolReducer,
+  syncJobs: syncJobsReducer,
 });
 
 export default rootReducer;

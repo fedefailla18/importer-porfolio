@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { fetchAllPortfolios } from '../../redux/slices/portfolioSlice';
 import { RootState } from '../../redux/store';
+import PortfolioExchangesGuide from '../common/PortfolioExchangesGuide';
 
 const PortfolioHubPage = () => {
   const dispatch = useAppDispatch();
@@ -44,6 +45,8 @@ const PortfolioHubPage = () => {
           cost-basis calculations in one place.
         </Typography>
       </Box>
+
+      <PortfolioExchangesGuide variant='portfolio' />
 
       {status === 'succeeded' && portfolios.length > 0 && (
         <Box sx={{ mb: 5 }}>
