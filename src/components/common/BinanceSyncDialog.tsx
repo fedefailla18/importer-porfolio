@@ -55,6 +55,10 @@ const BinanceSyncDialog = ({
       if (isBinance) {
         dispatch(fetchBinanceSyncJobs());
       }
+    } else if (msg?.includes('exchange portfolio')) {
+      toast.error(
+        "This portfolio isn't the dedicated exchange portfolio for this sync. Use Consolidate to bring exchange data into a manual portfolio instead."
+      );
     } else {
       toast.error(`Could not start sync: ${msg || 'Unknown error'}`);
     }
