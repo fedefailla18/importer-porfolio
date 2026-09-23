@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import { MexcSpotActivityResponse, MexcSpotActivityState } from '../types/types';
 import api from '../utils/api';
+import { extractErrorMessage } from '../utils/errorMessage';
 
 export const fetchMexcSpotActivity = createAsyncThunk(
   'mexcSpotActivity/fetch',
@@ -9,11 +10,9 @@ export const fetchMexcSpotActivity = createAsyncThunk(
     try {
       const response = await api.get<MexcSpotActivityResponse>('/api/exchange/mexc/spot-activity');
       return response.data;
-    } catch (error: any) {
+    } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message ||
-          error.response?.data ||
-          'Failed to fetch fresh MexC spot activity'
+        extractErrorMessage(error, 'Failed to fetch fresh MexC spot activity')
       );
     }
   }

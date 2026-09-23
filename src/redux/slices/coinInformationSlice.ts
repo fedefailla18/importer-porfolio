@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
 import api from '../utils/api';
+import { extractErrorMessage } from '../utils/errorMessage';
 
 interface CoinInformationResponse {
   coinName: string;
@@ -38,8 +39,8 @@ export const fetchCoinInformation = createAsyncThunk(
         `/transaction/information/all/${portfolio}`
       );
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'An error occurred');
+    } catch (error) {
+      return rejectWithValue(extractErrorMessage(error, 'An error occurred'));
     }
   }
 );

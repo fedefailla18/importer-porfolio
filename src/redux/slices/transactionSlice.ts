@@ -1,21 +1,9 @@
 // src/redux/slices/transactionSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { isAxiosError } from 'axios';
 
 import { Transaction, PaginatedResponse, TransactionState } from '../types/types';
 import api from '../utils/api';
-
-const getErrorPayload = (error: unknown, fallbackMessage: string) => {
-  if (isAxiosError(error)) {
-    return error.response?.data || fallbackMessage;
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return fallbackMessage;
-};
+import { extractErrorMessage as getErrorPayload } from '../utils/errorMessage';
 
 export interface FetchTransactionsParams {
   symbol?: string;

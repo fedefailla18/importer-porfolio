@@ -8,6 +8,7 @@ import {
   SyncJob,
 } from '../types/types';
 import api from '../utils/api';
+import { extractErrorMessage } from '../utils/errorMessage';
 
 export const fetchExchangeConfigs = createAsyncThunk(
   'exchangeConfig/fetchAll',
@@ -15,8 +16,8 @@ export const fetchExchangeConfigs = createAsyncThunk(
     try {
       const response = await api.get<ExchangeConfig[]>('/api/exchange/config');
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch exchange configurations');
+    } catch (error) {
+      return rejectWithValue(extractErrorMessage(error, 'Failed to fetch exchange configurations'));
     }
   }
 );
@@ -26,8 +27,8 @@ export const saveExchangeConfig = createAsyncThunk(
   async (request: ExchangeConfigRequest, { rejectWithValue }) => {
     try {
       await api.post('/api/exchange/config', request);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'Failed to save exchange configuration');
+    } catch (error) {
+      return rejectWithValue(extractErrorMessage(error, 'Failed to save exchange configuration'));
     }
   }
 );
@@ -40,10 +41,8 @@ export const syncBinance = createAsyncThunk(
         params: { portfolio },
       });
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || error.response?.data || 'Binance sync failed'
-      );
+    } catch (error) {
+      return rejectWithValue(extractErrorMessage(error, 'Binance sync failed'));
     }
   }
 );
@@ -56,10 +55,8 @@ export const syncMexc = createAsyncThunk(
         params: { portfolio },
       });
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || error.response?.data || 'MexC sync failed'
-      );
+    } catch (error) {
+      return rejectWithValue(extractErrorMessage(error, 'MexC sync failed'));
     }
   }
 );
@@ -80,10 +77,8 @@ export const syncBinanceFull = createAsyncThunk(
         params: { portfolio, startDate, endDate },
       });
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || error.response?.data || 'Binance full sync failed'
-      );
+    } catch (error) {
+      return rejectWithValue(extractErrorMessage(error, 'Binance full sync failed'));
     }
   }
 );
@@ -102,10 +97,8 @@ export const syncMexcFull = createAsyncThunk(
         params: { portfolio, startDate, endDate },
       });
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || error.response?.data || 'MexC full sync failed'
-      );
+    } catch (error) {
+      return rejectWithValue(extractErrorMessage(error, 'MexC full sync failed'));
     }
   }
 );

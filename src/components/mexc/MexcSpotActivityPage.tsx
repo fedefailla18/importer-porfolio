@@ -206,7 +206,7 @@ const MexcSpotActivityPage = () => {
 
       {error && (
         <Alert severity='error' sx={{ mb: 3 }}>
-          {error}
+          {typeof error === 'string' ? error : 'An unexpected error occurred'}
         </Alert>
       )}
 

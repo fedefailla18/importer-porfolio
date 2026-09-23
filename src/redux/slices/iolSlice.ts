@@ -8,6 +8,7 @@ import {
   IolState,
 } from '../types/types';
 import api from '../utils/api';
+import { extractErrorMessage } from '../utils/errorMessage';
 
 export const fetchIolProfile = createAsyncThunk(
   'iol/fetchProfile',
@@ -15,10 +16,8 @@ export const fetchIolProfile = createAsyncThunk(
     try {
       const res = await api.get<IolProfile>('/api/integration/iol/profile');
       return res.data;
-    } catch (e: any) {
-      return rejectWithValue(
-        e.response?.data?.message || e.response?.data || 'Failed to load IOL profile'
-      );
+    } catch (e) {
+      return rejectWithValue(extractErrorMessage(e, 'Failed to load IOL profile'));
     }
   }
 );
@@ -29,10 +28,8 @@ export const fetchIolAccountStatement = createAsyncThunk(
     try {
       const res = await api.get<IolAccountStatement>('/api/integration/iol/account-statement');
       return res.data;
-    } catch (e: any) {
-      return rejectWithValue(
-        e.response?.data?.message || e.response?.data || 'Failed to load account statement'
-      );
+    } catch (e) {
+      return rejectWithValue(extractErrorMessage(e, 'Failed to load account statement'));
     }
   }
 );
@@ -43,10 +40,8 @@ export const fetchIolPortfolio = createAsyncThunk(
     try {
       const res = await api.get<IolPortfolio>(`/api/integration/iol/portfolio/${country}`);
       return { country, data: res.data };
-    } catch (e: any) {
-      return rejectWithValue(
-        e.response?.data?.message || e.response?.data || `Failed to load ${country} portfolio`
-      );
+    } catch (e) {
+      return rejectWithValue(extractErrorMessage(e, `Failed to load ${country} portfolio`));
     }
   }
 );
@@ -57,10 +52,8 @@ export const fetchIolOperations = createAsyncThunk(
     try {
       const res = await api.get<IolOperation[]>('/api/integration/iol/operations');
       return res.data;
-    } catch (e: any) {
-      return rejectWithValue(
-        e.response?.data?.message || e.response?.data || 'Failed to load operations'
-      );
+    } catch (e) {
+      return rejectWithValue(extractErrorMessage(e, 'Failed to load operations'));
     }
   }
 );
@@ -71,10 +64,8 @@ export const fetchIolOperationDetails = createAsyncThunk(
     try {
       const res = await api.get<IolOperation>(`/api/integration/iol/operations/${number}`);
       return res.data;
-    } catch (e: any) {
-      return rejectWithValue(
-        e.response?.data?.message || e.response?.data || 'Failed to load operation details'
-      );
+    } catch (e) {
+      return rejectWithValue(extractErrorMessage(e, 'Failed to load operation details'));
     }
   }
 );
