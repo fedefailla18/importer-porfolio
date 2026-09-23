@@ -1,7 +1,12 @@
 // src/redux/slices/exchangeConfigSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-import { ExchangeConfig, ExchangeConfigRequest, ExchangeConfigState } from '../types/types';
+import {
+  ExchangeConfig,
+  ExchangeConfigRequest,
+  ExchangeConfigState,
+  SyncJob,
+} from '../types/types';
 import api from '../utils/api';
 
 export const fetchExchangeConfigs = createAsyncThunk(
@@ -69,7 +74,9 @@ export const syncBinanceFull = createAsyncThunk(
   'exchangeConfig/syncBinanceFull',
   async ({ portfolio, startDate, endDate }: SyncBinanceFullParams, { rejectWithValue }) => {
     try {
-      const response = await api.post<string>('/transaction/sync/binance/full', null, {
+      // 202 body is now the list of created SyncJobs (one per data type), not a plain string —
+      // see investracker PR that added job/chunk tracking to the full-sync endpoint.
+      const response = await api.post<SyncJob[]>('/transaction/sync/binance/full', null, {
         params: { portfolio, startDate, endDate },
       });
       return response.data;

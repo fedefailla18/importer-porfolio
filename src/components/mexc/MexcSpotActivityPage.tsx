@@ -1,4 +1,5 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
+import SyncIcon from '@mui/icons-material/Sync';
 import {
   Alert,
   Box,
@@ -35,7 +36,11 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { fetchMexcSpotActivity } from '../../redux/slices/mexcSpotActivitySlice';
 import { RootState } from '../../redux/store';
 import { MexcSpotTradeRow } from '../../redux/types/types';
+import BinanceSyncDialog from '../common/BinanceSyncDialog';
 import Pagination from '../common/Pagination';
+
+// See BinanceSpotActivityPage's BINANCE_PORTFOLIO_NAME — same reasoning, MexC's own default.
+const MEXC_PORTFOLIO_NAME = 'MEXC';
 
 const StyledTableContainer = styled(TableContainer)({
   maxHeight: '72vh',
@@ -63,6 +68,7 @@ const MexcSpotActivityPage = () => {
   const [sideFilter, setSideFilter] = useState<'ALL' | 'BUY' | 'SELL'>('ALL');
   const [page, setPage] = useState(1);
   const [hasStarted, setHasStarted] = useState(false);
+  const [syncOpen, setSyncOpen] = useState(false);
 
   const startMexcFetch = () => {
     setHasStarted(true);
@@ -121,15 +127,15 @@ const MexcSpotActivityPage = () => {
             MexC Activity - Before You Start
           </Typography>
           <Typography variant='body1' color='text.secondary' sx={{ mb: 2 }}>
-            This action fetches live MexC spot balances and trade history for comparison against
-            InvestTracker accounting.
+            This action shows live MexC spot balances plus whatever trades InvestTracker has already
+            synced for comparison against InvestTracker accounting.
           </Typography>
           <List dense>
             <ListItem>
-              <ListItemText primary='What it does: calls MexC and refreshes activity snapshots in this view.' />
+              <ListItemText primary='Balances are live from MexC every time you refresh. Trades shown here are whatever has already been synced into InvestTracker — this view does not itself fetch new trade history.' />
             </ListItem>
             <ListItem>
-              <ListItemText primary='What it does not do: it does not automatically rewrite portfolio accounting.' />
+              <ListItemText primary="Don't see trades you expect? Use Sync below to pull new history from MexC first, then refresh this view." />
             </ListItem>
             <ListItem>
               <ListItemText primary='Best use: validate symbols, side, quantities, and totals before portfolio reconciliation.' />
@@ -137,10 +143,20 @@ const MexcSpotActivityPage = () => {
           </List>
           <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             <Button variant='contained' startIcon={<RefreshIcon />} onClick={startMexcFetch}>
-              Fetch MexC Activity
+              View MexC Activity
+            </Button>
+            <Button variant='outlined' startIcon={<SyncIcon />} onClick={() => setSyncOpen(true)}>
+              Sync from MexC
             </Button>
           </Box>
         </Paper>
+
+        <BinanceSyncDialog
+          portfolioName={MEXC_PORTFOLIO_NAME}
+          exchangeName='MEXC'
+          open={syncOpen}
+          onClose={() => setSyncOpen(false)}
+        />
       </Container>
     );
   }
@@ -166,15 +182,27 @@ const MexcSpotActivityPage = () => {
             against InvestTracker accounting.
           </Typography>
         </Box>
-        <Button
-          variant='contained'
-          startIcon={<RefreshIcon />}
-          onClick={startMexcFetch}
-          disabled={status === 'loading'}
-        >
-          Refresh from MexC
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Button variant='outlined' startIcon={<SyncIcon />} onClick={() => setSyncOpen(true)}>
+            Sync from MexC
+          </Button>
+          <Button
+            variant='contained'
+            startIcon={<RefreshIcon />}
+            onClick={startMexcFetch}
+            disabled={status === 'loading'}
+          >
+            Refresh from MexC
+          </Button>
+        </Box>
       </Box>
+
+      <BinanceSyncDialog
+        portfolioName={MEXC_PORTFOLIO_NAME}
+        exchangeName='MEXC'
+        open={syncOpen}
+        onClose={() => setSyncOpen(false)}
+      />
 
       {error && (
         <Alert severity='error' sx={{ mb: 3 }}>

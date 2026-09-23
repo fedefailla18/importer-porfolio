@@ -122,6 +122,34 @@ export interface ExchangeConfigState {
   error: string | null;
 }
 
+export type SyncEntityType =
+  'TRADES' | 'DEPOSITS' | 'WITHDRAWALS' | 'FIAT_ORDERS' | 'CONVERT_TRADES';
+export type SyncJobStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
+
+export interface SyncJob {
+  id: string;
+  batchId: string;
+  entityType: SyncEntityType;
+  status: SyncJobStatus;
+  requestedStartTime: number;
+  requestedEndTime: number;
+  errorMessage: string | null;
+  attemptCount: number;
+  chunksTotal: number;
+  chunksCompleted: number;
+  chunksFailed: number;
+  createdAt: string;
+  startedAt: string | null;
+  finishedAt: string | null;
+}
+
+export interface SyncJobsState {
+  jobs: SyncJob[];
+  fetchStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  retryingJobIds: string[];
+  error: string | null;
+}
+
 export interface BinanceAssetBalance {
   asset: string;
   free: number;

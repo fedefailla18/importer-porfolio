@@ -1,4 +1,5 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
+import SyncIcon from '@mui/icons-material/Sync';
 import {
   Alert,
   Box,
@@ -35,7 +36,13 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { fetchBinanceSpotActivity } from '../../redux/slices/binanceSpotActivitySlice';
 import { RootState } from '../../redux/store';
 import { BinanceSpotTradeRow } from '../../redux/types/types';
+import BinanceSyncDialog from '../common/BinanceSyncDialog';
 import Pagination from '../common/Pagination';
+
+// The dedicated exchange portfolio's default name (PortfolioService.resolveExchangePortfolio
+// falls back to this when no portfolio param is given) — this page isn't scoped to a specific
+// portfolio the way PortfolioPage is, so it always targets Binance's own portfolio.
+const BINANCE_PORTFOLIO_NAME = 'BINANCE';
 
 const StyledTableContainer = styled(TableContainer)({
   maxHeight: '72vh',
@@ -63,6 +70,7 @@ const BinanceSpotActivityPage = () => {
   const [sideFilter, setSideFilter] = useState<'ALL' | 'BUY' | 'SELL'>('ALL');
   const [page, setPage] = useState(1);
   const [hasStarted, setHasStarted] = useState(false);
+  const [syncOpen, setSyncOpen] = useState(false);
 
   const startBinanceFetch = () => {
     setHasStarted(true);
@@ -121,15 +129,15 @@ const BinanceSpotActivityPage = () => {
             Binance Activity - Before You Start
           </Typography>
           <Typography variant='body1' color='text.secondary' sx={{ mb: 2 }}>
-            This action fetches live Binance spot balances and trade history for comparison against
-            InvestTracker accounting.
+            This action shows live Binance spot balances plus whatever trades InvestTracker has
+            already synced for comparison against InvestTracker accounting.
           </Typography>
           <List dense>
             <ListItem>
-              <ListItemText primary='What it does: calls Binance and refreshes activity snapshots in this view.' />
+              <ListItemText primary='Balances are live from Binance every time you refresh. Trades shown here are whatever has already been synced into InvestTracker — this view does not itself fetch new trade history.' />
             </ListItem>
             <ListItem>
-              <ListItemText primary='What it does not do: it does not automatically rewrite portfolio accounting.' />
+              <ListItemText primary="Don't see trades you expect? Use Sync below to pull new history from Binance first, then refresh this view." />
             </ListItem>
             <ListItem>
               <ListItemText primary='Best use: validate symbols, side, quantities, and totals before portfolio reconciliation.' />
@@ -137,10 +145,20 @@ const BinanceSpotActivityPage = () => {
           </List>
           <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             <Button variant='contained' startIcon={<RefreshIcon />} onClick={startBinanceFetch}>
-              Fetch Binance Activity
+              View Binance Activity
+            </Button>
+            <Button variant='outlined' startIcon={<SyncIcon />} onClick={() => setSyncOpen(true)}>
+              Sync from Binance
             </Button>
           </Box>
         </Paper>
+
+        <BinanceSyncDialog
+          portfolioName={BINANCE_PORTFOLIO_NAME}
+          exchangeName='BINANCE'
+          open={syncOpen}
+          onClose={() => setSyncOpen(false)}
+        />
       </Container>
     );
   }
@@ -166,15 +184,27 @@ const BinanceSpotActivityPage = () => {
             against InvestTracker accounting.
           </Typography>
         </Box>
-        <Button
-          variant='contained'
-          startIcon={<RefreshIcon />}
-          onClick={startBinanceFetch}
-          disabled={status === 'loading'}
-        >
-          Refresh from Binance
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Button variant='outlined' startIcon={<SyncIcon />} onClick={() => setSyncOpen(true)}>
+            Sync from Binance
+          </Button>
+          <Button
+            variant='contained'
+            startIcon={<RefreshIcon />}
+            onClick={startBinanceFetch}
+            disabled={status === 'loading'}
+          >
+            Refresh from Binance
+          </Button>
+        </Box>
       </Box>
+
+      <BinanceSyncDialog
+        portfolioName={BINANCE_PORTFOLIO_NAME}
+        exchangeName='BINANCE'
+        open={syncOpen}
+        onClose={() => setSyncOpen(false)}
+      />
 
       {error && (
         <Alert severity='error' sx={{ mb: 3 }}>

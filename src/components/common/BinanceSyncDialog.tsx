@@ -13,12 +13,14 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
+import SyncJobsPanel from './SyncJobsPanel';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import {
   syncBinanceFull,
   syncMexcFull,
   resetFullSyncStatus,
 } from '../../redux/slices/exchangeConfigSlice';
+import { fetchBinanceSyncJobs } from '../../redux/slices/syncJobsSlice';
 import { RootState } from '../../redux/store';
 import { ExchangeName } from '../../redux/types/types';
 
@@ -43,33 +45,57 @@ const BinanceSyncDialog = ({
   const [endDate, setEndDate] = useState<Date | null>(new Date());
   const isBinance = exchangeName === 'BINANCE';
 
-  const handleSync = () => {
-    dispatch(
-      (isBinance ? syncBinanceFull : syncMexcFull)({
-        portfolio: portfolioName,
-        startDate: startDate ? startDate.getTime() : undefined,
-        endDate: endDate ? endDate.getTime() : undefined,
-      })
-    ).then(action => {
-      dispatch(resetFullSyncStatus());
-      const fulfilledAction = isBinance ? syncBinanceFull.fulfilled : syncMexcFull.fulfilled;
-      if (fulfilledAction.match(action)) {
-        toast.info(
-          `${exchangeName} full sync started for ${portfolioName}. You will be notified here when it completes.`,
-          { autoClose: 6000 }
-        );
-        onClose();
-      } else {
-        const msg = action.payload as string;
-        if (msg?.includes('not configured')) {
-          toast.error(
-            `${exchangeName} API keys not configured. Go to Settings to connect your account.`
-          );
-        } else {
-          toast.error(`Could not start sync: ${msg || 'Unknown error'}`);
-        }
+  const handleSyncError = (msg: string) => {
+    if (msg?.includes('not configured')) {
+      toast.error(
+        `${exchangeName} API keys not configured. Go to Settings to connect your account.`
+      );
+    } else if (msg?.includes('already in progress')) {
+      toast.warning(msg);
+      if (isBinance) {
+        dispatch(fetchBinanceSyncJobs());
       }
-    });
+    } else if (msg?.includes('exchange portfolio')) {
+      toast.error(
+        "This portfolio isn't the dedicated exchange portfolio for this sync. Use Consolidate to bring exchange data into a manual portfolio instead."
+      );
+    } else {
+      toast.error(`Could not start sync: ${msg || 'Unknown error'}`);
+    }
+  };
+
+  const syncParams = {
+    portfolio: portfolioName,
+    startDate: startDate ? startDate.getTime() : undefined,
+    endDate: endDate ? endDate.getTime() : undefined,
+  };
+
+  const handleSync = () => {
+    if (isBinance) {
+      dispatch(syncBinanceFull(syncParams)).then(action => {
+        dispatch(resetFullSyncStatus());
+        if (syncBinanceFull.fulfilled.match(action)) {
+          // Job-tracked: keep the dialog open so SyncJobsPanel shows live per-data-type progress
+          // instead of a single opaque "started" toast.
+          dispatch(fetchBinanceSyncJobs());
+        } else {
+          handleSyncError(action.payload as string);
+        }
+      });
+    } else {
+      dispatch(syncMexcFull(syncParams)).then(action => {
+        dispatch(resetFullSyncStatus());
+        if (syncMexcFull.fulfilled.match(action)) {
+          toast.info(
+            `${exchangeName} full sync started for ${portfolioName}. You will be notified here when it completes.`,
+            { autoClose: 6000 }
+          );
+          onClose();
+        } else {
+          handleSyncError(action.payload as string);
+        }
+      });
+    }
   };
 
   const loading = fullSyncStatus === 'loading';
@@ -101,10 +127,11 @@ const BinanceSyncDialog = ({
             slotProps={{ textField: { fullWidth: true, size: 'small' } }}
           />
         </LocalizationProvider>
+        {isBinance && <SyncJobsPanel />}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>
-          Cancel
+          {isBinance ? 'Close' : 'Cancel'}
         </Button>
         <Button onClick={handleSync} variant='contained' color='secondary' disabled={loading}>
           {loading ? <CircularProgress size={20} color='inherit' /> : 'Start Full Sync'}

@@ -19,6 +19,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { fetchExchangeConfigs } from '../../redux/slices/exchangeConfigSlice';
 import { RootState } from '../../redux/store';
 import { ExchangeName } from '../../redux/types/types';
+import PortfolioExchangesGuide from '../common/PortfolioExchangesGuide';
 
 interface ExchangeCard {
   key: ExchangeName;
@@ -93,6 +94,8 @@ const ExchangesLandingPage = () => {
           .
         </Typography>
       </Box>
+
+      <PortfolioExchangesGuide variant='exchanges' />
 
       {fetchStatus === 'loading' && (
         <Box sx={{ display: 'flex', justifyContent: 'center', my: 6 }}>
