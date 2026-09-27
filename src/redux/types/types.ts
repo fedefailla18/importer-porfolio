@@ -155,6 +155,8 @@ export interface BinanceAssetBalance {
   free: number;
   locked: number;
   total: number;
+  valueUsdt: number;
+  valueBtc: number;
 }
 
 export interface BinanceSpotActivitySummary {
@@ -166,6 +168,8 @@ export interface BinanceSpotActivitySummary {
   sellTradeCount: number;
   grossBuyQuoteQty: number;
   grossSellQuoteQty: number;
+  totalValueUsdt: number;
+  totalValueBtc: number;
   fetchedAt: number;
   lastSyncTimestamp: number | null;
 }
@@ -206,6 +210,8 @@ export interface MexcAssetBalance {
   free: number;
   locked: number;
   total: number;
+  valueUsdt: number;
+  valueBtc: number;
 }
 
 export interface MexcSpotActivitySummary {
@@ -217,6 +223,8 @@ export interface MexcSpotActivitySummary {
   sellTradeCount: number;
   grossBuyQuoteQty: number;
   grossSellQuoteQty: number;
+  totalValueUsdt: number;
+  totalValueBtc: number;
   fetchedAt: number;
   lastSyncTimestamp: number | null;
 }
