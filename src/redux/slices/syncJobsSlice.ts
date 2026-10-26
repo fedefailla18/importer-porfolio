@@ -3,6 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { SyncJob, SyncJobsState } from '../types/types';
 import api from '../utils/api';
+import { extractErrorMessage } from '../utils/errorMessage';
 
 export const fetchBinanceSyncJobs = createAsyncThunk(
   'syncJobs/fetchBinance',
@@ -10,8 +11,8 @@ export const fetchBinanceSyncJobs = createAsyncThunk(
     try {
       const response = await api.get<SyncJob[]>('/transaction/sync/binance/jobs');
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch sync jobs');
+    } catch (error) {
+      return rejectWithValue(extractErrorMessage(error, 'Failed to fetch sync jobs'));
     }
   }
 );
@@ -22,8 +23,8 @@ export const retryBinanceSyncJob = createAsyncThunk(
     try {
       await api.post(`/transaction/sync/binance/jobs/${jobId}/retry`);
       return jobId;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'Failed to retry sync job');
+    } catch (error) {
+      return rejectWithValue(extractErrorMessage(error, 'Failed to retry sync job'));
     }
   }
 );

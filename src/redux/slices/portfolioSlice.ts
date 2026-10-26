@@ -1,21 +1,9 @@
 // src/redux/slices/portfolioSlice.ts
 import { PayloadAction, createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { isAxiosError } from 'axios';
 
 import { ExchangeName, HoldingDto, Portfolio, PortfolioDistribution } from '../types/types';
 import api from '../utils/api';
-
-const getErrorPayload = (error: unknown, fallbackMessage: string) => {
-  if (isAxiosError(error)) {
-    return error.response?.data || fallbackMessage;
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return fallbackMessage;
-};
+import { extractErrorMessage as getErrorPayload } from '../utils/errorMessage';
 
 export const fetchHoldingDetails = createAsyncThunk<
   HoldingDto,
