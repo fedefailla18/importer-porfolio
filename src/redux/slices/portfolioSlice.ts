@@ -1,7 +1,13 @@
 // src/redux/slices/portfolioSlice.ts
 import { PayloadAction, createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-import { ExchangeName, HoldingDto, Portfolio, PortfolioDistribution } from '../types/types';
+import {
+  AddHoldingRequest,
+  ExchangeName,
+  HoldingDto,
+  Portfolio,
+  PortfolioDistribution,
+} from '../types/types';
 import api from '../utils/api';
 import { extractErrorMessage as getErrorPayload } from '../utils/errorMessage';
 
@@ -109,7 +115,7 @@ export const fetchPortfolioDetails = createAsyncThunk(
 
 export const addMultipleHoldings = createAsyncThunk(
   'portfolio/addMultipleHoldings',
-  async (holdings: HoldingDto[]) => {
+  async (holdings: AddHoldingRequest[]) => {
     const response = await api.post<HoldingDto[]>(`/holding/addMultiple`, {
       holdings,
     });
