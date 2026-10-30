@@ -5,38 +5,26 @@ import React, { useState } from 'react';
 
 import { useAppDispatch } from '../../redux/hooks';
 import { addMultipleHoldings } from '../../redux/slices/portfolioSlice';
-import { HoldingDto } from '../../redux/types/types';
+import { AddHoldingRequest } from '../../redux/types/types';
 
 interface AddHoldingsFormProps {
   portfolio?: string;
 }
 
+const emptyRow = (portfolio?: string): AddHoldingRequest => ({
+  symbol: '',
+  amount: 0,
+  portfolioName: portfolio ? portfolio : '',
+  stableTotalCost: 0,
+});
+
 const AddHoldingsForm = ({ portfolio }: AddHoldingsFormProps) => {
   const dispatch = useAppDispatch();
 
-  const [holdings, setHoldings] = useState<HoldingDto[]>([
-    {
-      symbol: '',
-      amount: 0,
-      portfolioName: portfolio ? portfolio : '',
-      stableTotalCost: 0,
-      amountInUsdt: 0,
-      amountInBtc: 0,
-    },
-  ]);
+  const [holdings, setHoldings] = useState<AddHoldingRequest[]>([emptyRow(portfolio)]);
 
   const handleAddRow = () => {
-    setHoldings([
-      ...holdings,
-      {
-        symbol: '',
-        amount: 0,
-        portfolioName: portfolio ? portfolio : '',
-        stableTotalCost: 0,
-        amountInUsdt: 0,
-        amountInBtc: 0,
-      },
-    ]);
+    setHoldings([...holdings, emptyRow(portfolio)]);
   };
 
   const handleRemoveRow = (index: number) => {
@@ -44,7 +32,7 @@ const AddHoldingsForm = ({ portfolio }: AddHoldingsFormProps) => {
     setHoldings(newHoldings);
   };
 
-  const handleChange = <K extends keyof HoldingDto>(index: number, field: K, value: any) => {
+  const handleChange = <K extends keyof AddHoldingRequest>(index: number, field: K, value: any) => {
     const newHoldings = [...holdings];
     const holding = newHoldings[index];
     holding[field] = value;
@@ -54,16 +42,7 @@ const AddHoldingsForm = ({ portfolio }: AddHoldingsFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(addMultipleHoldings(holdings));
-    setHoldings([
-      {
-        symbol: '',
-        amount: 0,
-        portfolioName: portfolio ? portfolio : '',
-        stableTotalCost: 0,
-        amountInUsdt: 0,
-        amountInBtc: 0,
-      },
-    ]);
+    setHoldings([emptyRow(portfolio)]);
   };
 
   return (

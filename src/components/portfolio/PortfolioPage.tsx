@@ -641,7 +641,7 @@ const PortfolioPage = ({ portfolioDistribution }: Props) => {
             tooltip:
               'Remaining cost basis of the positions you still hold — excludes the cost already attributed to sold units.',
             value: formatCurrency(
-              sortedHoldings.reduce((acc, e) => acc + (e.stableTotalCost ?? 0), 0)
+              sortedHoldings.reduce((acc, e) => acc + (e.inventoryCostUsdt ?? 0), 0)
             ),
           },
         ];

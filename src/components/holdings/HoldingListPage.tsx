@@ -283,8 +283,8 @@ const HoldingListPage = ({
                 {holding.percentage !== undefined ? formatNumber(holding.percentage, 2) + '%' : '-'}
               </TableCell>
               <TableCell>
-                {holding.stableTotalCost !== undefined
-                  ? formatCurrency(holding.stableTotalCost)
+                {holding.inventoryCostUsdt !== undefined
+                  ? formatCurrency(holding.inventoryCostUsdt)
                   : '-'}
               </TableCell>
               <TableCell style={{ color: pnlColor(holding.totalRealizedProfitUsdt) }}>

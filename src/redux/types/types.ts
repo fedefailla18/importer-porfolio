@@ -10,10 +10,21 @@ export interface HoldingDto {
   percentage?: number;
   totalAmountBought?: number;
   totalAmountSold?: number;
-  stableTotalCost?: number;
+  inventoryCostUsdt?: number;
   currentPositionInUsdt?: number;
   totalRealizedProfitUsdt?: number;
   unrealizedProfitUsdt?: number;
+}
+
+// Matches backend AddHoldingRequest exactly — a request shape, not the HoldingDto display
+// shape, even though they share some field names (POST /holding/addMultiple).
+export interface AddHoldingRequest {
+  symbol: string;
+  name?: string;
+  amount: number;
+  portfolioName: string;
+  stableTotalCost?: number;
+  costInBtc?: number;
 }
 
 export interface PortfolioDistribution {

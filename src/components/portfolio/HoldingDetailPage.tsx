@@ -103,11 +103,11 @@ const HoldingDetailPage = () => {
       </p>
       <p>
         Total Cost Basis:{' '}
-        {holdingDetails.stableTotalCost !== undefined
+        {holdingDetails.inventoryCostUsdt !== undefined
           ? new Intl.NumberFormat('en-US', {
               style: 'currency',
               currency: 'USD',
-            }).format(holdingDetails.stableTotalCost)
+            }).format(holdingDetails.inventoryCostUsdt)
           : 'Not available'}
       </p>
       <p>

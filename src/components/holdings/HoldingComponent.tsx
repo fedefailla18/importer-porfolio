@@ -92,7 +92,7 @@ const HoldingComponent = () => {
         </Typography>
         <Typography>
           Total Cost Basis:{' '}
-          {formatNumber(holdingDetails?.stableTotalCost ?? 0, 2, 2, 'currency', 'USD')}
+          {formatNumber(holdingDetails?.inventoryCostUsdt ?? 0, 2, 2, 'currency', 'USD')}
         </Typography>
         <Typography>
           Total Realized Profit:{' '}
